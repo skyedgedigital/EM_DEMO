@@ -1,10 +1,10 @@
-'use client'
+'use client';
 
-import { ColumnDef } from '@tanstack/react-table'
-import { MoreHorizontal, ArrowUpDown } from 'lucide-react'
-import toast from 'react-hot-toast'
-import { Button } from '@/components/ui/button'
-import vehicleAction from '@/lib/actions/vehicle/vehicleAction'
+import { ColumnDef } from '@tanstack/react-table';
+import { MoreHorizontal, ArrowUpDown } from 'lucide-react';
+import toast from 'react-hot-toast';
+import { Button } from '@/components/ui/button';
+import vehicleAction from '@/lib/actions/vehicle/vehicleAction';
 import {
   Dialog,
   DialogContent,
@@ -12,14 +12,14 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from "@/components/ui/dialog"
+} from '@/components/ui/dialog';
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuTrigger
-} from '@/components/ui/dropdown-menu'
-import workOrderAction from '@/lib/actions/workOrder/workOrderAction'
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
+import workOrderAction from '@/lib/actions/workOrder/workOrderAction';
 import {
   Drawer,
   DrawerClose,
@@ -29,37 +29,49 @@ import {
   DrawerHeader,
   DrawerTitle,
   DrawerTrigger,
-} from "@/components/ui/drawer"
-import itemAction from '@/lib/actions/item/itemAction'
-import { FormatDateOptions,format,parseISO,differenceInDays } from 'date-fns'
-
+} from '@/components/ui/drawer';
+import itemAction from '@/lib/actions/item/itemAction';
+import {
+  FormatDateOptions,
+  format,
+  parseISO,
+  differenceInDays,
+} from 'date-fns';
 
 export type Vehicle = {
-    vehicleNumber: string,
-      
-      vehicleType:  String,
-      
-      fuelType: String,
-    
-      fuelCost:  Number,
-      insuranceExpiryDate: Date | string | null,
-      gatePassExpiry: Date | string | null,
-      taxExpiryDate: Date | string | null,
-      fitnessExpiry: Date | string | null,
-      loadTestExpiry: Date | string | null,
-      safetyExpiryDate: Date | string | null,
-      pucExpiryDate: Date | string | null,
-      createdAt:Date | string | null
+  vehicleNumber: string;
 
-     
+  vehicleType: String;
 
-  
-}
+  fuelType: String;
 
+  fuelCost: Number;
+  insuranceExpiryDate: Date | string | null;
+  gatePassExpiry: Date | string | null;
+  taxExpiryDate: Date | string | null;
+  fitnessExpiry: Date | string | null;
+  loadTestExpiry: Date | string | null;
+  safetyExpiryDate: Date | string | null;
+  pucExpiryDate: Date | string | null;
+  createdAt: Date | string | null;
+};
 
 const formatDate = (date: Date | string | null): string => {
   if (!date) return 'N/A';
   if (typeof date === 'string') date = parseISO(date);
+  return format(date, 'PPP');
+};
+
+const formatDateDDMMYY = (date: Date | string | null): string => {
+  if (!date) return 'N/A';
+  if (typeof date === 'string') {
+    const dateObj = new Date(date);
+    const day = String(dateObj.getDate()).padStart(2, '0');
+    const month = String(dateObj.getMonth() + 1).padStart(2, '0');
+    const year = String(dateObj.getFullYear()).slice(-2);
+    const formattedDate = `${day}-${month}-${year}`;
+    return formattedDate;
+  }
   return format(date, 'PPP');
 };
 
@@ -68,9 +80,6 @@ const isDateNearExpiry = (date: Date | string | null): boolean => {
   if (typeof date === 'string') date = parseISO(date);
   return differenceInDays(date, new Date()) <= 30;
 };
-
-
-
 
 export const vehicleColumns: ColumnDef<Vehicle>[] = [
   {
@@ -81,28 +90,27 @@ export const vehicleColumns: ColumnDef<Vehicle>[] = [
           variant='ghost'
           onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
         >
-         Number
+          Number
           <ArrowUpDown className='ml-2 h-4 w-4' />
         </Button>
-      )
-    }
+      );
+    },
   },
   {
     accessorKey: 'createdAt',
     header: ({ column }) => (
-      <Button variant="ghost" onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}>
+      <Button
+        variant='ghost'
+        onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
+      >
         Created At
         <ArrowUpDown className='ml-2 h-4 w-4' />
       </Button>
     ),
     cell: ({ row }) => {
       const date = row.original.createdAt;
-  
-      return (
-        <span >
-          {formatDate(date)}
-        </span>
-      );
+
+      return <span>{formatDateDDMMYY(date)}</span>;
     },
   },
 
@@ -112,13 +120,13 @@ export const vehicleColumns: ColumnDef<Vehicle>[] = [
       return (
         <Button
           variant='ghost'
-        //   onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
+          //   onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
         >
           Type
           {/* <ArrowUpDown className='ml-2 h-4 w-4' /> */}
         </Button>
-      )
-    }
+      );
+    },
   },
   {
     accessorKey: 'fuelType',
@@ -126,41 +134,51 @@ export const vehicleColumns: ColumnDef<Vehicle>[] = [
       return (
         <Button
           variant='ghost'
-        //   onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
+          //   onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
         >
           Fuel Type
           {/* <ArrowUpDown className='ml-2 h-4 w-4' /> */}
         </Button>
-      )
-    }
+      );
+    },
   },
   {
-    accessorKey: 'fuelCost',
+    accessorKey: 'location',
     header: ({ column }) => {
       return (
         <Button
           variant='ghost'
-        //   onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
+          //   onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
         >
-          Fuel Consumption
+          Location
           {/* <ArrowUpDown className='ml-2 h-4 w-4' /> */}
         </Button>
-      )
-    }
+      );
+    },
+  },
+  {
+    accessorKey: 'vendor',
+    header: ({ column }) => {
+      return (
+        <Button
+          variant='ghost'
+          //   onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
+        >
+          Vendor
+          {/* <ArrowUpDown className='ml-2 h-4 w-4' /> */}
+        </Button>
+      );
+    },
   },
   {
     accessorKey: 'gatePassExpiry',
-    header: ({ column }) => (
-      <Button variant="ghost">
-        Gate Pass Expiry
-      </Button>
-    ),
+    header: ({ column }) => <Button variant='ghost'>Gate Pass Expiry</Button>,
     cell: ({ row }) => {
       const date = row.original.gatePassExpiry;
       const nearExpiry = isDateNearExpiry(date);
       return (
         <span style={{ color: nearExpiry ? 'red' : 'inherit' }}>
-          {formatDate(date)}
+          {formatDateDDMMYY(date)}
         </span>
       );
     },
@@ -168,153 +186,125 @@ export const vehicleColumns: ColumnDef<Vehicle>[] = [
   {
     accessorKey: 'insuranceExpiryDate',
     header: ({ column }) => (
-      <Button variant="ghost">
-        Insurance Expiry Date
-      </Button>
+      <Button variant='ghost'>Insurance Expiry Date</Button>
     ),
     cell: ({ row }) => {
       const date = row.original.insuranceExpiryDate;
       const nearExpiry = isDateNearExpiry(date);
       return (
         <span style={{ color: nearExpiry ? 'red' : 'inherit' }}>
-          {formatDate(date)}
+          {formatDateDDMMYY(date)}
         </span>
       );
     },
   },
   {
     accessorKey: 'taxExpiryDate',
-    header: ({ column }) => (
-      <Button variant="ghost">
-        Tax Expiry Date
-      </Button>
-    ),
+    header: ({ column }) => <Button variant='ghost'>Tax Expiry Date</Button>,
     cell: ({ row }) => {
       const date = row.original.taxExpiryDate;
       const nearExpiry = isDateNearExpiry(date);
       return (
         <span style={{ color: nearExpiry ? 'red' : 'inherit' }}>
-          {formatDate(date)}
+          {formatDateDDMMYY(date)}
         </span>
       );
     },
   },
   {
     accessorKey: 'fitnessExpiry',
-    header: ({ column }) => (
-      <Button variant="ghost">
-        Fitness Expiry
-      </Button>
-    ),
+    header: ({ column }) => <Button variant='ghost'>Fitness Expiry</Button>,
     cell: ({ row }) => {
       const date = row.original.fitnessExpiry;
       const nearExpiry = isDateNearExpiry(date);
       return (
         <span style={{ color: nearExpiry ? 'red' : 'inherit' }}>
-          {formatDate(date)}
+          {formatDateDDMMYY(date)}
         </span>
       );
     },
   },
   {
     accessorKey: 'loadTestExpiry',
-    header: ({ column }) => (
-      <Button variant="ghost">
-        Load Test Expiry
-      </Button>
-    ),
+    header: ({ column }) => <Button variant='ghost'>Load Test Expiry</Button>,
     cell: ({ row }) => {
       const date = row.original.loadTestExpiry;
       const nearExpiry = isDateNearExpiry(date);
       return (
         <span style={{ color: nearExpiry ? 'red' : 'inherit' }}>
-          {formatDate(date)}
+          {formatDateDDMMYY(date)}
         </span>
       );
-    },},
+    },
+  },
   {
     accessorKey: 'safetyExpiryDate',
-    header: ({ column }) => (
-      <Button variant="ghost">
-        Safety Expiry Date
-      </Button>
-    ),
+    header: ({ column }) => <Button variant='ghost'>Safety Expiry Date</Button>,
     cell: ({ row }) => {
       const date = row.original.safetyExpiryDate;
       const nearExpiry = isDateNearExpiry(date);
       return (
         <span style={{ color: nearExpiry ? 'red' : 'inherit' }}>
-          {formatDate(date)}
+          {formatDateDDMMYY(date)}
         </span>
       );
     },
   },
   {
     accessorKey: 'pucExpiryDate',
-    header: ({ column }) => (
-      <Button variant="ghost">
-        PUC Expiry Date
-      </Button>
-    ),
+    header: ({ column }) => <Button variant='ghost'>PUC Expiry Date</Button>,
     cell: ({ row }) => {
       const date = row.original.pucExpiryDate;
       const nearExpiry = isDateNearExpiry(date);
       return (
         <span style={{ color: nearExpiry ? 'red' : 'inherit' }}>
-          {formatDate(date)}
+          {formatDateDDMMYY(date)}
         </span>
       );
     },
   },
-  
+
   {
     id: 'actions',
-  
 
     cell: ({ row }) => {
-
-const vehicle=row.original;
+      const vehicle = row.original;
 
       const handleDeleteVehicle = async (vehicleNumber: string) => {
-       
         console.log(`Deleting vehicle!`);
         try {
-          const res = await vehicleAction.DELETE.deleteVehicleByVehicleNumber(vehicleNumber)
-      
+          const res = await vehicleAction.DELETE.deleteVehicleByVehicleNumber(
+            vehicleNumber
+          );
+
           if (res.success) {
             toast.success(res.message!);
-         
           }
           if (!res.success) {
             toast.error(res.error! || 'Unable to delete vehicle!');
-          }        } catch (error) {
+          }
+        } catch (error) {
           console.error(`Error deleting employee: ${error}`);
         }
       };
-       
 
       return (
-        
-         
-            <DropdownMenu>
-            <DropdownMenuTrigger asChild>
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
             <Button variant='ghost' className='h-8 w-8 p-0'>
               <span className='sr-only'>Open menu</span>
               <MoreHorizontal className='h-4 w-4' />
             </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent  >
-              <DropdownMenuItem
-                onClick={() =>handleDeleteVehicle(vehicle.vehicleNumber)}
-              >
-               Delete
-              </DropdownMenuItem>
-              
-          
-            </DropdownMenuContent>
-          </DropdownMenu>
-        
-      )
-    }
-  }
-]
+          </DropdownMenuTrigger>
+          <DropdownMenuContent>
+            <DropdownMenuItem
+              onClick={() => handleDeleteVehicle(vehicle.vehicleNumber)}
+            >
+              Delete
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      );
+    },
+  },
+];

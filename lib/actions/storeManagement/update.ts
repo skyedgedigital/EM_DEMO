@@ -1,12 +1,13 @@
 'use server'
 
-import connectToDB from "@/lib/database";
+import handleDBConnection from "@/lib/database";
 import Store from "@/lib/models/storeManagement.model";
 import Tool from "@/lib/models/tool.model";
 
 const updateStoreManagment = async(toolId:any,updatesObjString:string) => {
+   const dbConnection = await handleDBConnection();
+   if (!dbConnection.success) return dbConnection;
     try {
-        await connectToDB();
         let updatesObj = JSON.parse(updatesObjString)
         let resp = await Store.findOneAndUpdate({_id:toolId},updatesObj,{
             new:true
@@ -29,8 +30,9 @@ const updateStoreManagment = async(toolId:any,updatesObjString:string) => {
 }
 
 const returnTool = async(storeManagementId:any) => {
+   const dbConnection = await handleDBConnection();
+   if (!dbConnection.success) return dbConnection;
   try{
-    await connectToDB();
     const storeUpdation = await Store.findOneAndUpdate({
       _id:storeManagementId
     },{

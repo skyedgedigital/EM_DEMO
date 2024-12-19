@@ -1,11 +1,12 @@
 'use server'
 
-import connectToDB from "@/lib/database"
+import handleDBConnection from "@/lib/database";
 import Tool from "@/lib/models/tool.model";
 
 const updateTool = async(toolId:any,updatesString:string) => {
+     const dbConnection = await handleDBConnection();
+     if (!dbConnection.success) return dbConnection;
     try{
-        await connectToDB();
         const filter = {
             _id:toolId
         }

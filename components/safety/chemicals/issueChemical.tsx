@@ -67,7 +67,7 @@ const IssueChemical = () => {
       toast.success("Issue Created,Reload to view Changes");
       }
       else{
-        toast.error("Issue Not Created");
+        toast.error(resp.message);
         }
   }
 

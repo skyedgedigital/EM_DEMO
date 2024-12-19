@@ -1,11 +1,12 @@
 'use server'
 
-import connectToDB from "@/lib/database"
+import handleDBConnection from "@/lib/database";
 import ToolIssueAndReplacementRegister from "@/lib/models/safetyPanel/tools/toolIssueAndReplacement.model";
 
 const genSafetyToolIssueAndReplacement = async(dataString:string) => {
+      const dbConnection = await handleDBConnection();
+      if (!dbConnection.success) return dbConnection;
     try{
-        await connectToDB();
         const data = JSON.parse(dataString);
         const dataObj = new ToolIssueAndReplacementRegister({
             ...data
@@ -28,8 +29,9 @@ const genSafetyToolIssueAndReplacement = async(dataString:string) => {
 }
 
 const viewSafetyToolIssueAndReplacement = async() => {
+      const dbConnection = await handleDBConnection();
+      if (!dbConnection.success) return dbConnection;
     try{
-        await connectToDB();
         const resp = await ToolIssueAndReplacementRegister.find({})
         return{
             data:JSON.stringify(resp),
@@ -49,8 +51,9 @@ const viewSafetyToolIssueAndReplacement = async() => {
 }
 
 const deleteSafetyToolIssueAndReplacement = async(id:any) => {
+      const dbConnection = await handleDBConnection();
+      if (!dbConnection.success) return dbConnection;
     try{
-        await connectToDB();
         const resp = await ToolIssueAndReplacementRegister.findByIdAndDelete(id);
         return{
             success:true,

@@ -9,6 +9,12 @@ import toast from 'react-hot-toast';
 import EmployeeDataPhotos from './employeeDataPhotos';
 
 const Create = () => {
+  const [photos, setPhotos] = useState({
+    driverLicense: null,
+    aadharCard: null,
+    bankPassbook: null,
+    profilePhoto: null,
+  });
   const [formData, setFormData] = useState({
     code: '',
     workManNo: '',
@@ -101,6 +107,14 @@ const Create = () => {
     };
     fn();
   }, []);
+
+  const handlePhotosChange = (
+    e: React.ChangeEvent<HTMLInputElement>,
+    type: string
+  ) => {
+    setPhotos({ ...photos, [type]: e.target.files[0] });
+    // setFormData({ ...formData, [type]: e.target.files[0] });
+  };
   const handleInputChange = (event: any) => {
     const { name, value } = event.target;
     setFormData({
@@ -174,17 +188,67 @@ const Create = () => {
       return;
     }
 
-    const resp = await EmployeeDataAction.CREATE.createEmployeeData(
-      JSON.stringify(formData)
-    );
-    if (resp.status === 200) {
-      toast.success('Added');
-    } else if (resp.status === 500) {
-      toast.error('An Error Occurred, Kindly fill the fields properly.');
-    } else {
-      toast.error(resp.message);
+    // formData for photos
+    const photosFormData = new FormData();
+
+    photosFormData.append('code', formData.code);
+    for (const [key, value] of Object.entries(photos)) {
+      if (value) {
+        photosFormData.append(key, value);
+      }
     }
-    // }
+
+    try {
+      const resp = await EmployeeDataAction.CREATE.createEmployeeData(
+        JSON.stringify(formData)
+      );
+      if (resp.status === 200) {
+        toast.success('Employee Added');
+      } else if (resp.status === 500) {
+        toast.error('An Error Occurred, Kindly fill the fields properly.');
+      } else {
+        toast.error(resp.message);
+      }
+
+      const photoRes = await EmployeeDataAction.CREATE.uploadEmployeeDataPhotos(
+        photosFormData
+      );
+      if (photoRes.status == 200) {
+        toast.success('photos saved successfully');
+      } else {
+        toast.error(photoRes.message);
+      }
+    } catch (error: any) {
+      toast.error('Something went wrong');
+    }
+  };
+
+  const handlePhotosSubmit = async (empCode: string) => {
+    const photosFormData = new FormData();
+
+    photosFormData.append('code', empCode);
+    // Append files to FormData
+    for (const [key, value] of Object.entries(photos)) {
+      if (value) {
+        photosFormData.append(key, value);
+      }
+    }
+
+    try {
+      const res = await EmployeeDataAction.CREATE.uploadEmployeeDataPhotos(
+        photosFormData
+      );
+      if (res.status == 200) {
+        toast.success(res.message);
+        // Clear fields after successful upload
+        // Clear the employee code
+      } else {
+        toast.error(res.message);
+      }
+    } catch (error: any) {
+      toast.error('Something went wrong');
+    } finally {
+    }
   };
   const getEmpCode = async () => {
     const resp = await EmployeeDataAction.CREATE.createRandomEmpCode();
@@ -342,7 +406,7 @@ const Create = () => {
             htmlFor='input'
             className='block text-sm font-medium text-gray-700 mb-2'
           >
-            Bank:
+            Bank IFSC:
           </label>
           <select
             id='bank'
@@ -1046,6 +1110,41 @@ const Create = () => {
             min='1'
           />
         </div>
+
+        <h2 className='flex items-center justify-center p-2 border-gray-600 border-b font-semibold text-2xl w-full'>
+          Select Photos to upload
+        </h2>
+
+        <div className='px-4 py-8 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 lg:gap-6'>
+          <div className=' flex-col flex gap-1 flex-1'>
+            <label>Driver License Photo:</label>
+            <input
+              type='file'
+              onChange={(e) => handlePhotosChange(e, 'driverLicense')}
+            />
+          </div>
+          <div className=' flex-col flex gap-1 flex-1'>
+            <label>Aadhar Card Photo:</label>
+            <input
+              type='file'
+              onChange={(e) => handlePhotosChange(e, 'aadharCard')}
+            />
+          </div>
+          <div className=' flex-col flex gap-1 flex-1'>
+            <label>Bank Passbook Photo:</label>
+            <input
+              type='file'
+              onChange={(e) => handlePhotosChange(e, 'bankPassbook')}
+            />
+          </div>
+          <div className=' flex-col flex gap-1 flex-1'>
+            <label>Profile Photo:</label>
+            <input
+              type='file'
+              onChange={(e) => handlePhotosChange(e, 'profilePhoto')}
+            />
+          </div>
+        </div>
       </div>
 
       <div className='flex items-center justify-center w-full mt-2'>
@@ -1056,7 +1155,6 @@ const Create = () => {
           Save Data
         </button>
       </div>
-      <EmployeeDataPhotos />
     </>
   );
 };

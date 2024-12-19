@@ -1,11 +1,13 @@
 'use server'
 
-import connectToDB from "@/lib/database"
+import handleDBConnection from "@/lib/database";
 import Item from "@/lib/models/item.model";
 
 const updateItem = async(itemId:any,updates:any) => {
+        const dbConnection = await handleDBConnection();
+        if (!dbConnection.success) return dbConnection;
     try{    
-        await connectToDB();
+     
         const filter = {
             _id:itemId
         }

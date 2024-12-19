@@ -8,7 +8,10 @@ import { columns } from '@/components/admin/DepartmentColumns';
 
 const EnterpriseDetails: React.FC<{}> = async () => {
   const res = await departmentAction.FETCH.fetchAllDepartments();
-  const departments = res.data;
+  let departments;
+  if (res.success) {
+    departments = JSON.parse(res.data);
+  }
   console.log('bruhhhhh', departments);
   return (
     <Tabs defaultValue='manageEnterprise'>

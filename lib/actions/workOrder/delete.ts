@@ -1,11 +1,12 @@
 'use server'
 
-import connectToDB from "@/lib/database"
+import handleDBConnection, { connectToDB } from "@/lib/database";
 import WorkOrder from "@/lib/models/workOrder.model";
 
 const deleteWorkOrder = async(workOrderNumber:string) => {
+     const dbConnection = await handleDBConnection();
+     if (!dbConnection.success) return dbConnection;
     try{
-        await connectToDB();
         const findWorkOrder = await WorkOrder.findOne({
             workOrderNumber:workOrderNumber
         })
@@ -36,4 +37,25 @@ const deleteWorkOrder = async(workOrderNumber:string) => {
     }
 }
 
-export {deleteWorkOrder}
+const deleteAllWorkOrder = async() => {
+    const dbConnection = await handleDBConnection();
+     if (!dbConnection.success) return dbConnection;
+    try{
+        const result = await WorkOrder.deleteMany({})
+        return{
+            success:true,
+            status:200,
+            message:'WorkOrders Deleted'
+        }
+    }
+    catch(err){
+        return{
+            success:false,
+            status:500,
+            message:'Internal Server Error',
+            error:JSON.stringify(err)
+        } 
+    }
+}
+
+export {deleteWorkOrder,deleteAllWorkOrder}

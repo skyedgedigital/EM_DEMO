@@ -26,11 +26,6 @@ const StateSchema: mongoose.Schema<IState> = new Schema({
     stateAddress: {
         type: String,
     },
-    statePayRate: {
-        type: Number,
-        required: true
-    }
-
 })
 
 const WorkOrderHrSchema: mongoose.Schema<IWorkOrderHr> = new Schema({

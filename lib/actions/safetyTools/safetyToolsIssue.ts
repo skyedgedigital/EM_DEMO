@@ -1,14 +1,15 @@
-"use server";
+'use server';
 
-import connectToDB from "@/lib/database";
-import SafetyTool from "@/lib/models/safetyPanel/tools/tool.model";
-import SafetyToolIssue from "@/lib/models/safetyPanel/tools/toolIssue.model";
+import handleDBConnection from '@/lib/database';
+import SafetyTool from '@/lib/models/safetyPanel/tools/tool.model';
+import SafetyToolIssue from '@/lib/models/safetyPanel/tools/toolIssue.model';
 
 const createSafetyToolIssue = async (dataString: string) => {
+  const dbConnection = await handleDBConnection();
+  if (!dbConnection.success) return dbConnection;
   try {
-    await connectToDB();
     const dataObj = JSON.parse(dataString);
-    console.log(dataObj)
+    console.log(dataObj);
     const toolId = dataObj.toolId;
     const quantity = dataObj.quantity;
     const toolDetails = await SafetyTool.findOne({
@@ -37,7 +38,7 @@ const createSafetyToolIssue = async (dataString: string) => {
     return {
       success: true,
       status: 200,
-      message: "ToolIssued Successfully",
+      message: 'ToolIssued Successfully',
       data: JSON.stringify(result),
     };
   } catch (err) {
@@ -45,15 +46,16 @@ const createSafetyToolIssue = async (dataString: string) => {
     return {
       success: false,
       status: 500,
-      message: "Internal Server Error",
+      message: 'Internal Server Error',
       err: JSON.stringify(err),
     };
   }
 };
 
 const deleteSafetyToolIssue = async (toolIssueId: any) => {
+  const dbConnection = await handleDBConnection();
+  if (!dbConnection.success) return dbConnection;
   try {
-    await connectToDB();
     const toolIssueDetails = await SafetyToolIssue.findOne({
       _id: toolIssueId,
     });
@@ -79,45 +81,47 @@ const deleteSafetyToolIssue = async (toolIssueId: any) => {
     );
     console.log(updatedSafetyTool);
     const result = await SafetyToolIssue.deleteOne({
-        _id: toolIssueId,
-        });
-        return {
-            success: true,
-            status: 200,
-            message: "ToolIssue Deleted Successfully",
-            data: JSON.stringify(result),
-            };
+      _id: toolIssueId,
+    });
+    return {
+      success: true,
+      status: 200,
+      message: 'ToolIssue Deleted Successfully',
+      data: JSON.stringify(result),
+    };
   } catch (err) {
     console.log(err);
     return {
       success: false,
       status: 500,
-      message: "Internal Server Error",
+      message: 'Internal Server Error',
       err: JSON.stringify(err),
     };
   }
 };
 
-const fetchSafetyToolsIssue = async() => {
-    try{
-        await connectToDB();
-        const result = await SafetyToolIssue.find({}).populate("toolId").populate("issuedTo","name");
-        return{
-            success:true,
-            status:200,
-            message:'Tools Fetched',
-            data:JSON.stringify(result)
-            }
-    }
-    catch(err){
-        console.log(err);
+const fetchSafetyToolsIssue = async () => {
+  const dbConnection = await handleDBConnection();
+  if (!dbConnection.success) return dbConnection;
+  try {
+    const result = await SafetyToolIssue.find({})
+      .populate('toolId')
+      .populate('issuedTo', 'name');
+    return {
+      success: true,
+      status: 200,
+      message: 'Tools Fetched',
+      data: JSON.stringify(result),
+    };
+  } catch (err) {
+    console.log(err);
     return {
       success: false,
       status: 500,
-      message: "Internal Server Error",
+      message: 'Internal Server Error',
       err: JSON.stringify(err),
     };
-    }
-}
+  }
+};
 
-export {createSafetyToolIssue,deleteSafetyToolIssue,fetchSafetyToolsIssue}
+export { createSafetyToolIssue, deleteSafetyToolIssue, fetchSafetyToolsIssue };

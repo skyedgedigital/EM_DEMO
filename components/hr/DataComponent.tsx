@@ -146,7 +146,7 @@ const DataComponent = ({eleId}) => {
                                   if (resp.status === 200) {
                                       toast.success("Deleted, Reload to View Changes");
                                   } else {
-                                      toast.error("An Error Occurred");
+                                      toast.error(resp.message);
                                   }
                               }}
                           >

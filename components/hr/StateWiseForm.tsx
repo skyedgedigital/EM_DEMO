@@ -8,7 +8,6 @@ import toast from "react-hot-toast";
 const StateWiseForm = ({onFormSubmit}) => {
   const [selectedState, setSelectedState] = useState("");
   const [address, setAddress] = useState("");
-  const [rate, setRate] = useState("");
   const [workOrderId, setWorkOrderId] = useState("");
   const [workOrders, setWorkOrders] = useState([]);
 
@@ -41,7 +40,6 @@ const StateWiseForm = ({onFormSubmit}) => {
     const formData = {
       selectedState,
       address,
-      rate,
       workOrderId
     };
     const resp = await State_CURD.CREATE.createState(JSON.stringify(formData));
@@ -49,7 +47,6 @@ const StateWiseForm = ({onFormSubmit}) => {
       toast.success("Form submitted successfully");
       setAddress("");
       setSelectedState("");
-      setRate("");
       setWorkOrderId("");      
     } else {
       toast.error("Submission failed");
@@ -108,24 +105,6 @@ const StateWiseForm = ({onFormSubmit}) => {
           />
         </div>
 
-        {/* Rate input */}
-        <div className="mb-4">
-          <label
-            htmlFor="rateInput"
-            className="block text-sm font-medium text-gray-700"
-          >
-            Rate
-          </label>
-          <input
-            type="number"
-            id="rateInput"
-            value={rate}
-            onChange={(e) => setRate(e.target.value)}
-            className="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-            placeholder="Enter rate"
-          />
-        </div>
-
         {/* Work order selection */}
         <div className="mb-4">
           <label
@@ -150,7 +129,7 @@ const StateWiseForm = ({onFormSubmit}) => {
         </div>
 
         {/* Submit button */}
-{(address != "" && selectedState !="" && rate != "" && workOrderId != "")?        
+{(address != "" && selectedState !="" && workOrderId != "")?        
 (        <button
           type="submit"
           className="w-full inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"

@@ -30,7 +30,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { useFieldArray, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { SubmitHandler } from 'react-hook-form';
@@ -82,7 +82,7 @@ const chalanSchema = z.object({
     .array(
       z.object({
         item: z.string(),
-        vehicleNumber: z.string().optional(),
+        vehicleNumber: z.string().trim().min(1, 'Required'),
         unit: z.string().trim().min(1, 'Required'),
         hours: zodInputStringPipe(
           z.number().positive('Value must be greater than 0')
@@ -113,7 +113,6 @@ const CreateChalan = () => {
 
   const [loading, setLoading] = useState(false);
   const [allDepartments, setAllDepartments] = useState<string[]>([]);
-  const [file, setFile] = useState();
   const [department, setDepartment] = useState('');
   const [workOrder, setWorkOrder] = useState('');
 
@@ -127,6 +126,9 @@ const CreateChalan = () => {
   const [units, setUnits] = useState([]);
 
   const router = useRouter();
+
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
 
   const form = useForm<FormFields>({
     defaultValues: {
@@ -198,26 +200,33 @@ const CreateChalan = () => {
           commentByDriver: '',
           // commentByFleetManager: '',
         });
+        setSelectedFile(null);
+        if (fileInputRef.current) {
+          fileInputRef.current.value = '';
+        }
       } else {
-        console.error(res)
+        console.error(res);
         toast.error(res.message);
       }
     } catch (error) {
       console.error(error);
-      toast.error('Something went wrong');
+      toast.error(
+        error.message || JSON.stringify(error) || 'something went wrong'
+      );
     }
   };
 
   useEffect(() => {
     const fetch = async () => {
-      const { data, success, error } =
-        await vehicleAction.FETCH.fetchAllVehicles();
+      const res = await vehicleAction.FETCH.fetchAllVehicles();
 
-      if (success) {
-        const vehicleNumbers = data.map((vehicle) => vehicle.vehicleNumber);
+      if (res?.success) {
+        const vehicleNumbers = JSON.parse(res?.data).map(
+          (vehicle) => vehicle.vehicleNumber
+        );
         setAllVehicleNumbers(vehicleNumbers);
       } else {
-        toast.error(error || 'can not fetch vehicle numbers!');
+        toast.error(res?.message || 'can not fetch vehicle numbers!');
       }
     };
     fetch();
@@ -226,7 +235,7 @@ const CreateChalan = () => {
     const fetch = async () => {
       const res = await departmentAction.FETCH.fetchAllDepartments();
       if (res.success) {
-        const departments = res.data.map(
+        const departments = JSON.parse(res.data).map(
           (department) => department.departmentName
         );
         const realdepartments = JSON.parse(JSON.stringify(departments));
@@ -235,7 +244,7 @@ const CreateChalan = () => {
       }
       if (!res.success) {
         toast.error(
-          res.error || 'Department options did not fetched.Please try again.'
+          res?.message || 'Department options did not fetched.Please try again.'
         );
       }
     };
@@ -248,9 +257,10 @@ const CreateChalan = () => {
       );
 
       if (res.success) {
-        const engineers = res.data
-          ? res.data.map((engineer) => engineer.name)
+        const engineers = res?.data
+          ? JSON.parse(res?.data).map((engineer) => engineer.name)
           : [];
+        console.log('engineers', engineers);
         setFetchedEngineerNames(engineers);
       }
       if (!res.success) {
@@ -284,15 +294,17 @@ const CreateChalan = () => {
       // const { success, error, data, message } =
       //   await workOrderAction.FETCH.fetchAllWorkOrder();
       const workOrderResp = await workOrderAction.FETCH.fetchAllWorkOrder();
+      console.log('workorder resonse', workOrderResp);
       const success = workOrderResp.success;
-      const error = workOrderResp.error;
-      const data = JSON.parse(workOrderResp.data);
+      // const error = workOrderResp.error;
       if (!success) {
         return toast.error(
-          error || 'Work order options did not fetched.Please try again.'
+          workOrderResp.message ||
+            'Work order options did not fetched.Please try again.'
         );
       }
       if (success) {
+        const data = JSON.parse(workOrderResp.data);
         const res = data ? data : [];
         console.log('ALL WORKORDERS', data);
         setFetchedWorkOrderOptions(data);
@@ -467,8 +479,16 @@ const CreateChalan = () => {
                       <SelectItem
                         key={option.toString()}
                         value={option.toString()}
+                        className='capitalize'
                       >
-                        {option}
+                        {option
+                          ?.toLowerCase()
+                          .split(' ')
+                          .map(
+                            (word: string) =>
+                              word.charAt(0).toUpperCase() + word.slice(1)
+                          )
+                          .join(' ')}
                       </SelectItem>
                     ))}
                   </SelectContent>
@@ -556,69 +576,30 @@ const CreateChalan = () => {
           <FormField
             control={form.control}
             name='file'
-            render={({ field: { value, onChange, ...fieldProps } }) => (
-              <FormItem className=' flex-col flex gap-1 flex-1'>
-                <FormLabel>Chalan Photo</FormLabel>
-                <FormControl>
-                  <Input
-                    type='file'
-                    {...fieldProps}
-                    className=' bg-white '
-                    onChange={(event) => {
-                      console.log(event.target.files);
-                      return onChange(event.target.files);
-                    }}
-                  />
-                </FormControl>
-
+            render={({ field: { value, onChange } }) => (
+              <div className='flex-col flex gap-1 flex-1'>
+                <label className='font-semibold'>Chalan Photo</label>
+                <input
+                  type='file'
+                  ref={fileInputRef}
+                  className='bg-white border border-gray-300 rounded-md p-2'
+                  onChange={(event) => {
+                    const files = event.target.files;
+                    if (files && files.length > 0) {
+                      setSelectedFile(files[0]);
+                      onChange(files);
+                    } else {
+                      setSelectedFile(null);
+                      onChange(undefined);
+                    }
+                  }}
+                />
+                {selectedFile && <p>{selectedFile.name}</p>}
                 <FormMessage />
-              </FormItem>
+              </div>
             )}
           />
 
-          {/* <FormField
-    control={form.control}
-    name="file"
-    render={({ field : { value, onChange, ...fieldProps }}) => (
-      <FormItem >
-        <FormLabel>Location</FormLabel>
-        <FormControl>
-        <Input
-          {...fieldProps}
-          type="file"
-          accept="image/*"
-           onChange={(event) =>
-            onChange(event.target.files && event.target.files[0])
-          }
-        
-        />        </FormControl>
-  
-        <FormMessage />
-      </FormItem>
-    )}
-  /> */}
-
-          {/* <FormField
-                    control={form.control}
-                    name="file"
-                    render={({ field: { value, onChange, ...fieldProps } }) =>(
-                          <FormItem className=' flex-col flex gap-1 flex-1'>
-                            <FormLabel>images</FormLabel>
-                            <FormControl>
-                            <Input
-          {...fieldProps}
-          placeholder="Picture"
-          type="file"
-          accept="image/*, application/pdf"
-          onChange={(event) =>
-            onChange(event.target.files && event.target.files[0])
-          }
-        />                            </FormControl>
-                         
-                            <FormMessage />
-                        </FormItem>
-                    )}
-                /> */}
           <FormField
             control={form.control}
             name='status'
@@ -662,21 +643,6 @@ const CreateChalan = () => {
               </FormItem>
             )}
           />
-
-          {/* <FormField
-    control={form.control}
-    name="commentByFleetManager"
-    render={({ field }) => (
-      <FormItem>
-        <FormLabel>Comment By Fleet Manager</FormLabel>
-        <FormControl>
-          <Textarea {...field} className=' bg-white '/>
-        </FormControl>
-    
-        <FormMessage />
-      </FormItem>
-    )}
-  /> */}
         </div>
         <h2 className='text-blue-800 font-bold px-4'>Fill Items</h2>
         {form.formState.errors.items && (
@@ -784,7 +750,7 @@ const CreateChalan = () => {
                 name={`items.${index}.hours`}
                 render={({ field }) => (
                   <FormItem className=' flex-col flex gap-1 flex-1'>
-                    <FormLabel>Hours</FormLabel>
+                    <FormLabel>Quantity</FormLabel>
                     <FormControl>
                       <Input type='number' {...field} className=' bg-white ' />
                     </FormControl>

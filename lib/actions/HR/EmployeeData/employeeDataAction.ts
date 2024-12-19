@@ -15,7 +15,7 @@ import {
   fetchCompliancesByMonthYear,
   fetchEmployeesWithWorkorderHr
 } from './fetch';
-import { fetchEmpNames } from './fetchData';
+import { fetchEmployeesJoined, fetchEmployeesResigned, fetchEmpNames, fetchEmpsJoinedOrLeftWithinDateRange } from './fetchData';
 import { getNotification } from './notification';
 import { updateEmployeeData } from './update';
 
@@ -24,7 +24,7 @@ const EmployeeDataAction = {
     createEmployeeData: createEmployeeData,
     createEmployeeDataBulk: createEmployeeDataBulk,
     createRandomEmpCode: autoGenEmpCode,
-    uploadEmployeeDataPhotos: uploadEmployeeDataPhotos
+    uploadEmployeeDataPhotos: uploadEmployeeDataPhotos,
   },
   DELETE: {
     deleteEmployeeData: deleteEmployeeData,
@@ -42,7 +42,10 @@ const EmployeeDataAction = {
     fetchEmployeesLazyLoading: fetchEmployeesLazyLoading,
     fetchNotification: getNotification,
     fetchCompliances: fetchCompliancesByMonthYear,
-    fetchEmpNames: fetchEmpNames
+    fetchEmpNames: fetchEmpNames,
+    fetchEmpsWithDateRange:fetchEmpsJoinedOrLeftWithinDateRange,
+    fetchEmpsJoinedWithinDateRange:fetchEmployeesJoined,
+    fetchEmpsResigned:fetchEmployeesResigned
   },
 };
 

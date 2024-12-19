@@ -38,12 +38,20 @@ interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
   data: TData[];
   filterValue?: String;
+  pageCount?: number;
+  // onNextPage?: () => Promise<void>;
+  // onPreviousPage?: () => Promise<void>;
+  page?: number;
 }
 
 export function DataTable<TData, TValue>({
   columns,
   data,
   filterValue,
+  pageCount = 10,
+  // onNextPage,
+  // onPreviousPage,
+  page,
 }: DataTableProps<TData, TValue>) {
   console.log(filterValue);
   const [sorting, setSorting] = useState<SortingState>([]);
@@ -53,6 +61,8 @@ export function DataTable<TData, TValue>({
   const table = useReactTable({
     data,
     columns,
+    // manualPagination: true,
+    // pageCount: pageCount,
     state: {
       sorting,
       columnFilters,
@@ -73,7 +83,7 @@ export function DataTable<TData, TValue>({
     <>
       {/* Filters */}
 
-      <div className='flex items-center justify-between'>
+      <div className='flex items-baseline gap-3'>
         <div className='flex items-center pt-16 pb-4 '>
           <Input
             placeholder='Search...'
@@ -92,15 +102,20 @@ export function DataTable<TData, TValue>({
       </div>
 
       {/* Table */}
+      {data?.length ? (
+        <p className='text-gray-400 text-sm mb-1'>({data?.length} Documents)</p>
+      ) : (
+        ''
+      )}
       <div className='rounded-md border-2 border-slate-500 text-black'>
         <Table className='overflow-x-auto'>
           <TableHeader className='border-slate-500 border-b-2 text-black font-semibold'>
             {table.getHeaderGroups().map((headerGroup) => (
-              <TableRow key={headerGroup.id}>
-                {headerGroup.headers.map((header) => {
+              <TableRow key={headerGroup.id.toString() + 'fum'}>
+                {headerGroup.headers.map((header, idx) => {
                   return (
                     <TableHead
-                      key={header.id}
+                      key={header.id.toString() + 'rum' + idx}
                       className='border-slate-500 border-r-2'
                     >
                       {header.isPlaceholder
@@ -119,12 +134,12 @@ export function DataTable<TData, TValue>({
             {table?.getRowModel().rows?.length ? (
               table?.getRowModel().rows.map((row) => (
                 <TableRow
-                  key={row.id}
+                  key={row.id.toString() + 'nbb'}
                   data-state={row.getIsSelected() && 'selected'}
                 >
-                  {row.getVisibleCells().map((cell) => (
+                  {row.getVisibleCells().map((cell, idx) => (
                     <TableCell
-                      key={cell.id}
+                      key={cell.id + 'SONA' + idx}
                       className='border-slate-500 border-r-2 '
                     >
                       {flexRender(
@@ -154,7 +169,9 @@ export function DataTable<TData, TValue>({
         <Button
           variant='outline'
           size='sm'
-          onClick={() => table.previousPage()}
+          onClick={() => {
+            table.previousPage();
+          }}
           disabled={!table.getCanPreviousPage()}
         >
           Previous
@@ -162,7 +179,9 @@ export function DataTable<TData, TValue>({
         <Button
           variant='outline'
           size='sm'
-          onClick={() => table.nextPage()}
+          onClick={() => {
+            table.nextPage();
+          }}
           disabled={!table.getCanNextPage()}
         >
           Next

@@ -126,7 +126,7 @@ const item=row.original;
          
           }
           if (!res.success) {
-            toast.error(res.error! || 'Unable to delete item!');
+            toast.error(res.message || 'Unable to delete item!');
           }        } catch (error) {
             toast.error('Error deleting item!!')
           console.error(`Error deleting item: ${error}`);

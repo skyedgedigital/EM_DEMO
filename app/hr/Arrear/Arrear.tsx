@@ -1,16 +1,16 @@
-'use client';
-import { useState, useEffect } from 'react';
-import { fetchAllAttendance } from '@/lib/actions/attendance/fetch';
-import { fetchAllDepAttendance } from '@/lib/actions/attendance/fetch';
-import { wagesColumns } from '@/components/hr/WagesColumn';
-import ReactDOMServer from 'react-dom/server';
-import html2canvas from 'html2canvas';
-import { useRouter, useSearchParams } from 'next/navigation';
-import wagesAction from '@/lib/actions/HR/wages/wagesAction';
-import Link from 'next/link';
-import jsPDF from 'jspdf';
-import autotable from 'jspdf-autotable';
-import { DataTable } from '@/components/data-table';
+"use client";
+import { useState, useEffect } from "react";
+import { fetchAllAttendance } from "@/lib/actions/attendance/fetch";
+import { fetchAllDepAttendance } from "@/lib/actions/attendance/fetch";
+import { wagesColumns } from "@/components/hr/WagesColumn";
+import ReactDOMServer from "react-dom/server";
+import html2canvas from "html2canvas";
+import { useRouter, useSearchParams } from "next/navigation";
+import wagesAction from "@/lib/actions/HR/wages/wagesAction";
+import Link from "next/link";
+import jsPDF from "jspdf";
+import autotable from "jspdf-autotable";
+import { DataTable } from "@/components/data-table";
 import {
   Select,
   SelectContent,
@@ -19,7 +19,7 @@ import {
   SelectValue,
   SelectLabel,
   SelectGroup,
-} from '@/components/ui/select';
+} from "@/components/ui/select";
 import {
   Table,
   TableBody,
@@ -29,12 +29,12 @@ import {
   TableHeader,
   TableRow,
   TableFooter,
-} from '@/components/ui/table';
-import employeeAction from '@/lib/actions/employee/employeeAction';
-import EmployeeDataAction from '@/lib/actions/HR/EmployeeData/employeeDataAction';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import attendanceAction from '@/lib/actions/attendance/attendanceAction';
+} from "@/components/ui/table";
+import employeeAction from "@/lib/actions/employee/employeeAction";
+import EmployeeDataAction from "@/lib/actions/HR/EmployeeData/employeeDataAction";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import attendanceAction from "@/lib/actions/attendance/attendanceAction";
 import {
   Form,
   FormControl,
@@ -64,7 +64,7 @@ const schema = z.object({
   FromDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "Invalid date format"),
   ToDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "Invalid date format"),
   workOrder: z.string().trim().min(0, "Required"),
-  Designation: z.string().trim().min(0, "Required"),
+  // Designation: z.string().trim().min(0, "Required"),
   DA: z.boolean().optional(),
 });
 
@@ -130,7 +130,7 @@ const Arrear = () => {
       if (success) {
         const workOrderNumbers = JSON.parse(workOrderResp.data);
         setAllWorkOrderNumbers(workOrderNumbers);
-        console.log('yeraaaa wowowowwoncjd', workOrderNumbers);
+        console.log("yeraaaa wowowowwoncjd", workOrderNumbers);
       } else {
         toast.error("Can not fetch work order numbers!");
       }
@@ -153,7 +153,11 @@ const Arrear = () => {
       if (data.FromDate < data.ToDate) {
         console.log("WorkOrder number selectrd ", workOrderNumber);
         const res = await EmployeeDataAction.FETCH.fetchAllEmployeeData();
-        const depemployees = JSON.parse(res.data);
+
+        let depemployees;
+        if (res.success) {
+          depemployees = JSON.parse(res.data);
+        }
         if (!depemployees || depemployees.length === 0) {
           toast.error("No employees available");
           return;
@@ -192,13 +196,14 @@ const Arrear = () => {
           if (wageresponse.success) {
             toast.success("Succesfully retrived");
             const wagedata = JSON.parse(wageresponse.data);
-            const wageDataArray = wagedata.filter((employee) => {
-              return employee.employee.designation_details[0].designation ===
-                designationState;
-            });
-            setWagesData(wageDataArray);
+            //changed as demand
+            // const wageDataArray = wagedata.filter((employee) => {
+            //   return employee.employee.designation_details[0].designation ===
+            //     designationState;
+            // });
+            setWagesData(wagedata); //changed
 
-            console.log("wow kya wage hai", wagedata,wageDataArray);
+            console.log("wow kya wage hai", wagedata);
           } else {
             toast.error("Internal Server Error");
           }
@@ -208,17 +213,16 @@ const Arrear = () => {
             startDate: data.FromDate,
             endDate: data.ToDate,
             workOrder: data.workOrder,
-            Designation: data.Designation,
-            DA: data.DA?data.DA:false
+            // Designation: data.Designation,
+            DA: data.DA ? data.DA : false,
           });
         } else {
           toast.error(
             "The date range must be between April 1st and March 31st of the financial year"
           );
         }
-      }
-      else{
-        toast.error("Choose Date Correctly")
+      } else {
+        toast.error("Choose Date Correctly");
       }
     } catch (err) {
       toast.error("Internal Server Error");
@@ -227,32 +231,32 @@ const Arrear = () => {
 
   return (
     <div>
-      <h1 className='font-bold text-blue-500 border-b-2 border-blue-500 text-center py-2 mb-4'>
+      <h1 className="font-bold text-blue-500 border-b-2 border-blue-500 text-center py-2 mb-4">
         Arrear
       </h1>
       <Form {...form}>
         <form
           onSubmit={form.handleSubmit(onSubmit)}
-          className='overflow-hidden mr-2 border-[1px] border-black rounded-md'
+          className="overflow-hidden mr-2 border-[1px] border-black rounded-md"
         >
-          <h2 className=' bg-blue-100 text-center py-1 text-base   relative   '>
+          <h2 className=" bg-blue-100 text-center py-1 text-base   relative   ">
             Arrear Generator
           </h2>
 
-          <div className=' p-4 flex flex-col justify-center items-center md:justify-start md:flex-row gap-6'>
+          <div className="p-4 flex flex-col justify-center items-center md:justify-start md:flex-row gap-6">
             <FormField
               control={form.control}
-              name='FromDate'
+              name="FromDate"
               render={({ field }) => (
-                <FormItem className=' flex-col flex gap-1'>
+                <FormItem className=" flex-col flex gap-1">
                   <FormLabel>From Date</FormLabel>
 
                   <input
-                    type='Date'
+                    type="Date"
                     value={field.value}
                     onChange={field.onChange}
-                    min='2018-04-01'
-                    className='p-1 px-2 rounded-sm text-black/95 border  border-gray-400'
+                    min="2018-04-01"
+                    className="p-1 px-2 rounded-sm text-black/95 border  border-gray-400"
                   />
 
                   <FormMessage />
@@ -261,17 +265,17 @@ const Arrear = () => {
             />
             <FormField
               control={form.control}
-              name='ToDate'
+              name="ToDate"
               render={({ field }) => (
-                <FormItem className=' flex-col flex gap-1'>
+                <FormItem className=" flex-col flex gap-1">
                   <FormLabel>To Date</FormLabel>
 
                   <input
-                    type='Date'
+                    type="Date"
                     value={field.value}
                     onChange={field.onChange}
-                    min='2018-01-01'
-                    className=' p-1 px-2 rounded-sm text-black/95 border border-gray-400'
+                    min="2018-01-01"
+                    className=" p-1 px-2 rounded-sm text-black/95 border border-gray-400"
                   />
 
                   <FormMessage />
@@ -280,9 +284,9 @@ const Arrear = () => {
             />
             <FormField
               control={form.control}
-              name='workOrder'
+              name="workOrder"
               render={({ field }) => (
-                <FormItem className=' flex-col flex gap-1 '>
+                <FormItem>
                   <FormLabel>Work Order</FormLabel>
                   <Select
                     onValueChange={(e) => {
@@ -291,32 +295,33 @@ const Arrear = () => {
                     }}
                     value={field.value}
                   >
-                    <FormControl className='px-2 border border-gray-400'>
+                    <FormControl>
                       <SelectTrigger>
                         {field.value ? (
-                          <SelectValue placeholder='' />
+                          <SelectValue placeholder="" />
                         ) : (
-                          'Select Work Order No.'
+                          "Select Work Order No."
                         )}
                       </SelectTrigger>
                     </FormControl>
-                    <SelectContent className='max-w-80 max-h-72 '>
-                      <SelectItem value='Default' key='Default'>
+                    <SelectContent className="max-w-80 max-h-72">
+                      {/* <SelectItem value="Default" key="Default">
                         Default
-                      </SelectItem>
+                      </SelectItem> */}
 
-                    {allWorkOrderNumbers?.map((option, index) => (
-                      <SelectItem value={option._id.toString()} key={option}>
-                        {option.workOrderNumber}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <FormField
+                      {allWorkOrderNumbers?.map((option, index) => (
+                        <SelectItem value={option._id.toString()} key={option}>
+                          {option.workOrderNumber}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </div>
+          {/* <FormField
             control={form.control}
             name="Designation"
             render={({ field }) => (
@@ -349,7 +354,7 @@ const Arrear = () => {
                 <FormMessage />
               </FormItem>
             )}
-          />
+          /> */}
           <FormField
             control={form.control}
             name="DA"
@@ -367,64 +372,66 @@ const Arrear = () => {
               </FormItem>
             )}
           />
-        </div>
           <div className="py-4 ">
             <Button
-              type='submit'
-              className='flex items-center gap-1 border-2 border-black px-4 mb-2 rounded bg-green-500 text-white'
-              value='SL'
+              type="submit"
+              className="flex items-center gap-1 border-2 border-black px-4 mb-2 rounded bg-green-500 text-white"
+              value="SL"
               // onClick={handleSubmit(onSubmit)}
             >
               {form.formState.isSubmitting && (
-                <Loader2 className='h-4 w-4 animate-spin' />
+                <Loader2 className="h-4 w-4 animate-spin" />
               )}
               <>Show List</>
             </Button>
           </div>
-          <p className='text-red-400 text-center py-1 text-base'>
+          <p className="text-red-400 text-center py-1 text-base">
             The date range must be between April 1st and March 31st of the
             financial year
           </p>
         </form>
       </Form>
       {showTable && (
-        <div className='mt-8'>
-          <div className=' flex flex-col md:flex-row gap-2 w-fit'>
+        <div className="mt-8">
+          <div className=" flex flex-col md:flex-row gap-2 w-fit">
             <Button
-              type='submit'
-              value='AR'
-              size='sm'
-              className=''
-              onClick={() => setAAction('AR')}
+              type="submit"
+              value="AR"
+              size="sm"
+              className=""
+              onClick={() => setAAction("AR")}
             >
               <>Arrear Register</>
             </Button>
             <Button
-              size='sm'
-              value='AA'
-              className=''
-              onClick={() => setAAction('AA')}
+              size="sm"
+              value="AA"
+              className=""
+              onClick={() => setAAction("AA")}
             >
               Arrear Attendance
             </Button>
             <Button
-              size='sm'
-              value='ABS'
-              className=''
-              onClick={() => setAAction('ABS')}
+              size="sm"
+              value="ABS"
+              className=""
+              onClick={() => setAAction("ABS")}
             >
               Arrear BankStatement
             </Button>
             <Button
-              size='sm'
-              value='APS'
-              className=''
-              onClick={() => setAAction('APS')}
+              size="sm"
+              value="APS"
+              className=""
+              onClick={() => setAAction("APS")}
             >
               Arrear Pay Slip
             </Button>
           </div>
-          <Table className='mt-4'>
+          { wagesData.length === 0 ? (
+      <div className="mt-10 flex items-center justify-center"><span className="text-slate-800/55 text-3xl">Employee Data not available</span></div>
+    ):(
+          <Table className="mt-4">
             <TableHeader>
               <TableRow>
                 <TableHead>Employee Name</TableHead>
@@ -437,7 +444,8 @@ const Arrear = () => {
             </TableHeader>
             <TableBody>
               {wagesData.map((employee, index) => {
-                const LastWage = employee.employee?.designation_details[0]?.OldBasic
+                const LastWage =
+                  employee.employee?.designation_details[0]?.OldBasic;
                 // const currentWage =
                 //   employee.employee?.designation_details[0]?.basic;
                 // const updatedWage = getUpdatedWage(
@@ -445,7 +453,8 @@ const Arrear = () => {
                 //   currentWage
                 // );
                 // const wageDifference = (updatedWage - currentWage).toFixed(2);
-                const UpdatedWage = employee.employee?.designation_details[0]?.basic
+                const UpdatedWage =
+                  employee.employee?.designation_details[0]?.basic;
                 const wageDifference = (UpdatedWage - LastWage).toFixed(2);
 
                 return (
@@ -480,6 +489,7 @@ const Arrear = () => {
               })}
             </TableBody>
           </Table>
+    )}
         </div>
       )}
     </div>

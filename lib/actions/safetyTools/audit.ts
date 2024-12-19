@@ -1,13 +1,14 @@
 'use server'
 
-import connectToDB from "@/lib/database";
+import handleDBConnection from "@/lib/database";
 import ToolAudit from "@/lib/models/safetyPanel/tools/toolAudit.model";
 
 
 
 const genAudit = async(dataString:string) => {
+     const dbConnection = await handleDBConnection();
+     if (!dbConnection.success) return dbConnection;
     try{
-        await connectToDB();
         const dataObj = JSON.parse(dataString)
         const Obj = new ToolAudit({
             ...dataObj
@@ -31,8 +32,9 @@ const genAudit = async(dataString:string) => {
 }
 
 const getAuditAll = async() => {
+     const dbConnection = await handleDBConnection();
+     if (!dbConnection.success) return dbConnection;
     try{
-        await connectToDB();
         const result = await ToolAudit.find({});
         return{
             success:true,
@@ -53,8 +55,9 @@ const getAuditAll = async() => {
 }
 
 const deleteAuditById = async(ppeId:any) => {
+     const dbConnection = await handleDBConnection();
+     if (!dbConnection.success) return dbConnection;
     try{
-        await connectToDB();
         const result = await ToolAudit.deleteOne({_id:ppeId});
         return{
             success:true,

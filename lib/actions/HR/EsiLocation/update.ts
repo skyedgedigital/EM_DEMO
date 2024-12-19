@@ -1,11 +1,12 @@
 'use server'
 
-import connectToDB from "@/lib/database";
+import handleDBConnection from "@/lib/database";
 import EsiLocation from "@/lib/models/HR/EsiLocation.model";
 
 const updateEsiLocation = async(dataString:string,docId:any) => {
+        const dbConnection = await handleDBConnection();
+        if (!dbConnection.success) return dbConnection;
     try{
-        await connectToDB();
         const data = JSON.parse(dataString);
         const designation = await EsiLocation.findByIdAndUpdate(docId,data,{new:true});
         return{

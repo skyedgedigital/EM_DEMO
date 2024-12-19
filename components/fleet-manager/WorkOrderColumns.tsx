@@ -1,12 +1,12 @@
-"use client";
+'use client';
 
-import { ColumnDef } from "@tanstack/react-table";
-import { MoreHorizontal, ArrowUpDown } from "lucide-react";
-import toast from "react-hot-toast";
-import { Button } from "@/components/ui/button";
-import { itemColumns } from "./ItemColumns";
-import { DataTable } from "../data-table";
-import { Item } from "./ItemColumns";
+import { ColumnDef } from '@tanstack/react-table';
+import { MoreHorizontal, ArrowUpDown } from 'lucide-react';
+import toast from 'react-hot-toast';
+import { Button } from '@/components/ui/button';
+import { itemColumns } from './ItemColumns';
+import { DataTable } from '../data-table';
+import { Item } from './ItemColumns';
 import {
   Dialog,
   DialogContent,
@@ -14,14 +14,14 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from "@/components/ui/dialog";
+} from '@/components/ui/dialog';
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import workOrderAction from "@/lib/actions/workOrder/workOrderAction";
+} from '@/components/ui/dropdown-menu';
+import workOrderAction from '@/lib/actions/workOrder/workOrderAction';
 import {
   Drawer,
   DrawerClose,
@@ -31,9 +31,9 @@ import {
   DrawerHeader,
   DrawerTitle,
   DrawerTrigger,
-} from "@/components/ui/drawer";
-import itemAction from "@/lib/actions/item/itemAction";
-import UomTable from "./UomTable";
+} from '@/components/ui/drawer';
+import itemAction from '@/lib/actions/item/itemAction';
+import UomTable from './UomTable';
 
 export type WorkOrder = {
   workOrderNumber: string;
@@ -46,26 +46,26 @@ export type WorkOrder = {
 
 export const columns: ColumnDef<WorkOrder>[] = [
   {
-    accessorKey: "workOrderNumber",
+    accessorKey: 'workOrderNumber',
     header: ({ column }) => {
       return (
         <Button
-          variant="ghost"
-          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+          variant='ghost'
+          onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
         >
           Number
-          <ArrowUpDown className="ml-2 h-4 w-4" />
+          <ArrowUpDown className='ml-2 h-4 w-4' />
         </Button>
       );
     },
   },
 
   {
-    accessorKey: "workDescription",
+    accessorKey: 'workDescription',
     header: ({ column }) => {
       return (
         <Button
-          variant="ghost"
+          variant='ghost'
           //   onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
         >
           Description
@@ -75,11 +75,11 @@ export const columns: ColumnDef<WorkOrder>[] = [
     },
   },
   {
-    accessorKey: "workOrderValue",
+    accessorKey: 'workOrderValue',
     header: ({ column }) => {
       return (
         <Button
-          variant="ghost"
+          variant='ghost'
           //   onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
         >
           Value
@@ -89,11 +89,11 @@ export const columns: ColumnDef<WorkOrder>[] = [
     },
   },
   {
-    accessorKey: "workOrderBalance",
+    accessorKey: 'workOrderBalance',
     header: ({ column }) => {
       return (
         <Button
-          variant="ghost"
+          variant='ghost'
           //   onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
         >
           Balance
@@ -103,11 +103,11 @@ export const columns: ColumnDef<WorkOrder>[] = [
     },
   },
   {
-    accessorKey: "workOrderValidity",
+    accessorKey: 'workOrderValidity',
     header: ({ column }) => {
       return (
         <Button
-          variant="ghost"
+          variant='ghost'
           //   onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
         >
           Validity
@@ -117,7 +117,7 @@ export const columns: ColumnDef<WorkOrder>[] = [
     },
   },
   {
-    id: "actions",
+    id: 'actions',
 
     cell: ({ row }) => {
       const workOrder = row.original;
@@ -133,22 +133,24 @@ export const columns: ColumnDef<WorkOrder>[] = [
             toast.success(res.message!);
           }
           if (!res.success) {
-            toast.error(res.error! || "Unable to delete work order!");
+            toast.error(
+              res.message || res?.error || 'Unable to delete work order!'
+            );
           }
         } catch (error) {
-          toast.error("Error deleting work order!!");
+          toast.error('Error deleting work order!!');
           console.error(`Error deleting work order: ${error}`);
         }
       };
 
-      console.log("yeich items hain", workOrder);
+      console.log('yeich items hain', workOrder);
 
       return (
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="ghost" className="h-8 w-8 p-0">
-              <span className="sr-only">Open menu</span>
-              <MoreHorizontal className="h-4 w-4" />
+            <Button variant='ghost' className='h-8 w-8 p-0'>
+              <span className='sr-only'>Open menu</span>
+              <MoreHorizontal className='h-4 w-4' />
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent>
@@ -160,7 +162,7 @@ export const columns: ColumnDef<WorkOrder>[] = [
             <DropdownMenuItem onClick={(e) => e.preventDefault()}>
               <Dialog>
                 <DialogTrigger>View Items</DialogTrigger>
-                <DialogContent className="w-11/12 overflow-x-scroll">
+                <DialogContent className='w-11/12 overflow-x-scroll'>
                   <DataTable columns={itemColumns} data={workOrder.items} />
                 </DialogContent>
               </Dialog>
@@ -168,7 +170,7 @@ export const columns: ColumnDef<WorkOrder>[] = [
             <DropdownMenuItem onClick={(e) => e.preventDefault()}>
               <Dialog>
                 <DialogTrigger>{`View UOM's`}</DialogTrigger>
-                <DialogContent className="w-11/12 overflow-x-scroll">
+                <DialogContent className='w-11/12 overflow-x-scroll'>
                   <UomTable
                     workOrderNumber={workOrder.workOrderNumber}
                     //@ts-ignore

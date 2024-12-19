@@ -1,11 +1,11 @@
 'use server'
-
-import connectToDB from "@/lib/database"
+import handleDBConnection from "@/lib/database";
 import Site from "@/lib/models/HR/siteMaster.model";
 
 const deleteSiteMaster = async(docId:any) => {
+        const dbConnection = await handleDBConnection();
+        if (!dbConnection.success) return dbConnection;
     try{
-        await connectToDB();
         const resp = await Site.findOneAndDelete({
             _id:docId
         })

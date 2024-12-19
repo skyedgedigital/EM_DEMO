@@ -30,7 +30,7 @@ const WorkOrderView = () => {
         prevWorkOrders.filter((wo: any) => wo._id !== id)
       );
     } else {
-      toast.error('An Error Occurred');
+      toast.error(result.message);
     }
   };
 

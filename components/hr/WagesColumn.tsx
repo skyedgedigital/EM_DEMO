@@ -60,7 +60,7 @@ export type EmployeeData = {
 
 export const wagesColumns: ColumnDef<EmployeeData>[] = [
   {
-    accessorKey: "serial",
+    accessorKey: 'serial',
     header: ({ column }) => {
       return (
         <Button
@@ -75,7 +75,7 @@ export const wagesColumns: ColumnDef<EmployeeData>[] = [
   },
 
   {
-    accessorKey: "name",
+    accessorKey: 'name',
     header: ({ column }) => {
       return (
         <Button
@@ -120,7 +120,7 @@ export const wagesColumns: ColumnDef<EmployeeData>[] = [
     },
   },
   {
-    accessorKey: "attendance",
+    accessorKey: 'attendance',
     header: ({ column }) => {
       return (
         <Button
@@ -154,7 +154,7 @@ export const wagesColumns: ColumnDef<EmployeeData>[] = [
     },
   },
   {
-    accessorKey: "wages",
+    accessorKey: 'wages',
     header: ({ column }) => {
       return (
         <Button
@@ -176,7 +176,7 @@ export const wagesColumns: ColumnDef<EmployeeData>[] = [
       return (
         <Dialog>
           <DialogTrigger className={color}>{value}</DialogTrigger>
-          <LargeDialogContent className=" w-5/6 max-w-full ">
+          <LargeDialogContent className=' w-5/6 max-w-full '>
             <DialogHeader>
               <DialogTitle>Save/Update Wages</DialogTitle>
               <DialogDescription className=''>
@@ -194,7 +194,7 @@ export const wagesColumns: ColumnDef<EmployeeData>[] = [
   },
 
   {
-    id: "actions",
+    id: 'actions',
     header: ({ column }) => {
       return (
         <Button
@@ -284,28 +284,34 @@ export const wagesColumns: ColumnDef<EmployeeData>[] = [
                           0
                         </TableCell>
                         <TableCell className='border-black border-2 text-black'>
-                          {payment.existingWage.otherCash}
+                          {payment.existingWage.otherCash.toFixed(2)}
                         </TableCell>
                         <TableCell className='border-black border-2 text-black'>
                           {payment.existingWage.allowances}
                         </TableCell>
 
                         <TableCell className='border-black border-2 text-black'>
-                          {payment.existingWage.total.toFixed(2)}
+                          {Math.round(payment.existingWage.total).toFixed(2)}
                         </TableCell>
                         <TableCell className='border-black border-2 text-black'>
                           {' '}
-                          {(0.12 * payment.existingWage.total).toFixed(2)}
+                          {Math.round(
+                            0.12 * payment.existingWage.total
+                          ).toFixed(2)}
                         </TableCell>
                         <TableCell className='border-black border-2 text-black'>
                           {' '}
-                          {(0.0075 * payment.existingWage.total).toFixed(2)}
+                          {Math.round(
+                            0.0075 * payment.existingWage.total
+                          ).toFixed(2)}
                         </TableCell>
                         <TableCell className='border-black border-2 text-black'>
                           0
                         </TableCell>
                         <TableCell className='border-black border-2 text-black'>
-                          {payment.existingWage.netAmountPaid.toFixed(2)}
+                          {Math.ceil(
+                            payment.existingWage.netAmountPaid
+                          ).toFixed(2)}
                         </TableCell>
                       </TableRow>
                     </TableBody>

@@ -20,6 +20,15 @@ import {
 import { fetchAllAttendance } from '@/lib/actions/attendance/fetch';
 
 import React, { useEffect, useState } from 'react';
+interface Attendance {
+  day: number;
+  status: string;
+  _id: string;
+}
+interface EmployeeIdAndAttendance {
+  employeeId: string;
+  attendance: Attendance[];
+}
 
 const Page = ({
   searchParams,
@@ -27,17 +36,22 @@ const Page = ({
   searchParams: { [key: string]: string | undefined };
 }) => {
   const [attendanceData, setAttendanceData] = useState(null);
+  const [attendanceArray, setAttendanceArray] = useState<
+    EmployeeIdAndAttendance[]
+  >([]);
 
   const contentRef = React.useRef(null);
- const reactToPrintFn = useReactToPrint({ contentRef,
-  documentTitle:`FormXVII/${searchParams.year}`, })
- const handleOnClick = async () => {
-  if(!attendanceData){
-    toast.error('Attendance data not available for Print generation.');
-    return;
-  }
+  const reactToPrintFn = useReactToPrint({
+    contentRef,
+    documentTitle: `FormXVII/${searchParams.year}`,
+  });
+  const handleOnClick = async () => {
+    if (!attendanceData) {
+      toast.error('Attendance data not available for Print generation.');
+      return;
+    }
     reactToPrintFn();
-};
+  };
 
   const handleDownloadPDF = async () => {
     if (!attendanceData) {
@@ -103,12 +117,29 @@ const Page = ({
             ),
           }));
           setAttendanceData(parsedData);
+          const attendanceArrayResult = await fetchAllAttendance(
+            JSON.stringify({ month, year, workOrderHr: searchParams?.wo || '' })
+          );
+          if (attendanceArrayResult.success) {
+            // console.log("LALA", JSON.parse(attendanceArrayResult.data));
+            const parsed_attendance_data = JSON.parse(
+              attendanceArrayResult.data
+            );
+            const updated_data: EmployeeIdAndAttendance[] =
+              parsed_attendance_data.map((lol: any) => {
+                return {
+                  employeeId: lol?.employee?._id,
+                  attendance: lol.days,
+                };
+              });
+            setAttendanceArray(updated_data);
+          }
 
           console.log('aagya response', parsedData);
         } else {
-          const errobj = await JSON.parse(response?.err);
+          const errobj = await JSON.parse(response?.error);
           const mess = errobj.message ? errobj.message : 'Kya yaar';
-          console.error('arrree muaa', JSON.parse(response?.err));
+          console.error('arrree muaa', JSON.parse(response?.error));
           console.error('arrree miiaa', mess);
           console.error('arrree minniaa', errobj);
           // console.error('arrree wuuuu', response.error);
@@ -126,15 +157,38 @@ const Page = ({
 
   const days = Array.from({ length: 31 }, (_, i) => i + 1); // Array of days (1 to 31)
 
+  function calculateTotal(arr: [number]) {
+    let total = arr.reduce((sum, current) => sum + current, 0);
+    return total;
+  }
+
+  function CalculateNationalHolidays(arr: Attendance[]) {
+    let count_nh = 0;
+    arr.forEach((item) => {
+      if (item.status === 'NH') {
+        count_nh++;
+      }
+    });
+    return count_nh;
+  }
+
+  function findAttendanceByEmployeeId(id: string) {
+    const employee = attendanceArray.find((item) => item.employeeId === id);
+    if (!employee) {
+      return [];
+    } else {
+      return employee.attendance;
+    }
+  }
+
   return (
     <div className='ml-[80px]'>
       <div className='flex gap-2 mb-2'>
-      <Button onClick={handleDownloadPDF}>Download PDF</Button>
-      <Button onClick={handleOnClick}>Print</Button> 
+        <Button onClick={handleDownloadPDF}>Download PDF</Button>
+        <Button onClick={handleOnClick}>Print</Button>
       </div>
 
-      <div id={`${searchParams.month}/${searchParams.year}`}
-      ref={contentRef}>
+      <div id={`${searchParams.month}/${searchParams.year}`} ref={contentRef}>
         <div
           className='container left-0 right-0 bg-white  overflow-hidden font-mono  w-[1600px]'
           id='container-id'
@@ -152,7 +206,10 @@ const Page = ({
                 <div className='font-bold text-blue-600 max-w-64 '>
                   Name and Address of Contractor:
                 </div>
-                <div>Sri construction and Co.</div>
+                <div className='uppercase'>
+                  Enterprise Management Address: C-1, BRINDAWAN GARDEN, SONARI,
+                  JAMSHEDPUR-831011
+                </div>
               </div>
               <div className='flex gap-3 mb-4'>
                 <div className='font-bold text-blue-600  '>
@@ -271,7 +328,9 @@ const Page = ({
                   <TableHead className=' text-black border-2 border-black'>
                     Net Amount Paid
                   </TableHead>
-                  <TableHead className="text-black border-2 border-black">Total Allowance</TableHead>
+                  <TableHead className='text-black border-2 border-black'>
+                    Total Allowance
+                  </TableHead>
                   <TableHead className=' text-black border-2 border-black'>
                     Signature/Thumb impression of workman
                   </TableHead>
@@ -300,7 +359,20 @@ const Page = ({
                       {employee?.designation.designation}
                     </TableCell>
                     <TableCell className='border-black border-2 text-black'>
-                      {employee?.attendance}
+                      <div className='ml-5'>
+                        {Number(employee?.attendance) -
+                          CalculateNationalHolidays(
+                            findAttendanceByEmployeeId(employee?.employee._id)
+                          )}
+                      </div>
+                      <div>
+                        {`NH: ${CalculateNationalHolidays(
+                          findAttendanceByEmployeeId(employee?.employee._id)
+                        )}`}
+                      </div>
+                      <div className='border-t-2 border-black pl-5'>
+                        {employee?.attendance}
+                      </div>
                     </TableCell>
                     <TableCell className='border-black border-2 text-black'></TableCell>
                     <TableCell className='border-black border-2 text-black'>
@@ -312,9 +384,15 @@ const Page = ({
                       </div>
                     </TableCell>
                     <TableCell className='border-black border-2 text-black'>
-                      {(
-                        employee?.designation.basic * employee?.attendance
-                      ).toFixed(2)}
+                      <div>
+                        {Math.round(
+                          Number(
+                            employee?.designation.basic * employee?.attendance
+                          )
+                        )}
+                      </div>
+                      <div>Incent</div>
+                      <div>{Number(employee?.incentiveAmount).toFixed(2)}</div>
                     </TableCell>
                     <TableCell className='border-black border-2 text-black'>
                       {(
@@ -331,28 +409,237 @@ const Page = ({
                   {employee.allowances}
                   </TableCell> */}
                     <TableCell className='border-black border-2 text-black'>
-                      {(employee?.total).toFixed(2)}
+                      {Math.round(employee?.total).toFixed(2)}
                     </TableCell>
                     <TableCell className='border-black border-2 text-black'>
-                      {(0.12 * employee?.total).toFixed(2)}
+                      {Math.round(0.12 * employee?.total).toFixed(2)}
                     </TableCell>
                     <TableCell className='border-black border-2 text-black'>
-                      {(0.0075 * employee?.total).toFixed(2)}
+                      {Math.round(0.0075 * employee?.total).toFixed(2)}
                     </TableCell>
                     <TableCell className='border-black border-2 text-black'>
                       {employee?.otherDeduction}
                     </TableCell>
                     <TableCell className='border-black border-2 text-black'>
-                      {employee?.netAmountPaid.toFixed(2)}
+                      {Math.round(employee?.netAmountPaid).toFixed(2)}
                     </TableCell>
-                    <TableCell className='border-black border-2 text-black'>{Number(employee?.otherCashDescription?.ca)+Number(employee?.otherCashDescription?.eoc)+Number(employee?.otherCashDescription?.hra)+Number(employee?.otherCashDescription?.incumb)+Number(employee?.otherCashDescription?.ma)+Number(employee?.otherCashDescription?.mob)+Number(employee?.otherCashDescription?.oa)+Number(employee?.otherCashDescription?.pb)+Number(employee?.otherCashDescription?.ssa)+Number(employee?.otherCashDescription?.wa)}</TableCell>
+                    <TableCell className='border-black border-2 text-black'>
+                      {Number(employee?.otherCashDescription?.ca) +
+                        Number(employee?.otherCashDescription?.eoc) +
+                        Number(employee?.otherCashDescription?.hra) +
+                        Number(employee?.otherCashDescription?.incumb) +
+                        Number(employee?.otherCashDescription?.ma) +
+                        Number(employee?.otherCashDescription?.mob) +
+                        Number(employee?.otherCashDescription?.oa) +
+                        Number(employee?.otherCashDescription?.pb) +
+                        Number(employee?.otherCashDescription?.ssa) +
+                        Number(employee?.otherCashDescription?.wa)}
+                    </TableCell>
                     <TableCell className='border-black border-2 text-black'></TableCell>
                     <TableCell className='border-black border-2 text-black'></TableCell>
                     <TableCell className='border-black border-2 text-black'></TableCell>
                   </TableRow>
                 ))}
+
+                {/* <TableRow className='text-black font-mono h-28'>
+                  <TableCell className='border-black border-2 text-black'></TableCell>
+                  <TableCell className='border-black border-2 text-black'></TableCell>
+                  <TableCell className='border-black border-2 text-black'></TableCell>
+                  <TableCell className='border-black border-2 text-black'>
+                    Total:
+                  </TableCell>
+                  <TableCell className='border-black border-2 text-black'>
+                    {calculateTotal(
+                      attendanceData?.map((item) => item?.attendance)
+                    )}
+                  </TableCell>
+                  <TableCell className='border-black border-2 text-black'></TableCell>
+                  <TableCell className='border-black border-2 text-black'>
+                    {calculateTotal(
+                      attendanceData?.map(
+                        (item) =>
+                          Number(item?.designation?.basic) +
+                          Number(item?.designation.DA)
+                      )
+                    ).toFixed(2)}
+                  </TableCell>
+                  <TableCell className='border-black border-2 text-black'>
+                    {Math.round(
+                      calculateTotal(
+                        attendanceData.map(
+                          (item) =>
+                            Number(item?.designation.basic) *
+                            Number(item?.attendance)
+                        )
+                      )
+                    )}
+                  </TableCell>
+                  <TableCell className='border-black border-2 text-black'></TableCell>
+                  <TableCell className='border-black border-2 text-black'></TableCell>
+                  <TableCell className='border-black border-2 text-black'>
+                    {calculateTotal(
+                      attendanceData.map((item) => Number(item?.otherCash))
+                    ).toFixed(2)}
+                  </TableCell>
+                  <TableCell className='border-black border-2 text-black'>
+                    {calculateTotal(
+                      attendanceData.map((item) => Number(item?.total))
+                    ).toFixed(2)}
+                  </TableCell>
+                  <TableCell className='border-black border-2 text-black'>
+                    {calculateTotal(
+                      attendanceData.map((item) => 0.12 * Number(item?.total))
+                    ).toFixed(2)}
+                  </TableCell>
+                  <TableCell className='border-black border-2 text-black'>
+                    {calculateTotal(
+                      attendanceData.map((item) => 0.0075 * Number(item?.total))
+                    ).toFixed(2)}
+                  </TableCell>
+                  <TableCell className='border-black border-2 text-black'>
+                    {calculateTotal(
+                      attendanceData.map((item) => Number(item?.otherDeduction))
+                    ).toFixed(2)}
+                  </TableCell>
+                  <TableCell className='border-black border-2 text-black'>
+                    {calculateTotal(
+                      attendanceData.map((item) => Number(item?.netAmountPaid))
+                    ).toFixed(2)}
+                  </TableCell>
+                  <TableCell className='border-black border-2 text-black'>
+                    {calculateTotal(
+                      attendanceData.map(
+                        (item) =>
+                          Number(item?.otherCashDescription?.ca) +
+                          Number(item?.otherCashDescription?.eoc) +
+                          Number(item?.otherCashDescription?.hra) +
+                          Number(item?.otherCashDescription?.incumb) +
+                          Number(item?.otherCashDescription?.ma) +
+                          Number(item?.otherCashDescription?.mob) +
+                          Number(item?.otherCashDescription?.oa) +
+                          Number(item?.otherCashDescription?.pb) +
+                          Number(item?.otherCashDescription?.ssa) +
+                          Number(item?.otherCashDescription?.wa)
+                      )
+                    ).toFixed(2)}
+                  </TableCell>
+                  <TableCell className='border-black border-2 text-black'></TableCell>
+                  <TableCell className='border-black border-2 text-black'></TableCell>
+                  <TableCell className='border-black border-2 text-black'></TableCell>
+                </TableRow> */}
               </TableBody>
             </PDFTable>
+            <div className='w-[1675px] min-w-fit border-2 border-black mt-2 flex text-sm p-2 items-center justify-between gap-10'>
+              <div className='flex items-center justify-center gap-4'>
+                <span>Basic:</span>
+                <span>
+                  {Math.round(
+                    calculateTotal(
+                      attendanceData?.map((item) =>
+                        Number(item?.designation?.basic)
+                      )
+                    )
+                  ).toFixed(2)}
+                </span>
+              </div>
+              <div className='flex items-center justify-center gap-1'>
+                <span>DA:</span>
+                <span>
+                  {Math.round(
+                    calculateTotal(
+                      attendanceData?.map((item) =>
+                        Number(item?.designation.DA)
+                      )
+                    )
+                  ).toFixed(2)}
+                </span>
+              </div>
+              <div className='flex items-center justify-center gap-1'>
+                <span>Total Attn.:</span>
+                <span>
+                  {' '}
+                  {calculateTotal(
+                    attendanceData?.map((item) => item?.attendance)
+                  )}
+                </span>
+              </div>
+              <div className='flex items-center justify-center gap-1'>
+                <span>Gross Payment:</span>
+                <span>
+                  {Math.round(
+                    calculateTotal(
+                      attendanceData.map((item) => Number(item?.total))
+                    )
+                  ).toFixed(2)}
+                </span>
+              </div>
+              <div className='flex items-center justify-center gap-1'>
+                <span>P.F Amt.:</span>
+                <span>
+                  {Math.round(
+                    calculateTotal(
+                      attendanceData.map((item) => 0.12 * Number(item?.total))
+                    )
+                  ).toFixed(2)}
+                </span>
+              </div>
+              <div className='flex items-center justify-center gap-1'>
+                <span>ESI Amt.:</span>
+                <span>
+                  {Math.round(
+                    calculateTotal(
+                      attendanceData.map((item) => 0.0075 * Number(item?.total))
+                    )
+                  ).toFixed(2)}
+                </span>
+              </div>
+              <div className='flex items-center justify-center gap-1'>
+                <span>Net Payment:</span>
+                <span>
+                  {Math.round(
+                    calculateTotal(
+                      attendanceData.map((item) => Number(item?.netAmountPaid))
+                    )
+                  ).toFixed(2)}
+                </span>
+              </div>
+              <div className='flex items-center justify-center gap-1'>
+                <span>OT value:</span>
+                <span>0.00</span>
+              </div>
+              <div className='flex items-center justify-center gap-1'>
+                <span>Attn. Alw</span>
+                <span>
+                  {Math.round(
+                    calculateTotal(
+                      attendanceData.map((item) =>
+                        Number(item?.otherCashDescription?.eoc)
+                      )
+                    )
+                  ).toFixed(2)}
+                </span>
+              </div>
+              <div className='flex items-center justify-center gap-1'>
+                <span>Monthly Incent</span>
+                <span>
+                  {Math.round(
+                    calculateTotal(
+                      attendanceData.map((item) => item.incentiveAmount)
+                    )
+                  ).toFixed(2)}
+                </span>
+              </div>
+              <div className='flex items-center justify-center gap-1'>
+                <span>CA</span>
+                <span>
+                  {calculateTotal(
+                    attendanceData.map((item) =>
+                      Number(item?.otherCashDescription?.ca)
+                    )
+                  ).toFixed(2)}
+                </span>
+              </div>
+            </div>
           </div>
         )}
         {!attendanceData && (

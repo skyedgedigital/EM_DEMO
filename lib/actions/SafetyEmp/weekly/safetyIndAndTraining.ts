@@ -1,11 +1,13 @@
 "use server";
 
-import connectToDB from "@/lib/database";
+import handleDBConnection from "@/lib/database";
 import SafetyIndAndTraining from "@/lib/models/safetyPanel/emp/weekly/safetyIndAndTraining.model";
 
 const genSafetyIndAndTraining = async (dataString: string) => {
   try {
-    await connectToDB();
+      const dbConnection = await handleDBConnection();
+      if (!dbConnection.success) return dbConnection;
+   
     const data = JSON.parse(dataString);
     const docObj = new SafetyIndAndTraining({
       ...data,
@@ -27,8 +29,10 @@ const genSafetyIndAndTraining = async (dataString: string) => {
 };
 
 const deleteSafetyIndAndTraining = async (id: any) => {
+    const dbConnection = await handleDBConnection();
+    if (!dbConnection.success) return dbConnection;
   try {
-    await connectToDB();
+   
     const resp = await SafetyIndAndTraining.findByIdAndDelete(id);
     return {
       success: true,
@@ -45,8 +49,10 @@ const deleteSafetyIndAndTraining = async (id: any) => {
 };
 
 const fetchSafetyIndAndTraining = async () => {
+    const dbConnection = await handleDBConnection();
+    if (!dbConnection.success) return dbConnection;
   try {
-    await connectToDB();
+   
     const resp = await SafetyIndAndTraining.find().sort({
         createdAt:-1
     });

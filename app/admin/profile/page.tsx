@@ -3,9 +3,11 @@ import AnalyticsComponent from '@/components/admin/AnalyticsComponent';
 import AdminAnalytics from '@/lib/actions/adminAnalytics/adminAnalyticsAction';
 import chalanAction from '@/lib/actions/chalan/chalanAction';
 import EmployeeDataAction from '@/lib/actions/HR/EmployeeData/employeeDataAction';
+import wagesAction from '@/lib/actions/HR/wages/wagesAction';
 import WorkOrderHrAction from '@/lib/actions/HR/workOrderHr/workOrderAction';
 import React, { useState, useEffect, CSSProperties } from 'react';
 import toast from 'react-hot-toast';
+import { MdArrowForward } from 'react-icons/md';
 import HashLoader from 'react-spinners/HashLoader';
 const override: CSSProperties = {
   display: 'block',
@@ -86,7 +88,7 @@ const Admin = () => {
           toolSpend: toolSpendData.success ? toolSpendData.data : 0,
           hrEmps: hrEmpsData.success ? hrEmpsData.data : 0,
           gatePassValidCount: gatePassValidCountData.success
-            ? gatePassValidCountData.totalCount
+            ? JSON.parse(gatePassValidCountData.data).totalCount
             : 0,
         });
 
@@ -99,7 +101,6 @@ const Admin = () => {
 
     fetchData();
   }, []);
-
   if (loading)
     return (
       <>
@@ -123,12 +124,17 @@ const Admin = () => {
     );
 
   const checkApi = async () => {
-    const resp = await EmployeeDataAction.FETCH.fetchNotification();
+    const obj = {
+      year: '2023',
+      workOrder: '66de7bbab0ed51e7d6914673',
+    };
+    const resp = await wagesAction.FETCH.fetchWagesForCalendarYear(
+      JSON.stringify(obj)
+    );
 
     if (resp.success) {
       toast.success('Done');
-      const data = resp.data;
-      console.log(data);
+      console.log(JSON.parse(resp.data));
     } else {
       toast.error('Error');
     }
@@ -224,11 +230,13 @@ const Admin = () => {
       <div className='ml-16 mt-6 border-t-2 border-black-700 flex flex-col'>
         <h2 className='text-center text-3xl mt-3'>Employee</h2>
         <div className='flex flex-wrap items-center justify-center ml-16'>
-          <AnalyticsComponent
-            data={data.hrEmps}
-            color={'red'}
-            tag={'Total Emps Under HR'}
-          />
+          <span onClick={() => window.open('/admin/empDateRange')}>
+            <AnalyticsComponent
+              data={data.hrEmps}
+              color={'red'}
+              tag={'Total Emps Under HR'}
+            />
+          </span>
           <span onClick={() => window.open('/admin/gatePassValidityExpiring')}>
             <AnalyticsComponent
               data={data.gatePassValidCount}
@@ -243,6 +251,17 @@ const Admin = () => {
               tag={' WorkOrder'}
             />
           </span>
+        </div>
+        <div
+          className='h-40 w-1/2 mt-4 bg-green-200 shadow-xl mb-4 rounded-lg overflow-hidden relative group cursor-pointer mx-auto'
+          onClick={() => window.open('/admin/hrAnalytics')}
+        >
+          <h1 className='duration-100 text-2xl font-medium text-black/50 h-full w-full flex justify-center items-center'>
+            👆 View Complete HR Analytics
+            <span className='ml-2 opacity-0 transition duration-300 group-hover:opacity-100 group-hover:translate-x-2'>
+              <MdArrowForward />
+            </span>
+          </h1>
         </div>
       </div>
     </>

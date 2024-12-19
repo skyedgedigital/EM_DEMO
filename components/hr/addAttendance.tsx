@@ -268,10 +268,10 @@ const AddAttendance=({employeee})=>{
             console.log(response);
             if(response.success)
               {
-                toast.success("Attendance updated successfully")
+                toast.success(response.message)
               }
               else {
-                toast.error('Error updating attendance')
+                toast.error(response.message)
               }
             // Handle successful update (e.g., display success message)
 

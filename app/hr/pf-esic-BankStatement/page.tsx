@@ -259,27 +259,27 @@ const Page = () => {
     }
   };
 
-  const onBankSubmit: SubmitHandler<ThirdFormFields> = async (
-    data: ThirdFormFields,
-    event
-  ) => {
-    try {
-      // console.log("yeich hai second form data", event)
-      const query = {
-        year: data.year,
-        month: data.month,
-        dept: data.department,
-        wo: data.workOrder,
-      };
-      const queryString = new URLSearchParams(query).toString();
-      // @ts-ignore
-      //
-      window.open(`/hr/bank-statement?${queryString}`, '_blank');
-    } catch (error) {
-      toast.error('Internalll Server Error');
-      console.error('Internal Server Error:', error);
-    }
-  };
+  // const onBankSubmit: SubmitHandler<ThirdFormFields> = async (
+  //   data: ThirdFormFields,
+  //   event
+  // ) => {
+  //   try {
+  //     // console.log("yeich hai second form data", event)
+  //     const query = {
+  //       year: data.year,
+  //       month: data.month,
+  //       dept: data.department,
+  //       wo: data.workOrder,
+  //     };
+  //     const queryString = new URLSearchParams(query).toString();
+  //     // @ts-ignore
+  //     //
+  //     window.open(`/hr/bank-statement?${queryString}`, '_blank');
+  //   } catch (error) {
+  //     toast.error('Internalll Server Error');
+  //     console.error('Internal Server Error:', error);
+  //   }
+  // };
 
   useEffect(() => {
     const fn = async () => {
@@ -341,32 +341,31 @@ const Page = () => {
     'Dec',
   ];
 
-  const onBonusSubmit: SubmitHandler<FourthFormFields> = async (
-    data: FourthFormFields,
-    event
-  ) => {
-    try {
-      console.log(workOrderNumber);
-      // console.log("yeich hai second form data", event)
+  // const onBonusSubmit: SubmitHandler<FourthFormFields> = async (
+  //   data: FourthFormFields,
+  //   event
+  // ) => {
+  //   try {
+  //     console.log(workOrderNumber);
+  //     // console.log("yeich hai second form data", event)
 
-      const query = {
-        year: data.year,
-        wo: data.workOrder,
-        dep: data.department,
-        bp: data.bonusPercentage,
-      };
-      const queryString = new URLSearchParams(query).toString();
-      // @ts-ignore
-      const action = event.nativeEvent.submitter.value;
-      console.log('llllllllll');
-      if (action == 'BS')
-        window.open(`/hr/bonus-statement?${queryString}`, '_blank');
-      else window.open(`/hr/leave-statement?${queryString}`, '_blank');
-    } catch (error) {
-      toast.error('Internalll Server Error');
-      console.error('Internal Server Error:', error);
-    }
-  };
+  //     const query = {
+  //       year: data.year,
+  //       wo: data.workOrder,
+  //       dep: data.department,
+  //     };
+  //     const queryString = new URLSearchParams(query).toString();
+  //     // @ts-ignore
+  //     const action = event.nativeEvent.submitter.value;
+  //     console.log('llllllllll');
+  //     if (action == 'BS')
+  //       window.open(`/hr/bonus-statement?${queryString}`, '_blank');
+  //     else window.open(`/hr/leave-statement?${queryString}`, '_blank');
+  //   } catch (error) {
+  //     toast.error('Internalll Server Error');
+  //     console.error('Internal Server Error:', error);
+  //   }
+  // };
 
   return (
     <div className='pr-2'>
@@ -632,7 +631,7 @@ const Page = () => {
             </div>
           </form>
         </Form>
-        <Form {...thirdform}>
+        {/* <Form {...thirdform}>
           <form
             onSubmit={thirdform.handleSubmit(onBankSubmit)}
             className=' border-[1px] border-gray-300 rounded-md shadow-lg flex flex-col gap-6 mt-4'
@@ -799,8 +798,8 @@ const Page = () => {
               </Button>
             </div>
           </form>
-        </Form>
-        <Form {...fourthForm}>
+        </Form> */}
+        {/* <Form {...fourthForm}>
           <form
             onSubmit={fourthForm.handleSubmit(onBonusSubmit)}
             className=' border-[1px] border-gray-300 rounded-md shadow-lg flex flex-col gap-6 mt-4'
@@ -919,22 +918,6 @@ const Page = () => {
                   </FormItem>
                 )}
               />
-              <FormField
-                control={fourthForm.control}
-                name='bonusPercentage'
-                render={({ field }) => (
-                  <FormItem className=' flex-col flex gap-1 flex-1'>
-                    <FormLabel>Bonus Percentage</FormLabel>
-                    <Input
-                      type='number'
-                      placeholder='Enter Bonus in %'
-                      {...field}
-                    />
-
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
             </div>
 
             <div className='py-4 gap-2 flex justify-center items-center'>
@@ -960,7 +943,7 @@ const Page = () => {
               </Button>
             </div>
           </form>
-        </Form>
+        </Form> */}
       </div>
     </div>
   );

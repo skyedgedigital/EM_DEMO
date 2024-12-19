@@ -1,11 +1,12 @@
 'use server'
 
-import connectToDB from "@/lib/database";
+import handleDBConnection from "@/lib/database";
 import EsiLocation from "@/lib/models/HR/EsiLocation.model";
 
 const deleteEsiLocation = async(docId:any) => {
+        const dbConnection = await handleDBConnection();
+        if (!dbConnection.success) return dbConnection;
     try{
-        await connectToDB();
         const resp = await EsiLocation.findOneAndDelete({
             _id:docId
         })

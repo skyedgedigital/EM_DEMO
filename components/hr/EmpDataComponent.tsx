@@ -9,10 +9,10 @@ const EmpDataComponent = (props) => {
     async function deleteEmployee(empId:any) {
         const resp = await EmployeeDataAction.DELETE.deleteEmployeeData(docId)
         if(resp.success){
-            toast.success('Deleted')
+            toast.success(resp.message)
         }
         else{
-            toast.error('Error')
+            toast.error(resp.message)
         }
     }
 

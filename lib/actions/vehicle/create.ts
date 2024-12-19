@@ -1,12 +1,13 @@
 'use server'
 
-import connectToDB from "@/lib/database"
+import handleDBConnection from "@/lib/database";
 import Vehicle from "@/lib/models/vehicle.model";
 
 const createVehicle = async(data:any) => {
+     const dbConnection = await handleDBConnection();
+     if (!dbConnection.success) return dbConnection;
     try{
         console.log(data)
-        await connectToDB();
         const findExistingVehicle = await Vehicle.findOne({
             vehicleNumber:data.vehicleNumber
         })

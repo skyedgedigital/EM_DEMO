@@ -4,14 +4,20 @@ import React, { useState } from 'react';
 import toast from 'react-hot-toast';
 import { FaSpinner } from 'react-icons/fa6';
 
-const EmployeeDataPhotos = () => {
+const EmployeeDataPhotos = ({
+  heading = 'Select Photos to Upload',
+  employeeCode = '',
+}: {
+  heading: string;
+  employeeCode: string;
+}) => {
   const [files, setFiles] = useState({
     driverLicense: null,
     aadharCard: null,
     bankPassbook: null,
     profilePhoto: null,
   });
-  const [code, setCode] = useState<string>('');
+  const [code, setCode] = useState<string>(employeeCode);
   const [uploading, setUploading] = useState<boolean>(false);
 
   const handleFileChange = (
@@ -62,14 +68,15 @@ const EmployeeDataPhotos = () => {
     }
   };
   return (
-    <section className='my-8'>
-      <form
-        onSubmit={handleSubmit}
-        className='border-[1px] border-gray-300 rounded-md shadow-lg flex flex-col gap-6 mt-4'
-      >
-        <h2 className='bg-blue-50 font-semibold p-1 text-base py-2 text-center'>
-          Select Photos to upload{' '}
-        </h2>
+    <form
+      onSubmit={handleSubmit}
+      className='border-[1px] border-gray-300 rounded-md shadow-lg flex flex-col gap-6 mt-4'
+    >
+      <h2 className='bg-blue-50 font-semibold p-1 text-base py-2 text-center'>
+        {heading}
+      </h2>
+
+      {!employeeCode && (
         <div className='px-4 flex flex-col gap-1 w-full md:w-[20%]'>
           <label>Employee Code:</label>
           <input
@@ -79,46 +86,46 @@ const EmployeeDataPhotos = () => {
             onChange={(e) => setCode(e.target.value)}
           />
         </div>
-        <div className='px-4 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 lg:gap-6'>
-          <div className=' flex-col flex gap-1 flex-1'>
-            <label>Driver License Photo:</label>
-            <input
-              type='file'
-              onChange={(e) => handleFileChange(e, 'driverLicense')}
-            />
-          </div>
-          <div className=' flex-col flex gap-1 flex-1'>
-            <label>Aadhar Card Photo:</label>
-            <input
-              type='file'
-              onChange={(e) => handleFileChange(e, 'aadharCard')}
-            />
-          </div>
-          <div className=' flex-col flex gap-1 flex-1'>
-            <label>Bank Passbook Photo:</label>
-            <input
-              type='file'
-              onChange={(e) => handleFileChange(e, 'bankPassbook')}
-            />
-          </div>
-          <div className=' flex-col flex gap-1 flex-1'>
-            <label>Profile Photo:</label>
-            <input
-              type='file'
-              onChange={(e) => handleFileChange(e, 'profilePhoto')}
-            />
-          </div>
+      )}
+      <div className='px-4 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 lg:gap-6'>
+        <div className=' flex-col flex gap-1 flex-1'>
+          <label>Driving License Photo:</label>
+          <input
+            type='file'
+            onChange={(e) => handleFileChange(e, 'driverLicense')}
+          />
         </div>
-        <div className='flex w-full justify-center items-center my-4'>
-          <button
-            className=' bg-green-500 w-40 text-white rounded py-1 flex justify-center items-center '
-            type='submit'
-          >
-            {uploading ? <FaSpinner /> : 'Upload Photos'}
-          </button>
+        <div className=' flex-col flex gap-1 flex-1'>
+          <label>Aadhar Card Photo:</label>
+          <input
+            type='file'
+            onChange={(e) => handleFileChange(e, 'aadharCard')}
+          />
         </div>
-      </form>
-    </section>
+        <div className=' flex-col flex gap-1 flex-1'>
+          <label>Bank Passbook Photo:</label>
+          <input
+            type='file'
+            onChange={(e) => handleFileChange(e, 'bankPassbook')}
+          />
+        </div>
+        <div className=' flex-col flex gap-1 flex-1'>
+          <label>Profile Photo:</label>
+          <input
+            type='file'
+            onChange={(e) => handleFileChange(e, 'profilePhoto')}
+          />
+        </div>
+      </div>
+      <div className='flex w-full justify-center items-center my-4'>
+        <button
+          className=' bg-green-500 w-40 text-white rounded py-1 flex justify-center items-center '
+          type='submit'
+        >
+          {uploading ? <FaSpinner /> : 'Upload Photos'}
+        </button>
+      </div>
+    </form>
   );
 };
 

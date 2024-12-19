@@ -10,7 +10,7 @@ import NextTopLoader from 'nextjs-toploader';
 const inter = Inter({ subsets: ['latin'] });
 
 export const metadata: Metadata = {
-  title: 'Enterprise Management Deno',
+  title: 'SHEKHAR ENTERPRISES',
   icons: '/assets/logo-bg.png',
 };
 

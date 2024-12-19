@@ -14,12 +14,12 @@ const AddChemicals = () => {
       })
     )
     if(resp.success){
-      toast.success("Chemical Added");
+      toast.success(resp.message);
       setName("");
       setQuantity(0);
     }
     else{
-      toast.error("An Error Occurred");
+      toast.error(resp.message);
     }
   };
   return (

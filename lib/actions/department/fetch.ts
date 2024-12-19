@@ -1,27 +1,35 @@
-'use server'
+'use server';
 
-import connectToDB from "@/lib/database"
-import Department from "@/lib/models/department.model";
+import { ApiResponse } from '@/interfaces/APIresponses.interface';
+import handleDBConnection from '@/lib/database';
+import Department from '@/lib/models/department.model';
 
-const fetchAllDepartments = async() => {
-    try{
-        await connectToDB();
-        const result = await Department.find({});
-        return{
-            success:true,
-            status:200,
-            message:'List of All Departments',
-            data:result
-        }
-    }
-    catch(err){
-        return{
-            success:false,
-            status:500,
-            message:'Internal Server Error',
-            error:JSON.stringify(err)
-        } 
-    }
-}
+const fetchAllDepartments = async (): Promise<ApiResponse<any>> => {
+  try {
+    const dbConnection = await handleDBConnection();
+    if (!dbConnection.success) return dbConnection;
+    const result = await Department.find({});
+    const sortedResp = result?.sort((a, b) =>
+      a.departmentName.localeCompare(b.departmentName)
+    );
 
-export {fetchAllDepartments}
+    return {
+      success: true,
+      status: 200,
+      message: 'List of All Departments',
+      data: JSON.stringify(sortedResp),
+      error: null,
+    };
+  } catch (err) {
+    return {
+      success: false,
+      status: 500,
+      message:
+        'Unexpected Error Occurred, Failed to create Compliance, Please try later',
+      error: JSON.stringify(err),
+      data: null,
+    };
+  }
+};
+
+export { fetchAllDepartments };

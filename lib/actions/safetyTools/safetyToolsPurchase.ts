@@ -1,12 +1,14 @@
-"use server";
+'use server';
 
-import connectToDB from "@/lib/database";
-import SafetyTool from "@/lib/models/safetyPanel/tools/tool.model";
-import SafetyToolPurchase from "@/lib/models/safetyPanel/tools/toolPurchase.model";
+import { ApiResponse } from '@/interfaces/APIresponses.interface';
+import handleDBConnection from '@/lib/database';
+import SafetyTool from '@/lib/models/safetyPanel/tools/tool.model';
+import SafetyToolPurchase from '@/lib/models/safetyPanel/tools/toolPurchase.model';
 
 const createSafetyToolPurchase = async (dataString: string) => {
+  const dbConnection = await handleDBConnection();
+  if (!dbConnection.success) return dbConnection;
   try {
-    await connectToDB();
     const dataObj = JSON.parse(dataString);
     const toolId = dataObj.toolId;
     const quantity = dataObj.quantity;
@@ -35,7 +37,7 @@ const createSafetyToolPurchase = async (dataString: string) => {
     const result = await docObj.save();
     return {
       success: true,
-      message: "SafetyToolPurchase Added",
+      message: 'SafetyToolPurchase Added',
       status: 200,
       data: JSON.stringify(result),
     };
@@ -44,15 +46,16 @@ const createSafetyToolPurchase = async (dataString: string) => {
     return {
       success: false,
       status: 500,
-      message: "Internal Server Error",
+      message: 'Internal Server Error',
       err: JSON.stringify(err),
     };
   }
 };
 
 const deleteSafetyToolPurchase = async (purchaseId: any) => {
+  const dbConnection = await handleDBConnection();
+  if (!dbConnection.success) return dbConnection;
   try {
-    await connectToDB();
     const purchaseInfo = await SafetyToolPurchase.findOne({
       _id: purchaseId,
     });
@@ -78,45 +81,52 @@ const deleteSafetyToolPurchase = async (purchaseId: any) => {
     );
     console.log(updatedSafetyTool);
     const result = await SafetyToolPurchase.deleteOne({
-        _id: purchaseId,
-        });
-        return {
-            success: true,
-            message: "SafetyToolPurchase Deleted",
-            status: 200,
-            data: JSON.stringify(result),
-            };
+      _id: purchaseId,
+    });
+    return {
+      success: true,
+      message: 'SafetyToolPurchase Deleted',
+      status: 200,
+      data: JSON.stringify(result),
+    };
   } catch (err) {
     console.log(err);
     return {
       success: false,
       status: 500,
-      message: "Internal Server Error",
+      message: 'Internal Server Error',
       err: JSON.stringify(err),
     };
   }
 };
 
-const fetchSafetyToolsPurchases = async() => {
-    try{
-        await connectToDB();
-        const result = await SafetyToolPurchase.find({}).populate("toolId");
-        return{
-            success:true,
-            status:200,
-            message:'Tools Fetched',
-            data:JSON.stringify(result)
-            }
-    }
-    catch(err){
-        console.log(err);
+const fetchSafetyToolsPurchases = async (): Promise<ApiResponse<any>> => {
+  const dbConnection = await handleDBConnection();
+  if (!dbConnection.success) return dbConnection;
+  try {
+    const result = await SafetyToolPurchase.find({}).populate('toolId');
+    return {
+      success: true,
+      status: 200,
+      message: 'Tools Fetched',
+      data: JSON.stringify(result),
+      error: null,
+    };
+  } catch (err) {
+    console.log(err);
     return {
       success: false,
       status: 500,
-      message: "Internal Server Error",
-      err: JSON.stringify(err),
+      message:
+        'Unexpected error occurred, Failed to fetch Safety tool purchases, Please try later',
+      error: JSON.stringify(err),
+      data: null,
     };
-    }
-}
+  }
+};
 
-export {createSafetyToolPurchase,deleteSafetyToolPurchase,fetchSafetyToolsPurchases}
+export {
+  createSafetyToolPurchase,
+  deleteSafetyToolPurchase,
+  fetchSafetyToolsPurchases,
+};

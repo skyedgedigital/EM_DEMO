@@ -31,46 +31,41 @@ const EmpDetails = (props) => {
   }
   return (
     <>
-      <div>
-        <h1 className='font-bold text-blue-500 border-b-2 border-blue-500 text-center py-2 mb-4'>
-          Dashboard
-        </h1>{' '}
-        <div className='p-5 bg-white shadow-lg rounded-lg max-w-6xl mx-auto'>
-          <div className='grid grid-cols-1 md:grid-cols-2 gap-4 gap-y-8 p-3'>
-            <div className='text-xl font-light'>
-              Employee Name:
-              <span className='font-semibold ml-2'>{name}</span>
-            </div>
-            <div className='text-xl font-light'>
-              Employee Role:
-              <span className='font-semibold ml-2'>{empRole}</span>
-            </div>
-            <div className='text-xl font-light'>
-              Aadhar Number:
-              <span className='font-semibold ml-2'>{aadharNumber}</span>
-            </div>
-            <div className='text-xl font-light'>
-              Driving License:
-              <span className='font-semibold ml-2'>{drivingLNumber}</span>
-            </div>
-            <div className='text-xl font-light'>
-              Safety Pass Number:
-              <span className='font-semibold ml-2'>{safetyPassNumber}</span>
-            </div>
-            <div className='text-xl font-light'>
-              UAN:
-              <span className='font-semibold ml-2'>{UAN}</span>
-            </div>
-            <div className='text-xl font-light'>
-              Created At:
-              <span className='font-semibold ml-2'>
-                {formatReadableDate(createdAt)}
-              </span>
-            </div>
-            <div className='text-xl font-light'>
-              Phone:
-              <span className='font-semibold ml-2'>{phoneNumber}</span>
-            </div>
+      <div className='border-[1px] border-gray-300 rounded-md shadow-lg flex flex-col gap-6 p-4'>
+        <div className='grid grid-cols-1 md:grid-cols-2 gap-4 gap-y-8 p-3'>
+          <div className='text-xl font-light'>
+            Employee Name:
+            <span className='font-semibold ml-2'>{name}</span>
+          </div>
+          <div className='text-xl font-light'>
+            Employee Role:
+            <span className='font-semibold ml-2'>{empRole}</span>
+          </div>
+          <div className='text-xl font-light'>
+            Aadhar Number:
+            <span className='font-semibold ml-2'>{aadharNumber}</span>
+          </div>
+          <div className='text-xl font-light'>
+            Driving License:
+            <span className='font-semibold ml-2'>{drivingLNumber}</span>
+          </div>
+          <div className='text-xl font-light'>
+            Safety Pass Number:
+            <span className='font-semibold ml-2'>{safetyPassNumber}</span>
+          </div>
+          <div className='text-xl font-light'>
+            UAN:
+            <span className='font-semibold ml-2'>{UAN}</span>
+          </div>
+          <div className='text-xl font-light'>
+            Created At:
+            <span className='font-semibold ml-2'>
+              {formatReadableDate(createdAt)}
+            </span>
+          </div>
+          <div className='text-xl font-light'>
+            Phone:
+            <span className='font-semibold ml-2'>{phoneNumber}</span>
           </div>
         </div>
       </div>

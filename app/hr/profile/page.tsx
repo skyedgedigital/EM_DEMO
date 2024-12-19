@@ -46,7 +46,7 @@ const FleetManager = () => {
             console.log(JSON.parse(resp.data))
         }
         else{
-            toast.error("Error")
+            toast.error(resp.message)
         }
     }
 

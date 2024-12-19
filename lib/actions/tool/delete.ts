@@ -1,11 +1,12 @@
 'use server'
 
-import connectToDB from "@/lib/database"
+import handleDBConnection from "@/lib/database";
 import Tool from "@/lib/models/tool.model";
 
 const deleteTool = async(toolId:any) => {
+     const dbConnection = await handleDBConnection();
+     if (!dbConnection.success) return dbConnection;
     try{
-        await connectToDB();
         const resp = await Tool.findByIdAndDelete(toolId);
         if(resp){
             return{

@@ -1,11 +1,12 @@
 'use server'
 
-import connectToDB from "@/lib/database"
+import handleDBConnection from "@/lib/database";
 import Vehicle from "@/lib/models/vehicle.model";
 
 const deleteVehicleByVehicleNumber = async(vehicleNumber:string) => {
+     const dbConnection = await handleDBConnection();
+     if (!dbConnection.success) return dbConnection;
     try{
-        await connectToDB();
         const findVehicle = await Vehicle.findOne({
             vehicleNumber:vehicleNumber
         })

@@ -1,13 +1,17 @@
 'use server';
 
-import connectToDB from '@/lib/database';
+import { ApiResponse } from '@/interfaces/APIresponses.interface';
+import handleDBConnection from '@/lib/database';
 import EmployeeData from '@/lib/models/HR/EmployeeData.model';
 import { storage } from '@/utils/fireBase/config';
-import { getDownloadURL, ref, uploadBytesResumable } from 'firebase/storage';
-const createEmployeeData = async (dataString: string) => {
+import { uploadFile } from '@/utils/fireBase/functions';
+import { ref } from 'firebase/storage';
+const createEmployeeData = async (
+  dataString: string
+): Promise<ApiResponse<any>> => {
+  const dbConnection = await handleDBConnection();
+  if (!dbConnection.success) return dbConnection;
   try {
-    await connectToDB();
-
     const dataObj = JSON.parse(dataString);
     const exist = await EmployeeData.findOne({ code: dataObj.code });
     console.log('oooooooo', exist);
@@ -15,6 +19,9 @@ const createEmployeeData = async (dataString: string) => {
       return {
         success: false,
         message: 'Code already exits',
+        error: null,
+        status: 400,
+        data: null,
       };
     }
     const startYear = new Date(dataObj.appointmentDate).getFullYear();
@@ -37,21 +44,27 @@ const createEmployeeData = async (dataString: string) => {
       message: 'Employee Data Created Successfully',
       data: JSON.stringify(resp),
       status: 200,
+      error: null,
     };
   } catch (err) {
     console.log(err);
     return {
       success: false,
-      message: 'Internal Server Error',
+      message:
+        'Unexpected error occurred, Failed to create employee data, Please Try Later',
       error: JSON.stringify(err),
       status: 500,
+      data: null,
     };
   }
 };
 
-const createEmployeeDataBulk = async (dataString: string) => {
+const createEmployeeDataBulk = async (
+  dataString: string
+): Promise<ApiResponse<any>> => {
+  const dbConnection = await handleDBConnection();
+  if (!dbConnection.success) return dbConnection;
   try {
-    await connectToDB();
     const dataArray = JSON.parse(dataString);
     const resp = await EmployeeData.insertMany(dataArray);
     return {
@@ -59,50 +72,26 @@ const createEmployeeDataBulk = async (dataString: string) => {
       message: 'Employee Data Created Successfully',
       data: JSON.stringify(resp),
       status: 200,
+      error: null,
     };
   } catch (err) {
     console.log(err);
     return {
       success: false,
-      message: 'Internal Server Error',
+      message:
+        'Unexpected error occurred, Failed to create employee in bulk, Please Try Later',
       error: JSON.stringify(err),
       status: 500,
+      data: null,
     };
   }
 };
 
-// Function to upload a file to Firebase Storage
-const uploadFile = (storageRef, file) => {
-  return new Promise((resolve, reject) => {
-    const uploadTask = uploadBytesResumable(storageRef, file); // Start the upload task
-
-    uploadTask.on(
-      'state_changed',
-      (snapshot) => {
-        // Monitor the upload progress
-        const progress =
-          (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-        console.log(`Upload is ${progress}% done`);
-      },
-      (error) => {
-        // Handle upload errors
-        console.error('Upload failed:', error);
-        reject(error);
-      },
-      async () => {
-        // Handle successful uploads
-        try {
-          const downloadURL = await getDownloadURL(uploadTask.snapshot.ref); // Get the download URL
-          console.log('File available at', downloadURL);
-          resolve(downloadURL); // Resolve the promise with the download URL
-        } catch (error) {
-          reject(error); // Reject the promise if there's an error
-        }
-      }
-    );
-  });
-};
-const uploadEmployeeDataPhotos = async (photosData: FormData) => {
+const uploadEmployeeDataPhotos = async (
+  photosData: FormData
+): Promise<ApiResponse<any>> => {
+  const dbConnection = await handleDBConnection();
+  if (!dbConnection.success) return dbConnection;
   try {
     // Extract files from FormData
     const driverLicense = photosData.get('driverLicense');
@@ -112,12 +101,12 @@ const uploadEmployeeDataPhotos = async (photosData: FormData) => {
     const employeeCode = photosData.get('code');
 
     const updateblelURLs = {
-      profilePhotoURL: '',
-      drivingLicense: '',
-      aadharCard: '',
-      bankPassbook: '',
+      profilePhotoURL: undefined,
+      drivingLicenseURL: undefined,
+      aadharCardURL: undefined,
+      bankPassbookURL: undefined,
     };
-    if (driverLicense instanceof File) {
+    if (driverLicense && driverLicense instanceof File) {
       const fileName = driverLicense.name; // Get the file name
       const storageRef = ref(
         storage,
@@ -127,10 +116,10 @@ const uploadEmployeeDataPhotos = async (photosData: FormData) => {
       console.log('Driving License URL', DLdownloadURL);
       //   console.log('TYPE OF', typeof DLdownloadURL);
       if (DLdownloadURL) {
-        updateblelURLs.drivingLicense = DLdownloadURL as string;
+        updateblelURLs.drivingLicenseURL = DLdownloadURL as string;
       }
     }
-    if (aadharCard instanceof File) {
+    if (aadharCard && aadharCard instanceof File) {
       const fileName = aadharCard.name; // Get the file name
       const storageRef = ref(
         storage,
@@ -139,10 +128,10 @@ const uploadEmployeeDataPhotos = async (photosData: FormData) => {
       const ACdownloadURL = await uploadFile(storageRef, aadharCard);
       console.log('AAdhar URL', ACdownloadURL);
       if (ACdownloadURL) {
-        updateblelURLs.aadharCard = ACdownloadURL as string;
+        updateblelURLs.aadharCardURL = ACdownloadURL as string;
       }
     }
-    if (bankPassbook instanceof File) {
+    if (bankPassbook && bankPassbook instanceof File) {
       const fileName = bankPassbook.name; // Get the file name
       const storageRef = ref(
         storage,
@@ -151,10 +140,10 @@ const uploadEmployeeDataPhotos = async (photosData: FormData) => {
       const BPdownloadURL = await uploadFile(storageRef, bankPassbook);
       console.log('Bank Passbook URL', BPdownloadURL);
       if (BPdownloadURL) {
-        updateblelURLs.bankPassbook = BPdownloadURL as string;
+        updateblelURLs.bankPassbookURL = BPdownloadURL as string;
       }
     }
-    if (profilePhoto instanceof File) {
+    if (profilePhoto && profilePhoto instanceof File) {
       const fileName = profilePhoto.name; // Get the file name
       const storageRef = ref(
         storage,
@@ -180,14 +169,18 @@ const uploadEmployeeDataPhotos = async (photosData: FormData) => {
       success: true,
       message: 'Photos uploaded successfully',
       status: 200,
+      error: null,
+      data: JSON.stringify(res),
     };
   } catch (err) {
     console.log(err);
     return {
       success: false,
-      message: 'Error uploading photos',
+      message:
+        'Unexpected error occurred, Failed to update  Employee Data, Please Try Later',
       error: JSON.stringify(err),
       status: 500,
+      data: null,
     };
   }
 };

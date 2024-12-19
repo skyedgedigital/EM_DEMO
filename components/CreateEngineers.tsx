@@ -74,7 +74,7 @@ const CreateEngineer: React.FC<{}> = () => {
     const fetch = async () => {
       const res = await fetchAllDepartments();
       if (res.success) {
-        const vehicleNumbers = res.data.map(
+        const vehicleNumbers = JSON.parse(res.data).map(
           (department) => department.departmentName
         );
         setAllDepartments(vehicleNumbers);

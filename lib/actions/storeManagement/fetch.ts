@@ -1,6 +1,6 @@
 'use server'
 
-import connectToDB from "@/lib/database";
+import handleDBConnection from "@/lib/database";
 import Store from "@/lib/models/storeManagement.model";
 import { ToolSchema } from "@/lib/models/tool.model";
 import mongoose from "mongoose";
@@ -8,8 +8,9 @@ import mongoose from "mongoose";
 const ToolModel = mongoose.models.Tool || mongoose.model("Tool", ToolSchema);
 
 const fetchStoreManagment = async(vehicleNumber:string) => {
+   const dbConnection = await handleDBConnection();
+   if (!dbConnection.success) return dbConnection;
     try {
-        await connectToDB();
         
         const resp = await Store.find({
             vehicleNumber:vehicleNumber

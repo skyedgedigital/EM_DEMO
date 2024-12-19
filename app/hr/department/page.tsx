@@ -1,15 +1,15 @@
-"use client";
-import departmentHrAction from "@/lib/actions/HR/DepartmentHr/departmentHrAction";
-import React, { useEffect, useState } from "react";
-import toast from "react-hot-toast";
+'use client';
+import departmentHrAction from '@/lib/actions/HR/DepartmentHr/departmentHrAction';
+import React, { useEffect, useState } from 'react';
+import toast from 'react-hot-toast';
 
 const Page = () => {
   const [departments, setDepartments] = useState<any>(null);
   const [inputDepartmentString, setInputDepartmentString] =
-    useState<string>("");
+    useState<string>('');
   const [showModal, setShowModal] = useState<boolean>(false);
-  const [editFormName, setEditFormName] = useState<string>("");
-  const [editFormInput, setEditFormInput] = useState<string>("");
+  const [editFormName, setEditFormName] = useState<string>('');
+  const [editFormInput, setEditFormInput] = useState<string>('');
   const [editFormEleId, setEditFormEleId] = useState<any>(null);
   useEffect(() => {
     const fn = async () => {
@@ -22,8 +22,8 @@ const Page = () => {
   }, []);
   const handleSubmit = async (e: any) => {
     e.preventDefault();
-    if (inputDepartmentString === "") {
-      toast.error("Enter Department Name");
+    if (inputDepartmentString === '') {
+      toast.error('Enter Department Name');
       return;
     }
     const obj = {
@@ -33,9 +33,9 @@ const Page = () => {
       JSON.stringify(obj)
     );
     if (res.status === 200) {
-      toast.success("Department Created");
+      toast.success('Department Created');
     } else {
-      toast.error("An Error Occurred");
+      toast.error(res.message);
     }
   };
   return (

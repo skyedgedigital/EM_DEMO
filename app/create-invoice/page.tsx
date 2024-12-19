@@ -15,7 +15,10 @@ const page = async ({
   const decodedInvoiceId = searchParams.invoiceId;
   console.warn('The Merged Items', searchParams.mergedItems);
   const res = await getInvoiceByInvoiceId(decodedInvoiceId);
-  const invoice = await JSON.parse(res.data);
+  let invoice;
+  if (res.success) {
+    invoice = await JSON.parse(res.data);
+  }
   console.log('fethc to hora vai', invoice);
   const mergedItems = await JSON.parse(invoice.mergedItems);
   console.log(mergedItems);

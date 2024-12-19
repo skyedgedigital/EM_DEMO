@@ -50,6 +50,8 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { SubmitHandler } from 'react-hook-form';
 import { z, ZodTypeAny } from 'zod';
 import engineerAction from '@/lib/actions/engineer/engineerAction';
+import { Blocks, Cross, Edit } from 'lucide-react';
+import { MdClose } from 'react-icons/md';
 // import { calcItemPrice } from "@/app/_utils/calculatePrices";
 // import { getObjectURL } from "@/app/_utils/aws";
 // import { returnThreeLetterMonth } from "@/app/_utils/dates/date";
@@ -57,6 +59,7 @@ import engineerAction from '@/lib/actions/engineer/engineerAction';
 // import { deleteChalanById } from "@/app/_utils/server_actions/chalans";
 const engSchema = z.object({
   engineer: z.string(),
+  location: z.string().optional(),
 });
 
 type FormFields = z.infer<typeof engSchema>;
@@ -75,7 +78,7 @@ const IndividualChalanContainer = ({ chalan }: { chalan: any }) => {
   const formattedDate = `${day}/${month}/${year}`;
   const [isVerified, setIsVerified] = useState(chalan.verified);
   const [edit, setEdit] = useState(false);
-  console.log('hdjdjdj', chalan);
+  // console.log('hdjdjdj', chalan);
   const [isSigned, setIsSigned] = useState(chalan.signed);
   const [fetchedEngineerNames, setFetchedEngineerNames] = useState([]);
   useEffect(() => {
@@ -86,12 +89,12 @@ const IndividualChalanContainer = ({ chalan }: { chalan: any }) => {
 
       if (res.success) {
         const engineers = res.data
-          ? res.data.map((engineer) => engineer.name)
+          ? JSON.parse(res.data).map((engineer) => engineer.name)
           : [];
         setFetchedEngineerNames(engineers);
       }
       if (!res.success) {
-        return toast.error(res.message);
+        return;
       }
     };
     if (chalan.department?.departmentName != '') fetchEngineersData();
@@ -100,6 +103,7 @@ const IndividualChalanContainer = ({ chalan }: { chalan: any }) => {
   const form = useForm<FormFields>({
     defaultValues: {
       engineer: chalan?.engineer?.name,
+      location: chalan?.location,
     },
     resolver: zodResolver(engSchema),
   });
@@ -108,7 +112,7 @@ const IndividualChalanContainer = ({ chalan }: { chalan: any }) => {
     receivedeng: FormFields
   ) => {
     try {
-      console.log('eng submitted', receivedeng);
+      console.log('form submitted', receivedeng);
       const filter = await JSON.stringify(receivedeng);
       const res = await chalanAction.UPDATE.updateChalan(chalan._id, filter);
 
@@ -139,9 +143,9 @@ const IndividualChalanContainer = ({ chalan }: { chalan: any }) => {
       //     console.log(formData);
 
       if (res.success) {
-        toast.success('Engineer updated successfully');
+        toast.success('Chalan updated successfully');
       } else {
-        toast.error(res.message);
+        toast.error(res.message || 'Failed to update chalan, Please try later');
       }
     } catch (error) {
       toast.error('Something went wrong');
@@ -249,7 +253,7 @@ const IndividualChalanContainer = ({ chalan }: { chalan: any }) => {
           service: formattedString,
           department: chalan.department?.departmentName,
           invoiceId: response?.invoiceId,
-          mergedItems: response.mergedItems,
+          mergedItems: response?.mergedItems,
         };
         const queryString = new URLSearchParams(query).toString();
         console.log('dfghjk', queryString);
@@ -304,10 +308,10 @@ const IndividualChalanContainer = ({ chalan }: { chalan: any }) => {
     try {
       const res = await chalanAction.DELETE.deleteChalan(chalan?.chalanNumber);
       console.log('JUST DELETED CHALAN', res);
-      if (res.status === 200) {
+      if (res.success) {
         toast.success(res.message);
       } else {
-        toast.error(res.message);
+        toast.error(res.message || 'Filed to delete chalan,Please try later');
       }
     } catch (error: any) {
       toast.error(error as string);
@@ -318,49 +322,6 @@ const IndividualChalanContainer = ({ chalan }: { chalan: any }) => {
     <div className='relative shadow-md flex flex-col bg-gr border-[1px] border-black text-xs rounded-lg overflow-hidden w-full'>
       <div className='w-full flex items-stretch justify-between '>
         <h2 className='text-white font-semibold p-2 text-sm text-center w-full bg-blue-400'>{`Chalan Number: ${chalan.chalanNumber}`}</h2>
-
-        {/* <div className="flex gap-[1px] items-center">
-            <Link
-              href={presignedUrl}
-              target="_blank"
-              className=" z-10 bg-blue-500 h-full  text-xs flex items-center justify-center text-white px-2  "
-            >
-              view Physical Chalan
-            </Link>
-            {/* {canApprove && !chalanState?.verified && ( */}
-        {/* <button
-                // onClick={() => approveHandler(chalanState?._id)}
-                className=" flex items-center gap-1 shadow bg-green-600 text-white py-1 px-2"
-              >
-                {approving ? (
-                  <AiOutlineLoading3Quarters className="animate-spin" />
-                ) : (
-                  <RiVerifiedBadgeFill />
-                )}
-                <p className="capitalize">mark as verified</p>
-              </button> */}
-        {/* )} */}
-        {/* {canApprove && !chalanState?.signed && ( */}
-        {/* <button
-                // onClick={() => signHandler(chalanState?._id)}
-                className=" flex items-center gap-1 shadow bg-green-600 text-white py-1 px-2"
-              >
-                {signing ? (
-                  <AiOutlineLoading3Quarters className="animate-spin" />
-                ) : (
-                  <FaSignature />
-                )}
-                <p className="capitalize">mark as signed</p>
-              </button> */}
-        {/* )} */}
-        {/* {chalanState?.verified && chalanState?.signed ? ( */}
-        {/* "" */}
-        {/* ) : ( */}
-        {/* <p className="bg-red-600  text-center capitalize text-white px-2 py-1">
-                pending
-              </p> */}
-        {/* )} */}
-        {/* </div> */}
       </div>
       <div>
         {' '}
@@ -377,10 +338,15 @@ const IndividualChalanContainer = ({ chalan }: { chalan: any }) => {
                 <p className='font-bold capitalize text-primary-color items-start '>
                   Work Order no:
                 </p>
-                <p>
-                  {/* {chalanState?.workOrderNumber} */}
-                  {chalan.workOrder?.workOrderNumber}
-                </p>
+                {chalan.workOrder ? (
+                  <p className=' text-gray-500 '>
+                    {chalan.workOrder?.workOrderNumber}
+                  </p>
+                ) : (
+                  <p className='text-red-500'>
+                    {JSON.stringify(chalan.workOrder)}
+                  </p>
+                )}
               </span>
               <span className=' flex gap-5 pt-1'>
                 <p
@@ -389,7 +355,14 @@ const IndividualChalanContainer = ({ chalan }: { chalan: any }) => {
                 >
                   location:
                 </p>
-                <p className=' text-gray-500 '>{chalan.location}</p>
+                {chalan?.location ? (
+                  <p className=' text-gray-500 '>{chalan.location}</p>
+                ) : (
+                  <p className='text-red-500'>
+                    {JSON.stringify(chalan?.location) ||
+                      'No Location found for this chalan'}
+                  </p>
+                )}
               </span>
               <span className=' flex gap-5 pt-1 '>
                 <p
@@ -398,7 +371,11 @@ const IndividualChalanContainer = ({ chalan }: { chalan: any }) => {
                 >
                   Work Description:
                 </p>
-                <p className=' text-gray-500 '>{chalan?.workDescription} </p>
+                {chalan?.workDescription ? (
+                  <p className=' text-gray-500 '>{chalan?.workDescription}</p>
+                ) : (
+                  <p className='text-red-500'>No work description</p>
+                )}
               </span>
               <span className=' flex gap-5 pt-1'>
                 <p
@@ -407,79 +384,111 @@ const IndividualChalanContainer = ({ chalan }: { chalan: any }) => {
                 >
                   department:
                 </p>
-                <p className=' text-gray-500 '>
-                  {chalan.department?.departmentName}
-                </p>
+                {chalan?.department ? (
+                  <p className=' text-gray-500 '>
+                    {chalan.department?.departmentName}
+                  </p>
+                ) : (
+                  <p className='text-red-500'>
+                    {JSON.stringify(chalan?.department)}
+                  </p>
+                )}
               </span>
             </div>
-            <div className='flex flex-col items-center w-fit justify-center gap-4'>
-              <Button
-                className='w-fit items-center justify-center bg-white border-2 border-black text-black'
+            <div className='flex flex-col items-end w-fit justify-center gap-4'>
+              <button
+                className='text-base items-center justify-center bg-white border-2 border-black text-black px-4 py-1 rounded'
                 onClick={() => {
                   setEdit((prev) => !prev);
                 }}
               >
                 {!edit ? (
-                  <>Click here to update Engineer</>
+                  <p className='text-blue-600'>Edit</p>
                 ) : (
-                  <>Click here to make engineer not editable</>
+                  <p className='text-red-600'>Cancel</p>
                 )}
-              </Button>
-              <Form {...form}>
-                <form
-                  onSubmit={form.handleSubmit(onSubmit)}
-                  className='w-full rounded-md'
-                >
-                  <div className='flex flex-col gap-2'>
-                    <FormField
-                      disabled={!edit}
-                      control={form.control}
-                      name='engineer'
-                      render={({ field }) => (
-                        <FormItem className=' flex-col flex gap-1 flex-1'>
-                          <FormLabel>Engineer</FormLabel>
-                          <Select
-                            onValueChange={field.onChange}
-                            value={field.value}
-                          >
-                            <FormControl>
-                              <SelectTrigger
-                                className='bg-white'
-                                disabled={!edit}
-                              >
-                                {field.value ? (
-                                  <SelectValue placeholder='' />
-                                ) : (
-                                  'Select an Engineer'
-                                )}
-                              </SelectTrigger>
-                            </FormControl>
-                            <SelectContent>
-                              {fetchedEngineerNames.map((option, index) => (
-                                <SelectItem
-                                  key={option.toString()}
-                                  value={option.toString()}
+              </button>
+              {fetchedEngineerNames.length === 0 ? (
+                <p className='text-red-500'>
+                  No engineers found with this department in chalan
+                </p>
+              ) : (
+                <Form {...form}>
+                  <form
+                    onSubmit={form.handleSubmit(onSubmit)}
+                    className='w-full rounded-md'
+                  >
+                    <div className='flex flex-col md:flex-row gap-2 justify-center items-end'>
+                      <FormField
+                        control={form.control}
+                        name='location'
+                        render={({ field }) => {
+                          return (
+                            <FormItem className='flex-col flex gap-1 flex-1'>
+                              <FormLabel>Location:</FormLabel>
+                              <FormControl>
+                                <Input
+                                  type='text'
+                                  disabled={!edit}
+                                  {...field}
+                                />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          );
+                        }}
+                      />
+                      <FormField
+                        disabled={!edit}
+                        control={form.control}
+                        name='engineer'
+                        render={({ field }) => (
+                          <FormItem className=' flex-col flex gap-1 flex-1'>
+                            <FormLabel>Engineer</FormLabel>
+                            <Select
+                              onValueChange={field.onChange}
+                              value={field.value}
+                            >
+                              <FormControl>
+                                <SelectTrigger
+                                  className='bg-white'
+                                  disabled={!edit}
                                 >
-                                  {option}
-                                </SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
+                                  {field.value ? (
+                                    <SelectValue placeholder='' />
+                                  ) : (
+                                    'Select an Engineer'
+                                  )}
+                                </SelectTrigger>
+                              </FormControl>
+                              <SelectContent>
+                                {fetchedEngineerNames.map((option, index) => (
+                                  <SelectItem
+                                    key={option.toString()}
+                                    value={option.toString()}
+                                  >
+                                    {option}
+                                  </SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
 
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                    <Button
-                      type='submit'
-                      className=' bg-green-500 mt-4 mb-4 '
-                      disabled={!edit}
-                    >
-                      Submit
-                    </Button>
-                  </div>
-                </form>
-              </Form>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+
+                      <Button
+                        type='submit'
+                        className=' bg-green-500'
+                        disabled={!edit}
+                      >
+                        Submit
+                      </Button>
+                    </div>
+                  </form>
+                </Form>
+              )}
             </div>
           </div>
 
@@ -631,20 +640,27 @@ const IndividualChalanContainer = ({ chalan }: { chalan: any }) => {
             Invoice already created
           </button> */}
           {/* ) : ( */}
-          <div className='flex justify-end'>
-            <button
-              onClick={handleDeleteChalan}
-              className='bg-red-700 text-white px-4 py-2 mx-2 rounded'
-            >
-              Delete Chalan
-            </button>
-
-            <Button
-              className='bg-green-700 text-white px-4 py-2 rounded'
-              onClick={() => mergeSelectedChalans(chalan)}
-            >
-              Create invoice
-            </Button>
+          <div className='flex flex-col gap-2'>
+            <div className='flex justify-end'>
+              <button
+                onClick={handleDeleteChalan}
+                className='bg-red-700 text-white px-4 py-2 mx-2 rounded'
+              >
+                Delete Chalan
+              </button>
+              <Button
+                disabled={!chalan?.verified}
+                className='bg-green-700 text-white px-4 py-2 rounded'
+                onClick={() => mergeSelectedChalans(chalan)}
+              >
+                Create invoice
+              </Button>
+            </div>
+            {!chalan?.verified && (
+              <p className='text-gray-500'>
+                Please mark chalan verified to create invoice
+              </p>
+            )}
           </div>
         </div>{' '}
       </div>

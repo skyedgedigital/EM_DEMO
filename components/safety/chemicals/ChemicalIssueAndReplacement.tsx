@@ -128,9 +128,9 @@ const ChemicalIssueAndReplacement = () => {
       };
       const resp = await chemicalAction.CREATE.createChemicalIssueAndReplacementRegister(JSON.stringify(obj));
       if (resp.success) {
-        toast.success("File Saved");
+        toast.success(resp.message);
       } else {
-        toast.error("An Error Occurred!");
+        toast.error(resp.message);
       }
     }
   };

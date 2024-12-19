@@ -58,10 +58,6 @@ const page = async () => {
       <TabsContent value='addHR'>
         <EmployeeManagement heading='Add HR ' role='HR' />
       </TabsContent>
-
-      <TabsContent value='addHR'>
-        <EmployeeManagement heading='Add HR ' role='HR' />
-      </TabsContent>
       <TabsContent value='addSafety'>
         <EmployeeManagement heading='Add Safety Manager ' role='Safety' />
       </TabsContent>

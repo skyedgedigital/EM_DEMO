@@ -3,12 +3,12 @@ import { fetchFilledWages } from "./fetch"
 import { fetchWageForAnEmployee, fetchFinalSettlement, fetchWagesForCalendarYear, fetchWagesForFinancialYear } from "./fetch"
 
 const wagesAction = {
-    CREATE:{
-        createWage:createWageForAnEmployee
+    CREATE: {
+        createWage: createWageForAnEmployee
     },
-    FETCH:{
-        fetchFilledWages:fetchFilledWages,
-        fetchWageForAnEmployee:fetchWageForAnEmployee,
+    FETCH: {
+        fetchFilledWages: fetchFilledWages,
+        fetchWageForAnEmployee: fetchWageForAnEmployee,
         fetchFinalSettlement, fetchWagesForCalendarYear, fetchWagesForFinancialYear
     }
 }

@@ -19,13 +19,13 @@ const ViewEmployeeDetails = ({ employeeData }: { employeeData: any }) => {
       const resp = await departmentAction.FETCH.fetchAllDepartments();
       if (resp.success) {
         // console.log('dept response', resp.data);
-        const dept = resp.data.find(
+        const dept = JSON.parse(resp.data).find(
           (data) => data._id === JSON.stringify(employeeData?.department)
         );
         // console.log('mil gya department', dept);
         setEmployee({ ...employeeData, department: dept?.departmentName });
       } else {
-        toast.error('can not fetch department');
+        toast.error(resp.message);
       }
     };
     fnDept();

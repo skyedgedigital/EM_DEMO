@@ -1,5 +1,5 @@
 'use client';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Button } from '../ui/button';
 import { MdOutlineFileDownload } from 'react-icons/md';
 import toast from 'react-hot-toast';
@@ -24,6 +24,7 @@ import {
 import { storage } from '@/utils/fireBase/config';
 import itemAction from '@/lib/actions/item/itemAction';
 import chalanAction from '@/lib/actions/chalan/chalanAction';
+import { useReactToPrint } from 'react-to-print';
 
 const todayDate = () => {
   let date = new Date().toLocaleDateString();
@@ -57,7 +58,15 @@ const PublicHealthServiceInvoice = ({
   const [totalHours, setTotalHours] = useState(0);
 
   const [itemsList, setItemsList] = useState([]);
-  const [dateMapping, setDateMapping] = useState(null);
+  const [dateMapping, setDateMapping] = useState({});
+  const contentInvoiceRef = useRef<HTMLDivElement>(null);
+  const reactToPrintFnInvoice = useReactToPrint({
+    contentRef: contentInvoiceRef,
+  });
+  const contentSummaryRef = useRef<HTMLDivElement>(null);
+  const reactToPrintFnSummary = useReactToPrint({
+    contentRef: contentSummaryRef,
+  });
 
   useEffect(() => {
     const fn = async () => {
@@ -104,53 +113,63 @@ const PublicHealthServiceInvoice = ({
   }, [items, invoice]);
 
   const displayDate = (itemName: string) => {
-    let date = dateMapping?.get(itemName).from;
-    console.log(date);
-    return '';
+    // let date = dateMapping?.get(itemName).from;
+    // console.log(date);
+    // return '';
   };
 
   console.warn('The Items Recieved', items);
   const contentArray: any = [];
-  for (let i = 0; i < items.length; i++) {
+  let new_total_hours = 0;
+  Object.keys(dateMapping).forEach((key, i) => {
+    let total = 0;
+    const itemDetails = dateMapping[key];
+    itemDetails?.details?.map((item, index) => {
+      contentArray.push(
+        <tr>
+          <td className='border-[1px] border-black py-2  text-center '>
+            {index + 1}
+          </td>{' '}
+          <td className='border-[1px] border-black py-2  text-center '>
+            {item?.itemDescription}
+          </td>{' '}
+          <td className='border-[1px] border-black py-2  text-center '>
+            {item?.chalanNumber}
+          </td>{' '}
+          <td className='border-[1px] border-black py-2  text-center '>
+            {item?.chalanDate.toLocaleDateString('en-GB')}
+          </td>{' '}
+          <td className='border-[1px] border-black py-2 text-center '>
+            {item?.location ? item?.location : 'No locations available'}
+          </td>
+          <td className='border-[1px] border-black py-2  text-center '>
+            {/* {filtered[i]?.unit === 'minute' &&
+              (parseFloat(filtered[i]?.used.toString()) / 60).toFixed(2)}
+            {filtered[i]?.unit === 'hour' &&
+              parseFloat(filtered[i]?.used.toString()).toFixed(2)} */}
+            {item.workingHour}
+          </td>
+        </tr>
+      );
+      total += Number(item?.workingHour);
+    });
+    new_total_hours += total;
     contentArray.push(
-      <tr>
-        <td className='border-[1px] border-black py-2  text-center '>
-          {i + 1}
-        </td>{' '}
-        <td className='border-[1px] border-black py-2  text-center '>
-          {items[i]?.itemName}
-        </td>{' '}
-        <td className='border-[1px] border-black py-2  text-center '>
-          {items[i]?.itemNumber}
-        </td>{' '}
-        <td className='border-[1px] border-black py-2  text-center '>
-          {/* {formatDate(filtered[i]?.date.toString())} */}
-          {
-            dateMapping
-              ?.get(items[i].itemName)
-              .from.toLocaleDateString('en-GB') +
-              '-' +
-              dateMapping?.get(items[i].itemName).to.toLocaleDateString('en-GB')
-            // displayDate(items[i].itemName)
-          }
-        </td>{' '}
-        <td className='border-[1px] border-black py-2 text-center '>
-          {dateMapping?.get(items[i].itemName)?.locations
-            ? Array.from(dateMapping.get(items[i].itemName).locations).join(
-                ', '
-              )
-            : 'No locations available'}
+      <tr className={`bg-gray-300`}>
+        <td className='border-[1px] border-black py-2  text-center '>-</td>{' '}
+        <td className='border-[1px] border-black py-2  text-center '>-</td>{' '}
+        <td className='border-[1px] border-black py-2  text-center '>-</td>{' '}
+        <td className='border-[1px] border-black py-2  text-center '>-</td>{' '}
+        <td className='border-[1px] bg-300 border-black py-2 font-bold  text-center '>
+          Item-total
         </td>
         <td className='border-[1px] border-black py-2  text-center '>
-          {/* {filtered[i]?.unit === 'minute' &&
-            (parseFloat(filtered[i]?.used.toString()) / 60).toFixed(2)}
-          {filtered[i]?.unit === 'hour' &&
-            parseFloat(filtered[i]?.used.toString()).toFixed(2)} */}
-          {items[i].itemCost.hours}
+          {/* {totalHourObject[key]} */}
+          {total}
         </td>
       </tr>
     );
-  }
+  });
   contentArray.push(
     <tr className={`bg-gray-300`}>
       <td className='border-[1px] border-black py-2  text-center '>-</td>{' '}
@@ -162,13 +181,13 @@ const PublicHealthServiceInvoice = ({
       </td>
       <td className='border-[1px] border-black py-2  text-center '>
         {/* {totalHourObject[key]} */}
-        {totalHours}
+        {new_total_hours}
       </td>
     </tr>
   );
 
-  const generatePDF = async () => {
-    const originalElementId = invoice?.invoiceId;
+  const generatePDF = async (printOrDownload: string) => {
+    const originalElementId = `PHS-${invoice?.invoiceId}`;
 
     const pdf = new jsPDF('l', 'pt', 'a4');
     const originalElement = document.getElementById(originalElementId)!;
@@ -180,7 +199,8 @@ const PublicHealthServiceInvoice = ({
       callback: async () => {
         // Generate the PDF as a data URL
         const pdfDataUrl = pdf.output('dataurlstring');
-        pdf.save(`${invoice?.invoiceNumber}.pdf`);
+        const fileName = `PHS-${invoice?.invoiceNumber}.pdf`;
+        if (printOrDownload === 'download') pdf.save(fileName);
         const byteString = atob(pdfDataUrl.split(',')[1]);
         const mimeString = pdfDataUrl.split(',')[0].split(':')[1].split(';')[0];
         const ab = new ArrayBuffer(byteString.length);
@@ -190,7 +210,6 @@ const PublicHealthServiceInvoice = ({
         }
         const blob = new Blob([ab], { type: mimeString });
 
-        const fileName = `${invoice?.invoiceNumber}.pdf`;
         const storageRef = ref(storage, `invoices/${fileName}`);
 
         const uploadTask = uploadBytesResumable(storageRef, blob);
@@ -225,7 +244,7 @@ const PublicHealthServiceInvoice = ({
             }
           }
         );
-        await generateSummaryPDF();
+        await generateSummaryPDF(printOrDownload);
       },
       x: 10,
       y: 10,
@@ -234,13 +253,12 @@ const PublicHealthServiceInvoice = ({
     });
   };
 
-  const generateSummaryPDF = async () => {
-    const elementId = `${invoice?.invoiceId}-summary`;
-    const originalElementId = invoice?.invoiceId;
+  const generateSummaryPDF = async (printOrDownload: string) => {
+    const originalElementId = `PHS-${invoice?.invoiceId}-summary`;
 
     // console.log('found element', elementId);
     const pdf = new jsPDF('l', 'pt', 'a4');
-    const originalElement = document.getElementById(elementId)!;
+    const originalElement = document.getElementById(originalElementId)!;
     const element = originalElement.cloneNode(true) as HTMLElement;
 
     element.style.width = '1250px';
@@ -249,7 +267,8 @@ const PublicHealthServiceInvoice = ({
     pdf.html(element, {
       callback: async () => {
         const pdfDataUrl = pdf.output('dataurlstring');
-        pdf.save(`${invoice?.invoiceNumber}-summary.pdf`);
+        const fileName = `PHS-${invoice?.invoiceNumber}.pdf`;
+        if (printOrDownload === 'download') pdf.save(fileName);
         const byteString = atob(pdfDataUrl.split(',')[1]);
         const mimeString = pdfDataUrl.split(',')[0].split(':')[1].split(';')[0];
         const ab = new ArrayBuffer(byteString.length);
@@ -259,7 +278,6 @@ const PublicHealthServiceInvoice = ({
         }
         const blob = new Blob([ab], { type: mimeString });
 
-        const fileName = `PHS-${invoice?.invoiceNumber}.pdf`;
         const storageRef = ref(storage, `invoices/${fileName}`);
 
         const uploadTask = uploadBytesResumable(storageRef, blob);
@@ -312,17 +330,19 @@ const PublicHealthServiceInvoice = ({
     const itemCost = item.itemCost.itemCost || 0;
     return sum + itemCost + 0.18 * itemCost;
   }, 0);
-  const generateAndUploadInvoiceSummaryPDF = async () => {
+  const generateAndUploadInvoiceSummaryPDF = async (
+    printOrDownload: string
+  ) => {
     try {
-      await generateSummaryPDF(); // Generate PDF for download/printing
+      await generateSummaryPDF(printOrDownload); // Generate PDF for download/printing
     } catch (err) {
       console.log('error toh yeh hai boss', err);
     }
   };
 
-  const generateAndUploadInvoicePDF = async () => {
+  const generateAndUploadInvoicePDF = async (printOrDownload: string) => {
     try {
-      await generatePDF();
+      await generatePDF(printOrDownload);
     } catch (err) {
       console.log('error toh yeh hai boss', err);
     }
@@ -428,9 +448,17 @@ const PublicHealthServiceInvoice = ({
     <main className=' w-full flex flex-col gap-1 p-4 pt-20'>
       <div className='flex justify-between items-center pr-6 '>
         <Button
+          onClick={() => {
+            reactToPrintFnInvoice();
+            generateAndUploadInvoicePDF('print');
+          }}
+        >
+          Print PHS Invoice
+        </Button>
+        <Button
           onClick={(e) => {
             e.preventDefault();
-            generateAndUploadInvoicePDF();
+            generateAndUploadInvoicePDF('download');
             return;
           }}
           className='bg-green-700 text-white px-4 py-2 flex gap-1 items-center rounded ml-auto hover:bg-blue-200 hover:text-primary-color-extreme text-xs'
@@ -442,7 +470,8 @@ const PublicHealthServiceInvoice = ({
       <div className=' '>
         <div
           className=' border-[1px] border-gray-700  tracking-wider w-full  text-[0.75rem] font-semibold'
-          id={`${invoice?.invoiceId}`}
+          id={`PHS-${invoice?.invoiceId}`}
+          ref={contentInvoiceRef}
         >
           <h1 className='font-bold text-center w-full py-1'>PROFOMA INVOICE</h1>
           <div className='w-full   flex flex-col gap-3 my-3 ml-4'>
@@ -456,7 +485,7 @@ const PublicHealthServiceInvoice = ({
                 />{' '}
               </div>
               <h1 className='font-bold text-sm uppercase'>
-                Shekhar Enterprises
+                Enterprise Management
               </h1>
             </div>
             <div className=''>
@@ -467,10 +496,10 @@ const PublicHealthServiceInvoice = ({
               <p className='uppercase pt-2'>
                 Address: C-1, BRINDAWAN GARDEN, SONARI, JAMSHEDPUR-831011
               </p>
-              <p>Mobile : 9431133471, 9234973465</p>
-              <p>Email : shekharenter@gmail.com</p>
-              <p className='mt-2'>GSTIN/UN : 20AEMPK3908B1Z2</p>
-              <p className='mb-2'>PAN : AEMPK3908B</p>
+              <p>Mobile : 9876543210, 9876543210</p>
+              <p>Email : abc@gmail.com</p>
+              <p className='mt-2'>GSTIN/UN : 43T46GE65G6R65G</p>
+              <p className='mb-2'>PAN : 43T46GE65G6R65G</p>
             </div>
           </div>
           <div className='border-2 border-black w-full pb-10'>
@@ -489,7 +518,7 @@ const PublicHealthServiceInvoice = ({
                     Jamshedpur - 831001{' '}
                   </span>
                 </div>
-                <div>GSTIN/UIN: 20AABCJ3604P1ZR</div>
+                <div>GSTIN/UIN: 43T46GE65G6R65G</div>
                 <div className='flex items-start gap-1'>
                   <span>
                     Place of supply: <br></br> (Address of Delivery)
@@ -786,9 +815,17 @@ const PublicHealthServiceInvoice = ({
 
       <div className='mt-10 flex justify-between items-center pr-6 '>
         <Button
+          onClick={() => {
+            reactToPrintFnSummary();
+            generateAndUploadInvoiceSummaryPDF('print');
+          }}
+        >
+          Print Summary Sheet
+        </Button>
+        <Button
           onClick={(e) => {
             e.preventDefault();
-            generateAndUploadInvoiceSummaryPDF();
+            generateAndUploadInvoiceSummaryPDF('download');
             return;
           }}
           className='bg-green-700 text-white px-4 py-2 flex gap-1 items-center rounded ml-auto hover:bg-blue-200 hover:text-primary-color-extreme text-xs'
@@ -799,7 +836,8 @@ const PublicHealthServiceInvoice = ({
       </div>
       <div className='flex items-center justify-center '>
         <div
-          id={`${invoice?.invoiceId}-summary`}
+          id={`PHS-${invoice?.invoiceId}-summary`}
+          ref={contentSummaryRef}
           className='flex flex-col justify-center items-center w-full '
         >
           <h2 className='text-center font-bold mb-4 text-base flex gap-1 mx-auto '>

@@ -8,8 +8,10 @@ const ViewChemicalIssueAndReplacement = () => {
         const fn = async () => {
           const resp = await chemicalAction.FETCH.fetchChemicalIssueAndReplacementRegister();
           console.warn(resp);
-          if (resp.data) {
+          if (resp.success) {
             setResult(JSON.parse(resp.data));
+          } else{
+            toast.error(resp.message)
           }
         };
         fn();
@@ -20,7 +22,7 @@ const ViewChemicalIssueAndReplacement = () => {
             toast.success("Deleted");
         }
         else{
-            toast.error("Error while Deleting")
+            toast.error(resp.message)
         }
     }
   return (

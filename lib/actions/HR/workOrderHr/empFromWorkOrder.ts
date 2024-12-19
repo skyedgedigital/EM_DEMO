@@ -1,14 +1,13 @@
 'use server'
 
-import connectToDB from "@/lib/database"
+import handleDBConnection from "@/lib/database";
 import Attendance from "@/lib/models/HR/attendance.model";
-import mongoose from "mongoose";
 
 const getEmpsInvolvedInWorkOrder = async (workOrderId) => {
   console.log(workOrderId);
   try {
-    await connectToDB();
-    const resp = await Attendance.find({
+ const dbConnection = await handleDBConnection();
+ if (!dbConnection.success) return dbConnection;    const resp = await Attendance.find({
       workOrderHr: workOrderId
     }).populate('employee', ['code', 'name']);
 

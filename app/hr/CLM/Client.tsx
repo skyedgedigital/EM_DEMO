@@ -126,6 +126,7 @@ const Client = () => {
   const [month, setMonth] = useState(null);
   const [dep, setDep] = useState(null);
   const [allWorkOrderNumbers, setAllWorkOrderNumbers] = useState([]);
+  const [page, setPage] = useState(1);
   useEffect(() => {
     const fetch = async () => {
       // const { data, success, error } =
@@ -139,7 +140,7 @@ const Client = () => {
       if (success) {
         const workOrderNumbers = JSON.parse(workOrderResp.data);
         setAllWorkOrderNumbers(workOrderNumbers);
-        console.log('yeraaaa wowowowwoncjd', workOrderNumbers);
+        // console.log("yeraaaa wowowowwoncjd", workOrderNumbers);
       } else {
         toast.error('Can not fetch work order numbers!');
       }
@@ -147,23 +148,110 @@ const Client = () => {
     fetch();
   }, []);
 
-  const years = Array.from({ length: 2024 - 2010 + 1 }, (_, i) => 2010 + i);
-  const months = Array.from({ length: 12 }, (_, i) => i + 1);
+  useEffect(() => {
+    // console.log(
+    //   "first lawde",
+    //   page <= employees.length / 2,
+    //   page,
+    //   employees.length,
+    //   employees
+    // );
+    if (!(page <= employees.length / 2)) return;
+    // console.log("first jawda");
+    const fn = async () => {
+      if (employees.length / 15 < page) fetchAttendanceAndWages(page);
+    };
+    fn();
+  }, [page]);
 
-  const onSubmit: SubmitHandler<FormFields> = async (data: any, event) => {
+  // console.log("EMPLOYEES LENGTH XX", employees.length);
+  const fetchMoreData = async (prevOrNext: 'next' | 'prev') => {
+    if (prevOrNext === 'next') {
+      // console.log("GILI");
+      setPage((page) => page + 1);
+    } else {
+      setPage((page) => page - 1);
+    }
+
+    // if (employees.length / 15 < page) await fetchAttendanceAndWages(page);
+  };
+
+  const fetchAttendanceAndWages = async (page_sanku = 1, page_size = 15) => {
     try {
-      console.log('arrrrreeee sahi h', workOrderNumber);
-      // @ts-ignore
-      const action = event.nativeEvent.submitter.value;
-
-      const res = await EmployeeDataAction.FETCH.fetchAllEmployeeData();
+      // console.log("arree muaaa");
+      // console.log("XX running");
+      const res = await EmployeeDataAction.FETCH.fetchAllEmployeeData(
+        page_sanku,
+        page_size
+      );
+      // console.log("page_sanku", page_sanku);
       const depemployees = JSON.parse(res.data);
       if (!depemployees || depemployees.length === 0) {
         toast.error('No employees available');
         return;
       }
+      // setEmployees((emp) => [...emp, depemployees]);
+      setEmployees((emp) => emp.concat(depemployees));
+      //   console.log(data);
+      // //  setAttendanceData(null)
+      //  setMonth(data.month)
+      //  setYear(data.year)
+      //  data.month = parseInt(data.month);
+
+      const bata = {
+        month: parseInt(month),
+        year: parseInt(year),
+        workOrder: workOrderNumber,
+      };
+      //   const response = await chalanAction.FETCH.getChalanByChalanNumber(data.chalanNumber)
+      const filter = await JSON.stringify(bata);
+      setEmployeeData(filter);
+
+      const wageresponse = await wagesAction.FETCH.fetchFilledWages(
+        month,
+        year,
+        workOrderNumber
+      );
+      if (wageresponse.success) {
+        toast.success(wageresponse.message);
+        const wagedata = await JSON.parse(wageresponse.data);
+        setWagesData(wagedata);
+
+        // console.log("wow kya wage hai", wagedata);
+      } else {
+        toast.error(wageresponse.message);
+      }
+
+      // console.log("ek aur respnnse aaigawa", wageresponse);
+    } catch (error) {
+      toast.error(
+        'Something went wrong, Please check internet connection, refresh or Try Later:'
+      );
+      console.error('Internal Server Error:', error);
+    }
+  };
+
+  const years = Array.from({ length: 2024 - 2010 + 1 }, (_, i) => 2010 + i);
+  const months = Array.from({ length: 12 }, (_, i) => i + 1);
+
+  const onSubmit: SubmitHandler<FormFields> = async (data: any, event) => {
+    try {
+      // console.log("arrrrreeee sahi h", workOrderNumber);
+      // @ts-ignore
+      const action = event.nativeEvent.submitter.value;
+      const res = await EmployeeDataAction.FETCH.fetchAllEmployeeData();
+      let depemployees = [];
+      if (res.success) {
+        depemployees = JSON.parse(res.data);
+      }
+      // console.log("DEP EMP:*** ", depemployees);
+      if (!depemployees || depemployees.length === 0) {
+        toast.error('No employees available');
+        return;
+      }
       setEmployees(depemployees);
-      console.log(data);
+      setPage(1);
+      // console.log(data);
       //  setAttendanceData(null)
       setMonth(data.month);
       setYear(data.year);
@@ -174,16 +262,16 @@ const Client = () => {
         wo: data.workOrder,
       };
       const queryString = new URLSearchParams(query).toString();
-      
+
       data.month = parseInt(data.month);
 
       data.year = parseInt(data.year);
-      console.log('kya baat', data);
+      // console.log("kya baat", data);
       //   const response = await chalanAction.FETCH.getChalanByChalanNumber(data.chalanNumber)
       const filter = await JSON.stringify(data);
       setEmployeeData(filter);
       setPeriodData(`${data.month}-${data.year}`);
-      console.log('hhhhhhhhhhhhhhhhhh', data);
+      // console.log("hhhhhhhhhhhhhhhhhh", data);
       const wageresponse = await wagesAction.FETCH.fetchFilledWages(
         data.month,
         data.year,
@@ -194,22 +282,26 @@ const Client = () => {
         const wagedata = await JSON.parse(wageresponse.data);
         setWagesData(wagedata);
 
-        console.log('wow kya wage hai', wagedata);
+        // console.log("wow kya wage hai", wagedata);
       } else {
         toast.error(wageresponse.message);
       }
 
-      console.log('ek aur respnnse aaigawa', wageresponse);
-
+      // console.log("ek aur respnnse aaigawa", wageresponse);
       if (action === 'GWR') {
-        setAAction(action);
-      }
-      else if(action === "AS"){
-        window.open(`/hr/Allowances?${queryString}`, "_blank");
+        // setAAction(action);
+        window.open(`/hr/wages-register?${queryString}`, '_blank');
+      } else if (action === 'AS') {
+        window.open(`/hr/Allowances?${queryString}`, '_blank');
       }
     } catch (error) {
-      toast.error('Internal Server Error');
-      console.error('Internal Server Error:', error);
+      toast.error(
+        'Something went wrong, Please check internet connection, refresh or Try Later'
+      );
+      console.error(
+        'Something went wrong, Please check internet connection, refresh or Try Later:',
+        error
+      );
     }
   };
 
@@ -234,8 +326,10 @@ const Client = () => {
         window.open(`/hr/formXVI?${queryString}`, '_blank');
       } else window.open(`/hr/formXVII?${queryString}`, '_blank');
     } catch (error) {
-      toast.error('Internalll Server Error');
-      console.error('Internal Server Error:', error);
+      toast.error(
+        'Something went wrong, Please check internet connection, refresh or Try Later:'
+      );
+      console.error('error', error);
     }
   };
 
@@ -267,19 +361,21 @@ const Client = () => {
   useEffect(() => {
     const fn = async () => {
       try {
-        console.log('wowoowowow');
+        // console.log("wowoowowow");
         const response = await departmentHrAction.FETCH.fetchDepartmentHr();
 
-        console.log(response);
+        // console.log(response);
         if (response?.success) {
           const responseData = await JSON.parse(response.data);
-          console.log('sahi response', responseData);
+          // console.log("sahi response", responseData);
           setDepartments(responseData);
         } else {
-          console.log(response.message);
+          // console.log(response.message);
         }
       } catch (err) {
-        toast.error('Internal Serveeer Error');
+        toast.error(
+          'Something went wrong, Please check internet connection, refresh or Try Later'
+        );
         console.log('Internal Serveeer Error:', err);
       }
     };
@@ -293,12 +389,12 @@ const Client = () => {
         if (!wagesData) return;
         setAttendanceData(null);
         const response = await fetchAllDepAttendance(employeeData);
-        console.log(response);
+        // console.log(response);
         if (response?.success) {
           toast.success('Attendance Results retrieved');
           const responseData = JSON.parse(response.data);
-          console.log('yeri length', responseData.length);
-          console.log('sahi response 22', responseData);
+          // console.log("yeri length", responseData.length);
+          // console.log("sahi response 22", responseData);
           setAttendance(responseData);
           const newData = [];
 
@@ -331,12 +427,12 @@ const Client = () => {
               }
             }
 
-            console.log('dekhte han & ham bumhra', employees, employee[12]);
+            // console.log("dekhte han & ham bumhra", employees, employee[12]);
             const existingAttendance = responseData.find(
               (attendance) => attendance.employee.code === employee.code
             );
 
-            console.log('urrey vaiiii', existingAttendance);
+            // console.log("urrey vaiiii", existingAttendance);
             //yaha default vali condition dekhni hogi
             const attendance =
               parsed.workOrder !== 'Default' &&
@@ -347,27 +443,33 @@ const Client = () => {
                   ? wo.workOrderAtten
                   : ''
               );
-
+            // how is this being done, I have to check if something goes wrong
             const attendanceDefault =
               parsed.workOrder === 'Default' && existingAttendance
                 ? existingAttendance.days.reduce((acc, day) => {
                     if (day.status === 'Present') {
                       return acc + 1;
+                    } else if (day.status === 'NH') {
+                      return acc + 1;
+                    } else if (day.status === 'Half Day') {
+                      return acc + 0.5;
                     }
                     return acc;
                   }, 0)
                 : 0;
 
-            console.log(
-              'yeto load hi nii hua',
-              wagesData,
-              attendance,
-              attendanceDefault
-            );
+            // console.log(
+            //   "yeto load hi nii hua",
+            //   wagesData,
+            //   attendance,
+            //   attendanceDefault
+            // );
 
-            const existingWage = wagesData.find(
-              (wage) => wage.employee.code === employee.code
-            );
+            const existingWage = wagesData.find((wage) => {
+              if (wage.employee) {
+                return wage.employee.code === employee.code;
+              }
+            });
 
             newData.push({
               serial: index + 1,
@@ -388,22 +490,24 @@ const Client = () => {
           }
           setAttendanceData(newData);
           setLoading(false);
-          console.log('yeich hai newData', newData);
-          console.log('aagya response');
+          // console.log("yeich hai newData", newData);
+          // console.log("aagya response");
           // if(aaction==="GWR")
           // {
           //   const query = { employee: JSON.stringify(attendanceData) };
           //   const queryString = new URLSearchParams(query).toString();
 
-          //  window.open(`/hr/wages-register?${queryString}`,'_blank')
+          //  window.open(/hr/wages-register?${queryString},'_blank')
 
           // }
         } else {
           console.log(response.message);
         }
       } catch (err) {
-        toast.error('Innternal Server Errorrrrr');
-        console.error('Internal Server Error:', err);
+        toast.error(
+          'Something went wrong, Please check internet connection, refresh or Try Later:'
+        );
+        console.log('Internal Server Error: ***', err);
       }
     };
     fn();
@@ -421,7 +525,9 @@ const Client = () => {
           setAAction('');
         }
       } catch (err) {
-        toast.error('Innternal Server Errorrrrr');
+        toast.error(
+          'Something went wrong, Please check internet connection, refresh or Try Later:'
+        );
         console.error('Internal Server Error:', err);
       }
     };
@@ -439,21 +545,21 @@ const Client = () => {
             <TableHead>Name</TableHead>
             <TableHead>Father Name</TableHead>
             {/* Table headers for each day */}
-            {days.map((day) => (
-              <TableHead key={day}>{day}</TableHead>
+            {days.map((day, idx) => (
+              <TableHead key={day + 'jum' + idx}>{day}</TableHead>
             ))}
             <TableHead>Total Attendance</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
           {employeeData.map((employee, index) => (
-            <TableRow key={employee._id}>
+            <TableRow key={employee._id.toString()}>
               <TableCell>{index + 1}</TableCell>
               <TableCell>{employee.employee.name}</TableCell>
               <TableCell>{employee.employee.fathersName}</TableCell>
               {/* Table data for each day (status) */}
               {days.map((day) => (
-                <TableCell key={day}>
+                <TableCell key={day + '' + employee._id.toString()}>
                   {employee.days.find((d) => d.day === day)?.status || '-'}
                 </TableCell>
               ))}
@@ -485,7 +591,7 @@ const Client = () => {
     // Extract day numbers and statuses from the attendance array
     const dayNumbers = attendance.map((dayData) => dayData.day);
     const statuses = attendance.map((dayData) => dayData.status);
-    console.log(statuses);
+    // console.log(statuses);
     // Table headers (including all days)
     const tableHeaders = Array.from({ length: 31 }, (_, i) => i + 1);
 
@@ -494,7 +600,7 @@ const Client = () => {
     const handleStatusChange = (dayIndex, newStatus) => {
       // Update attendance array with the new status
       attendance[dayIndex].status = newStatus;
-      console.log(attendance);
+      // console.log(attendance);
       // Update UI (optional, re-render the table)
     };
 
@@ -510,10 +616,10 @@ const Client = () => {
           dataString,
           employeeData
         );
-        console.log(response);
+        // console.log(response);
         if (response?.success) {
           toast.success('Attendance updated successfully');
-          console.log(response.data, 'attandance data backend');
+          // console.log(response.data, "attandance data backend");
         } else {
           toast.error('Error updating attendance');
         }
@@ -537,7 +643,7 @@ const Client = () => {
             <TableRow>
               <TableCell>Status</TableCell>
               {statuses.map((status, index) => (
-                <TableCell key={index}>
+                <TableCell key={index + 'hum' + index}>
                   {' '}
                   <Select
                     defaultValue={status}
@@ -592,7 +698,7 @@ const Client = () => {
                   <Select
                     onValueChange={(e) => {
                       field.onChange(e);
-                      console.log(e);
+                      // console.log(e);
                     }}
                     value={field.value}
                   >
@@ -607,7 +713,10 @@ const Client = () => {
                     </FormControl>
                     <SelectContent className='max-w-80 max-h-72'>
                       {years?.map((option, index) => (
-                        <SelectItem value={option.toString()} key={option}>
+                        <SelectItem
+                          value={option.toString()}
+                          key={option + 'tum'}
+                        >
                           {option.toString()}
                         </SelectItem>
                       ))}
@@ -641,7 +750,10 @@ const Client = () => {
                     </FormControl>
                     <SelectContent className='max-w-80 max-h-72'>
                       {months?.map((option, index) => (
-                        <SelectItem value={option.toString()} key={option}>
+                        <SelectItem
+                          value={option.toString()}
+                          key={option + 'lum' + index}
+                        >
                           {monthsName[option - 1]}
                         </SelectItem>
                       ))}
@@ -679,7 +791,10 @@ const Client = () => {
                       </SelectItem>
 
                       {allWorkOrderNumbers?.map((option, index) => (
-                        <SelectItem value={option._id.toString()} key={option}>
+                        <SelectItem
+                          value={option._id.toString()}
+                          key={option._id.toString()}
+                        >
                           {option.workOrderNumber}
                         </SelectItem>
                       ))}
@@ -703,24 +818,13 @@ const Client = () => {
               <>Show List</>
             </Button>
             <Button
-              type="submit"
-              className="flex items-center gap-1 border-2 border-black px-4 mb-2 rounded bg-green-500 text-white"
-              value="AS"
+              type='submit'
+              className='flex items-center gap-1 border-2 border-black px-4 mb-2 rounded bg-green-500 text-white'
+              value='AS'
               // onClick={handleSubmit(onSubmit)}
             >
               {form.formState.isSubmitting && (
-                <Loader2 className="h-4 w-4 animate-spin" />
-              )}
-              <>Allowances Slip</>
-            </Button>
-            <Button
-              type="submit"
-              className="flex items-center gap-1 border-2 border-black px-4 mb-2 rounded bg-green-500 text-white"
-              value="GWR"
-              // onClick={handleSubmit(onSubmit)}
-            >
-              {form.formState.isSubmitting && (
-                <Loader2 className="h-4 w-4 animate-spin" />
+                <Loader2 className='h-4 w-4 animate-spin' />
               )}
               <>Allowances Slip</>
             </Button>
@@ -770,7 +874,7 @@ const Client = () => {
                   name='location'
                   render={({ field }) => (
                     <FormItem className=' flex-col flex gap-1 flex-1'>
-                      <FormLabel>Location</FormLabel>
+                      <FormLabel>Name and Location</FormLabel>
                       <FormControl>
                         {field.value ? (
                           <Input
@@ -847,7 +951,7 @@ const Client = () => {
                           {allWorkOrderNumbers?.map((option, index) => (
                             <SelectItem
                               value={option._id.toString()}
-                              key={option}
+                              key={option._id.toString()}
                             >
                               {option.workOrderNumber}
                             </SelectItem>
@@ -880,50 +984,11 @@ const Client = () => {
         <button
           className='bg-blue-500 mt-2 hover:bg-blue-600 text-white py-2 px-4 rounded focus:outline-none focus:ring-2 focus:ring-blue-300'
           onClick={async () => {
-            try {
-              console.log('arree muaaa');
-              const res = await EmployeeDataAction.FETCH.fetchAllEmployeeData();
-              const depemployees = JSON.parse(res.data);
-              if (!depemployees || depemployees.length === 0) {
-                toast.error('No employees available');
-                return;
-              }
-              setEmployees(depemployees);
-              //   console.log(data);
-              // //  setAttendanceData(null)
-              //  setMonth(data.month)
-              //  setYear(data.year)
-              //  data.month = parseInt(data.month);
-
-              const bata = {
-                month: parseInt(month),
-                year: parseInt(year),
-                workOrder: workOrderNumber,
-              };
-              //   const response = await chalanAction.FETCH.getChalanByChalanNumber(data.chalanNumber)
-              const filter = await JSON.stringify(bata);
-              setEmployeeData(filter);
-
-              const wageresponse = await wagesAction.FETCH.fetchFilledWages(
-                month,
-                year,
-                workOrderNumber
-              );
-              if (wageresponse.success) {
-                toast.success(wageresponse.message);
-                const wagedata = await JSON.parse(wageresponse.data);
-                setWagesData(wagedata);
-
-                console.log('wow kya wage hai', wagedata);
-              } else {
-                toast.error(wageresponse.message);
-              }
-
-              console.log('ek aur respnnse aaigawa', wageresponse);
-            } catch (error) {
-              toast.error('Internalll Server Error');
-              console.error('Internal Server Error:', error);
-            }
+            console.log('LELLA', page);
+            // isko kar sakte h
+            // await fetchAttendanceAndWages(1);
+            setEmployees([]);
+            await fetchAttendanceAndWages(1, page * 15);
           }}
         >
           Refresh Attendance & Wages
@@ -934,6 +999,8 @@ const Client = () => {
           data={attendanceData}
           columns={wagesColumns}
           filterValue='name'
+          pageCount={15}
+          page={page} // Pass the page state here
         />
       )}
 

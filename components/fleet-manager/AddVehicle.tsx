@@ -112,9 +112,9 @@ const schema = z.object({
     })
     .optional(),
   fuelType: z.enum(['Diesel', 'Petrol']),
-  fuelCost: zodInputStringPipe(
-    z.number().nonnegative('Price must be non-negative')
-  ),
+  // fuelCost: zodInputStringPipe(
+  //   z.number().nonnegative('Price must be non-negative')
+  // ),
 });
 
 type FormFields = z.infer<typeof schema>;
@@ -166,7 +166,7 @@ const AddVehicle: React.FC<{}> = () => {
       puc: '',
       pucExpiryDate: undefined,
       fuelType: 'Diesel',
-      fuelCost: '',
+      // fuelCost: '',
     },
     resolver: zodResolver(schema),
   });
@@ -201,7 +201,7 @@ const AddVehicle: React.FC<{}> = () => {
           puc: '',
           pucExpiryDate: undefined,
           fuelType: 'Diesel',
-          fuelCost: '',
+          // fuelCost: '',
         });
         console.log('Vehicle created successfully:');
         // Handle successful creation (e.g., display success message, redirect)
@@ -854,12 +854,12 @@ const AddVehicle: React.FC<{}> = () => {
             )}
           />
 
-          <FormField
+          {/* <FormField
             control={form.control}
             name='fuelCost'
             render={({ field }) => (
               <FormItem className=' flex-col flex gap-1 flex-1'>
-                <FormLabel>Fuel Consumption</FormLabel>
+                <FormLabel>Fuel Consumption Per Hour</FormLabel>
                 <FormControl>
                   {field.value ? (
                     <Input
@@ -880,7 +880,7 @@ const AddVehicle: React.FC<{}> = () => {
                 <FormMessage />
               </FormItem>
             )}
-          />
+          /> */}
 
           <FormField
             control={form.control}
@@ -1118,7 +1118,7 @@ const AddVehicle: React.FC<{}> = () => {
             name='fitness'
             render={({ field }) => (
               <FormItem className=' flex-col flex gap-1 flex-1'>
-                <FormLabel>Gate Fitness Number</FormLabel>
+                <FormLabel>Fitness Number</FormLabel>
                 <FormControl>
                   {field.value ? (
                     <Input placeholder='' {...field} className=' bg-white ' />
@@ -1242,7 +1242,7 @@ const AddVehicle: React.FC<{}> = () => {
             name='safety'
             render={({ field }) => (
               <FormItem className=' flex-col flex gap-1 flex-1'>
-                <FormLabel>Gate Safety Number</FormLabel>
+                <FormLabel>Safety Number</FormLabel>
                 <FormControl>
                   {field.value ? (
                     <Input placeholder='' {...field} className=' bg-white ' />

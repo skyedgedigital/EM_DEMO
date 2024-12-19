@@ -7,7 +7,10 @@ import { columns } from '@/components/admin/EngineerColumns';
 
 const Engineers: React.FC<{}> = async () => {
   const res = await engineerAction.FETCH.fetchAllEngineers();
-  const tempEngineers = await JSON.parse(res.data);
+  let tempEngineers;
+  if (res.success) {
+    tempEngineers = await JSON.parse(res.data);
+  }
   const engineers = tempEngineers.map((engineer) => {
     return {
       ...engineer, // Include all existing properties

@@ -1,12 +1,13 @@
 'use server'
 
-import connectToDB from "@/lib/database";
+import handleDBConnection from "@/lib/database";
 import AttendanceUploads from "@/lib/models/safetyPanel/toolBoxTalk/attendanceUploads.model";
 import SiteUploads from "@/lib/models/safetyPanel/toolBoxTalk/siteUploads.model";
 
 const genSiteUploads = async(dataString:string) => {
     try{
-        await connectToDB();
+          const dbConnection = await handleDBConnection();
+  if (!dbConnection.success) return dbConnection;
         const data = JSON.parse(dataString);
         const docObj = new SiteUploads({
             ...data
@@ -30,7 +31,8 @@ const genSiteUploads = async(dataString:string) => {
 
 const deleteSiteUploads = async(id:any) => {
     try{
-        await connectToDB();
+          const dbConnection = await handleDBConnection();
+  if (!dbConnection.success) return dbConnection;
         const resp = await SiteUploads.findByIdAndDelete(id);
         return{
             success:true,
@@ -50,7 +52,8 @@ const deleteSiteUploads = async(id:any) => {
 
 const fetchSiteUploads = async() => {
     try{
-        await connectToDB();
+          const dbConnection = await handleDBConnection();
+  if (!dbConnection.success) return dbConnection;
         const resp = await SiteUploads.find({}).sort({
             createdAt:-1
         });

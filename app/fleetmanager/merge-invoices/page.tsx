@@ -83,14 +83,14 @@ const Page = ({
 
   useEffect(() => {
     const fetch = async () => {
-      const { data, success, error } =
+      const { data, success, error, message } =
         await engineerAction.FETCH.fetchAllEngineers();
 
       if (success) {
         const engineers = JSON.parse(data);
         setAllEngineers(engineers);
       } else {
-        toast.error(error || 'can not fetch engineers!');
+        toast.error(message || 'can not fetch engineers!');
       }
     };
     fetch();
@@ -120,11 +120,12 @@ const Page = ({
       console.log('filetered', filteredChalans);
 
       if (filteredChalans.length > 0) {
-        const currentChalans = filteredChalans;
-        const startIndex = (page - 1) * limit;
-        const endIndex = Math.min(startIndex + limit, currentChalans.length);
-        const finalChalans = currentChalans.slice(startIndex, endIndex);
-        setChalanss(finalChalans);
+        // THIS COMMENTED CODE WERE USED TO IMPLEMENT PAGING
+        // const currentChalans = filteredChalans;
+        // const startIndex = (page - 1) * limit;
+        // const endIndex = Math.min(startIndex + limit, currentChalans.length);
+        // const finalChalans = currentChalans.slice(startIndex, endIndex);
+        setChalanss(filteredChalans);
       }
     };
 
@@ -143,14 +144,14 @@ const Page = ({
         data.engineer,
         data.workOrder
       );
-      const response = await JSON.parse(res.data);
-      console.log(response);
-      setFilteredChalans(response);
+      if (res.success) {
+        const response = await JSON.parse(res.data);
+        console.log(response);
+        setFilteredChalans(response);
 
-      setCheckedChalans([]);
-      setCheckedIChalans([]);
-      console.log('wowoowjwjdiojoed', response);
-      if (res?.success) {
+        setCheckedChalans([]);
+        setCheckedIChalans([]);
+        console.log('wowoowjwjdiojoed', response);
         toast.success(res.message);
       } else {
         toast.error(res.message);
@@ -200,7 +201,7 @@ const Page = ({
           workOrderNumber: workOrderNumber?.workOrderNumber,
         };
         const query = {
-          wo: workOrderNumber?.workOrderNumber,
+          wo: workOrderNumber,
           location: checkedIChalans[0]?.location,
           service: formattedString,
           department: checkedIChalans[0].department?.departmentName,
@@ -329,7 +330,10 @@ const Page = ({
                     </FormControl>
                     <SelectContent className='max-w-80 max-h-72'>
                       {allWorkOrderNumbers?.map((option, index) => (
-                        <SelectItem value={option._id.toString()} key={option}>
+                        <SelectItem
+                          value={option._id.toString()}
+                          key={option._id.toString()}
+                        >
                           {option.workOrderNumber}
                         </SelectItem>
                       ))}
@@ -366,9 +370,17 @@ const Page = ({
                       {allEngineers?.map((option, index) => (
                         <SelectItem
                           value={option._id.toString()}
-                          key={option.toString()}
+                          key={option._id.toString()}
+                          // className="capitalize"
                         >
-                          {option.name}
+                          {option?.name
+                            ?.toLowerCase()
+                            .split(' ')
+                            .map(
+                              (word: string) =>
+                                word.charAt(0).toUpperCase() + word.slice(1)
+                            )
+                            .join(' ')}
                         </SelectItem>
                       ))}
                     </SelectContent>
@@ -388,7 +400,7 @@ const Page = ({
       <Separator className='my-4' />
 
       <div className=' flex items-center justify-end my-4 px-2'>
-        <div className='flex space-x-4'>
+        {/* <div className='flex space-x-4'>
           <Link
             href={{
               pathname: '/fleetmanager/merge-invoices',
@@ -418,7 +430,7 @@ const Page = ({
           >
             Next
           </Link>
-        </div>
+        </div> */}
       </div>
       <div className='flex flex-col gap-10 pr-4 '>
         {chalanss?.length > 0 ? (

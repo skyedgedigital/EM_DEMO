@@ -1,10 +1,11 @@
 'use server'
+import handleDBConnection from "../database";
 import Enterprise from "../models/enterprise.model";
-import connectToDB from "../database";
 async function saveEnterpriseInfo(info:string) {
+   const dbConnection = await handleDBConnection();
+   if (!dbConnection.success) return dbConnection;
     try {
       // Check if an enterprise document already exists
-      await connectToDB();
       console.log("boigigig")
       const infor=await JSON.parse(info)
       console.log(infor)
@@ -31,6 +32,8 @@ async function saveEnterpriseInfo(info:string) {
 
 
   async function fetchEnterpriseInfo() {
+     const dbConnection = await handleDBConnection();
+     if (!dbConnection.success) return dbConnection;
     try {
       // Fetch the enterprise details (assuming there's only one document)
       const enterprise = await Enterprise.findOne();

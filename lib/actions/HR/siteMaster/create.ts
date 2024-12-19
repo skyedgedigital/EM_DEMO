@@ -1,11 +1,12 @@
 'use server'
 
-import connectToDB from "@/lib/database";
+import handleDBConnection from "@/lib/database";
 import Site from "@/lib/models/HR/siteMaster.model";
 
 const createSiteMaster = async(dataString:string) => {
+        const dbConnection = await handleDBConnection();
+        if (!dbConnection.success) return dbConnection;
     try{
-        await connectToDB();
         const data = JSON.parse(dataString);
         const Obj = new Site({
             ...data

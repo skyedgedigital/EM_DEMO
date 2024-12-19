@@ -1,13 +1,15 @@
 "use server";
 
-import connectToDB from "@/lib/database";
+import handleDBConnection from "@/lib/database";
 import Item from "@/lib/models/item.model";
 import WorkOrder from "@/lib/models/workOrder.model";
 import mongoose, { Schema } from "mongoose";
 
 const createItem = async (itemData: any, workOrderNumber: string) => {
+      const dbConnection = await handleDBConnection();
+      if (!dbConnection.success) return dbConnection;
   try {
-    await connectToDB();
+  
     const workOrderDoc = await WorkOrder.findOne({
       workOrderNumber: workOrderNumber,
     });

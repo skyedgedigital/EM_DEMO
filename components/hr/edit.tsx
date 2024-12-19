@@ -141,7 +141,7 @@ const Create = (name ) => {
     if (resp.status === 200) {
       toast.success("Edited Successfully");
     } else {
-      toast.error("An Error Occurred");
+      toast.error(resp.message);
     }
   };
   return (

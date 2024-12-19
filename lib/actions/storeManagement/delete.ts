@@ -1,11 +1,12 @@
 'use server'
 
-import connectToDB from "@/lib/database";
+import handleDBConnection from "@/lib/database";
 import Store from "@/lib/models/storeManagement.model";
 
 const deleteStoreManagment = async(toolId:any) => {
+   const dbConnection = await handleDBConnection();
+   if (!dbConnection.success) return dbConnection;
     try {
-        await connectToDB();
         const resp = await Store.findByIdAndDelete(toolId);
         return {
           success: true,

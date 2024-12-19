@@ -1,8 +1,9 @@
-import { fetchAnalytics } from "./fetch"
+import { fetchAnalytics, fetchHRAnalytics } from "./fetch"
 
 const analyticsAction = {
-    FETCH:{
-        fetchAnalytics:fetchAnalytics
+    FETCH: {
+        fetchAnalytics: fetchAnalytics,
+        fetchHRAnalytics: fetchHRAnalytics
     }
 }
 

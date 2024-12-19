@@ -25,10 +25,10 @@ const WorkOrderForm = () => {
     }
     const resp = await WorkOrderHrAction.CREATE.createWorkOrderHr(JSON.stringify(obj))
     if(resp.success){
-        toast.success("Work Order Added")
+        toast.success(resp.message)
     }
     else{
-        toast.error("Error")
+        toast.error(resp.message)
     }
   };
   return (

@@ -51,7 +51,7 @@ const Page = () => {
     if (resp.status === 200) {
       toast.success('Bank Added');
     } else {
-      toast.error('An Error Occurred');
+      toast.error(resp.message);
     }
   };
   return (

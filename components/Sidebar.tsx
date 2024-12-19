@@ -27,6 +27,12 @@ import {
   DatabaseBackup,
   HandCoins,
   ChevronLeft,
+  Settings,
+  Upload,
+  Database,
+  Shield,
+  TestTube,
+  Wrench,
 } from 'lucide-react';
 import { Building } from 'lucide-react';
 import { LocateFixed } from 'lucide-react';
@@ -46,8 +52,8 @@ const Sidebar = forwardRef<HTMLDivElement, Props>(
     return (
       <div
         ref={ref}
-        className={`fixed top-16 min-w-[60px] bg-blue-500 border-t-[1px] border-t-white pt-24 z-50 bottom-0 ${
-          isCollapsed ? 'w-[60px]' : ''
+        className={`fixed top-16 min-w-[60px] bg-blue-500 border-t-[1px] border-t-white pt-8 px-1 z-50 bottom-0  ${
+          isCollapsed ? 'w-[70px]' : ''
         }`}
       >
         <div className='absolute right-[-20px] top-7'>
@@ -100,6 +106,18 @@ const Sidebar = forwardRef<HTMLDivElement, Props>(
                 icon: BarChart,
                 variant: 'ghost',
               },
+              {
+                title: 'Upload_File',
+                href: '/admin/upload_file',
+                icon: Upload,
+                variant: 'ghost',
+              },
+              // {
+              //   title: 'Emp Net Wages',
+              //   href: '/admin/empCalenderYearWage',
+              //   icon: List,
+              //   variant: 'ghost',
+              // },
             ]}
           />
         )}
@@ -205,6 +223,12 @@ const Sidebar = forwardRef<HTMLDivElement, Props>(
                 icon: ClipboardPen,
                 variant: 'ghost',
               },
+              {
+                title: 'Setting',
+                href: '/driver/settings',
+                icon: Settings,
+                variant: 'ghost',
+              },
             ]}
           />
         )}
@@ -221,19 +245,19 @@ const Sidebar = forwardRef<HTMLDivElement, Props>(
               {
                 title: 'Chemicals',
                 href: '/safety/chem',
-                icon: LayoutDashboard,
+                icon: TestTube,
                 variant: 'ghost',
               },
               {
                 title: 'Emp',
                 href: '/safety/emp',
-                icon: LayoutDashboard,
+                icon: UsersRound,
                 variant: 'ghost',
               },
               {
                 title: 'Tools',
                 href: '/safety/tools',
-                icon: LayoutDashboard,
+                icon: Wrench,
                 variant: 'ghost',
               },
               {
@@ -256,84 +280,96 @@ const Sidebar = forwardRef<HTMLDivElement, Props>(
                 variant: 'ghost',
               },
               {
-                title: 'Employee Data',
-                href: '/hr/EmployeeData',
-                icon: UsersRound,
-                variant: 'ghost',
-              },
-              {
                 title: 'CLM',
                 href: '/hr/CLM',
                 icon: DatabaseBackup,
                 variant: 'ghost',
               },
               {
-                title: 'Payments',
+                title: 'Checklist and Register',
                 href: '/hr/payments',
                 icon: ReceiptIndianRupee,
                 variant: 'ghost',
               },
               {
-                title: 'Department',
-                href: '/hr/department',
-                icon: Building,
-                variant: 'ghost',
-              },
-
-              {
-                title: 'Designation',
-                href: '/hr/Designation',
-                icon: FileSignature,
-                variant: 'ghost',
-              },
-              {
-                title: 'WorkOrder',
-                href: '/hr/workOrder',
-                icon: FileSignature,
-                variant: 'ghost',
-              },
-              {
-                title: 'Site Master',
-                href: '/hr/siteMaster',
-                icon: BriefcaseBusiness,
-                variant: 'ghost',
-              },
-              {
-                title: 'Bank',
-                href: '/hr/bank',
-                icon: Landmark,
-                variant: 'ghost',
-              },
-              {
-                title: 'Esi Location',
-                href: '/hr/EsiLocation',
-                icon: LocateFixed,
-                variant: 'ghost',
-              },
-              {
-                title: 'PF-ESIC-Bank_Statement',
+                title: 'PF ESIC',
                 href: '/hr/pf-esic-BankStatement',
                 icon: ReceiptIndianRupee,
                 variant: 'ghost',
               },
               {
-                title: 'Compliance and Register',
+                title: 'Bank Statements',
+                href: '/hr/statements',
+                icon: FileText,
+                variant: 'ghost',
+              },
+              {
+                title: 'Compliance and Register',
                 href: '/hr/compliance-and-Register',
                 icon: Bolt,
                 variant: 'ghost',
               },
               {
-                title: 'State Wise Section',
-                href: '/hr/state-wise-section',
-                icon: FileSliders,
-                variant: 'ghost',
-              },
-
-              {
                 title: 'Arrear Generator',
                 href: '/hr/Arrear',
                 icon: HandCoins,
                 variant: 'ghost',
+              },
+              {
+                group: {
+                  title: 'Master Data',
+                  icon: Database,
+                  links: [
+                    {
+                      title: 'Employee Data',
+                      href: '/hr/EmployeeData',
+                      icon: UsersRound,
+                      variant: 'ghost',
+                    },
+                    {
+                      title: 'Banks',
+                      href: '/hr/bank',
+                      icon: Landmark,
+                      variant: 'ghost',
+                    },
+                    {
+                      title: 'Department',
+                      href: '/hr/department',
+                      icon: Building,
+                      variant: 'ghost',
+                    },
+                    {
+                      title: 'Designation',
+                      href: '/hr/Designation',
+                      icon: FileSignature,
+                      variant: 'ghost',
+                    },
+                    {
+                      title: 'WorkOrder',
+                      href: '/hr/workOrder',
+                      icon: FileSignature,
+                      variant: 'ghost',
+                    },
+                    {
+                      title: 'Site Master',
+                      href: '/hr/siteMaster',
+                      icon: BriefcaseBusiness,
+                      variant: 'ghost',
+                    },
+                    {
+                      title: 'Esi Location',
+                      href: '/hr/EsiLocation',
+                      icon: LocateFixed,
+                      variant: 'ghost',
+                    },
+                    {
+                      title: 'State Wise Section',
+                      href: '/hr/state-wise-section',
+                      icon: FileSliders,
+                      variant: 'ghost',
+                    },
+                  ],
+                },
               },
             ]}
           />

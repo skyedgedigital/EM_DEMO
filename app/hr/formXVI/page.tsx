@@ -30,15 +30,17 @@ const Page = ({
   const [attendanceData, setAttendanceData] = useState(null);
 
   const contentRef = React.useRef(null);
- const reactToPrintFn = useReactToPrint({ contentRef,
-  documentTitle:`FormXVI/${searchParams.year}`, })
- const handleOnClick = async () => {
-  if(!attendanceData){
-    toast.error('Attendance data not available for Print generation.');
-    return;
-  }
+  const reactToPrintFn = useReactToPrint({
+    contentRef,
+    documentTitle: `FormXVI/${searchParams.year}`,
+  });
+  const handleOnClick = async () => {
+    if (!attendanceData) {
+      toast.error('Attendance data not available for Print generation.');
+      return;
+    }
     reactToPrintFn();
-};
+  };
   const handleDownloadPDF = async () => {
     if (!attendanceData) {
       toast.error('Attendance data not available for PDF generation.');
@@ -114,6 +116,16 @@ const Page = ({
 
   const days = Array.from({ length: 31 }, (_, i) => i + 1); // Array of days (1 to 31)
 
+  function calculateStatus(status: string) {
+    if (status === 'Present') return 'P';
+    else if (status === 'Absent') return 'A';
+    else if (status === 'Leave') return 'L';
+    else if (status === 'Half Day') return 'HD';
+    else if (status === 'NH') return 'NH';
+    else if (status === 'Not Paid') return 'O';
+    else return '';
+  }
+
   return (
     <div className='ml-[80px]'>
       <Button
@@ -135,8 +147,8 @@ const Page = ({
         <>Generate FORMXVII</>
       </Button>
       <div className='flex gap-2 mb-2'>
-      <Button onClick={handleDownloadPDF}>Download PDF</Button>
-      <Button onClick={handleOnClick}>Print</Button> 
+        <Button onClick={handleDownloadPDF}>Download PDF</Button>
+        <Button onClick={handleOnClick}>Print</Button>
       </div>
 
       <div id={`${searchParams.month}/${searchParams.year}`} ref={contentRef}>
@@ -157,7 +169,10 @@ const Page = ({
                 <div className='font-bold text-blue-600 max-w-64 '>
                   Name and Address of Contractor:
                 </div>
-                <div>Sri construction and Co.</div>
+                <div>
+                  Enterprise Management, C-1,Brindawan Garden, Sonari,
+                  Jamshedpur 831011.
+                </div>
               </div>
               <div className='flex gap-3 mb-4'>
                 <div className='font-bold text-blue-600  '>
@@ -193,7 +208,8 @@ const Page = ({
         {attendanceData && (
           <div>
             <div className=' font-medium text-blue-600 mb-4 '>
-              P : Present, A : Absent, L : Leave, HD : Half Day
+              P : Present, A : Absent, L : Leave, HD : Half Day, O: OFF, NH:
+              National Holiday
             </div>
 
             <PDFTable className='border-2 border-black  '>
@@ -270,18 +286,19 @@ const Page = ({
                         key={day}
                         className='border-black border-2 text-black'
                       >
-                        {employee.days.find((d) => d.day === day)?.status ===
-                        'Present'
-                          ? 'P'
-                          //@ts-ignore
-                          : 'A' || '-'}
+                        {calculateStatus(
+                          employee.days.find((d) => d.day === day)?.status
+                        )}
                       </TableCell>
                     ))}
                     <TableCell className='border-black border-2 text-black'>
-                      {
-                        employee.days.filter((day) => day.status === 'Present')
-                          .length
-                      }
+                      {employee.days.filter((day) => day.status === 'Present')
+                        .length +
+                        employee.days.filter((day) => day.status === 'Half Day')
+                          .length *
+                          0.5 +
+                        employee.days.filter((day) => day.status === 'NH')
+                          .length}
                     </TableCell>
                     <TableCell className='border-black border-2 text-black'>
                       {`P: ${
@@ -291,12 +308,21 @@ const Page = ({
                         employee.days.filter((day) => day.status === 'Absent')
                           .length
                       }, O: ${
-                        employee.days.filter((day) => day.status === 'Off')
+                        employee.days.filter((day) => day.status === 'Not Paid')
                           .length
                       }, L: ${
                         employee.days.filter((day) => day.status === 'Leave')
                           .length
-                      }`}
+                      }, HD: ${
+                        employee.days.filter((day) => day.status === 'Half Day')
+                          .length
+                      }
+                      , NH: ${
+                        employee.days.filter((day) => day.status === 'NH')
+                          .length
+                      }
+
+                      `}
                     </TableCell>
                   </TableRow>
                 ))}

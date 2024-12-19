@@ -14,50 +14,62 @@ const BankDetailsSchema = new mongoose.Schema<IBankDetails>({
 });
 
 const EmployeeSchema = new mongoose.Schema<IEmployee>({
-    name: {
-        type: String,
-        required: true,
-    },
-    phoneNo: {
-        type: Number,
-        unique: true,
-        required: true,
-    },
-    drivingLicenseNo: {
-        type: String,
-        required: true,
-        uppercase: true,
-    },
-    gatePassNo: {
-        type: String,
-        required: true,
-    },
-    safetyPassNo: {
-        type: String,
-        required: true,
-    },
-    UAN: {
-        type: Number,
-        required: true,
-    },
-    aadharNo: {
-        type: Number,
-        required: true,
-    },
-    bankDetails: BankDetailsSchema,
-    employeeRole: {
-        type: String,
-        enum: Object.values(employeeRole),
-        required: true,
-    },
-    createdAt: {
-        type: Date,
-        default: Date.now,
-    },
-    updatedAt: {
-        type: Date,
-        default: Date.now,
-    },
+  name: {
+    type: String,
+    required: true,
+  },
+  phoneNo: {
+    type: Number,
+    unique: true,
+    required: true,
+  },
+  drivingLicenseNo: {
+    type: String,
+    required: true,
+    uppercase: true,
+  },
+  gatePassNo: {
+    type: String,
+    required: true,
+  },
+  safetyPassNo: {
+    type: String,
+    required: true,
+  },
+  UAN: {
+    type: Number,
+    required: true,
+  },
+  aadharNo: {
+    type: Number,
+    required: true,
+  },
+  bankDetails: BankDetailsSchema,
+  employeeRole: {
+    type: String,
+    enum: Object.values(employeeRole),
+    required: true,
+  },
+  profilePhotoURL: {
+    type: String,
+    default: '',
+  },
+  drivingLicenseURL: {
+    type: String,
+    default: '',
+  },
+  aadharCardURL: {
+    type: String,
+    default: '',
+  },
+  createdAt: {
+    type: Date,
+    default: Date.now,
+  },
+  updatedAt: {
+    type: Date,
+    default: Date.now,
+  },
 });
 
 // Middleware to update 'updatedAt' field before saving the document

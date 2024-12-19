@@ -25,6 +25,7 @@ import { Loader2 } from 'lucide-react';
 import { Button } from '../ui/button';
 import truck_crane from '@/public/assets/vehicles/truck-crane.jpg';
 import excavator from '@/public/assets/vehicles/excavator.jpg';
+import useConnectionStatus from '@/hooks/onlineandDatabaseConnection';
 
 const schema = z.object({
   phoneNo: z
@@ -41,6 +42,7 @@ const schema = z.object({
 type FormFields = z.infer<typeof schema>;
 
 const LoginForm: React.FC<{}> = () => {
+  const { dbConnectionStatus, isOnline } = useConnectionStatus();
   const form = useForm<FormFields>({
     defaultValues: {
       password: '',
@@ -117,13 +119,13 @@ const LoginForm: React.FC<{}> = () => {
       <div className='z-10 absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 p-6 space-y-4 md:space-y-6 sm:p-8 border-[1px] border-blue-500 bg-blue-50 shadow-lg rounded-sm flex flex-col gap-3'>
         <div className='flex flex-col justify-center items-center gap-3'>
           <Image
-            src={'/assets/dark-logo.png'}
+            src={'/assets/logo.png'}
             width={50}
             height={50}
             alt='sign image'
           />{' '}
           <h1 className=' text-3xl font-bold leading-tight tracking-tight text-blue-500 md:text-2xl font-mono'>
-            Enterprise Management
+            Shekhar Enterprises
           </h1>
         </div>
         <Form {...form}>

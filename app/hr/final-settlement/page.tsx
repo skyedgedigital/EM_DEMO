@@ -210,37 +210,37 @@ const Page = ({
     <div className='ml-[80px]'>
       <div className='pr-16 flex justify-between items-center'>
         <div className='flex gap-2 mb-2'>
-      <Button onClick={handleDownloadPDF}>Download PDF</Button>
-        {/* <Button onClick={() => setReverse(!reverse)}>
+          <Button onClick={handleDownloadPDF}>Download PDF</Button>
+          {/* <Button onClick={() => setReverse(!reverse)}>
           See &nbsp;
           {reverse ? 'Reverse' : 'Normal'}&nbsp; Order
         </Button> */}
-        <div className='flex gap-2 flex-col'>
-          <div className='flex gap-2'>
-            <input
-              type='radio'
-              id='normal'
-              name='order'
-              value='normal'
-              checked={!reverse}
-              onChange={() => setReverse(false)}
-            />
-            <label htmlFor='normal'>Normal Order</label>
-          </div>
-          <div className='flex gap-2'>
-            <input
-              type='radio'
-              id='reverse'
-              name='order'
-              value='reverse'
-              checked={reverse}
-              onChange={() => setReverse(true)}
-            />
-            <label htmlFor='reverse'>Reverse Order</label>
+          <div className='flex gap-2 flex-col'>
+            <div className='flex gap-2'>
+              <input
+                type='radio'
+                id='normal'
+                name='order'
+                value='normal'
+                checked={!reverse}
+                onChange={() => setReverse(false)}
+              />
+              <label htmlFor='normal'>Normal Order</label>
+            </div>
+            <div className='flex gap-2'>
+              <input
+                type='radio'
+                id='reverse'
+                name='order'
+                value='reverse'
+                checked={reverse}
+                onChange={() => setReverse(true)}
+              />
+              <label htmlFor='reverse'>Reverse Order</label>
+            </div>
           </div>
         </div>
-      </div>
-      <Button onClick={handleOnClick}>Print</Button> 
+        <Button onClick={handleOnClick}>Print</Button>
       </div>
 
       <div id={`${searchParams.month}/${searchParams.year}`} ref={contentRef}>
@@ -256,7 +256,7 @@ const Page = ({
           <div className='flex flex-col gap-3 mb-4 '>
             <div className='font-semibold flex gap-2  mb-6 '>
               <span>Vendor&apos;s Name =</span>
-              <span className='uppercase'> Sri construction and Co. </span>
+              <span className='uppercase'>Shekhar Enterprises </span>
             </div>
 
             <div className='flex gap-52'>
@@ -362,7 +362,11 @@ const Page = ({
                     <React.Fragment key={idx}>
                       <td className='border-[1px] border-black font-bold'>
                         <div className='flex'>
-                          <div className=' flex-1'>{searchParams.Retrenchment_benefit?att?.totalAttendance+15:att?.totalAttendance}</div>
+                          <div className=' flex-1'>
+                            {searchParams.Retrenchment_benefit
+                              ? att?.totalAttendance + 15
+                              : att?.totalAttendance}
+                          </div>
                           <div className=' flex-1 '>
                             {att?.totalNetAmountPaid.toFixed(2)}
                           </div>
@@ -583,7 +587,9 @@ const Page = ({
               <span className='uppercase'>Retrenchment benefit :</span>
               <span>
                 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                {searchParams.Retrenchment_benefit ? finalSettlementData?.designation?.PayRate*15:"N/A"}
+                {searchParams.Retrenchment_benefit
+                  ? finalSettlementData?.designation?.PayRate * 15
+                  : 'N/A'}
               </span>
             </div>
             <div>

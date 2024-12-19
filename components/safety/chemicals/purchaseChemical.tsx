@@ -58,7 +58,7 @@ const PurchaseChemical = () => {
       toast.success("Purchase Created,Reload to view Changes");
       }
       else{
-        toast.error("Purchase Not Created");
+        toast.error(resp.message);
         }
   }
 

@@ -1,17 +1,18 @@
-"use server";
+'use server';
 
-import connectToDB from "@/lib/database";
-import SafetyTool from "@/lib/models/safetyPanel/tools/tool.model";
-import SafetyToolMaintenance from "@/lib/models/safetyPanel/tools/toolMaintenance.model";
+import handleDBConnection from '@/lib/database';
+import SafetyTool from '@/lib/models/safetyPanel/tools/tool.model';
+import SafetyToolMaintenance from '@/lib/models/safetyPanel/tools/toolMaintenance.model';
 
 const createService = async (
   toolId: any,
   quantity: number,
   servicetype: string,
-  date:string
+  date: string
 ) => {
   try {
-    await connectToDB();
+    const dbConnection = await handleDBConnection();
+    if (!dbConnection.success) return dbConnection;
     const toolDetails = await SafetyTool.findOne({
       _id: toolId,
     });
@@ -35,12 +36,12 @@ const createService = async (
       toolId: toolId,
       quantity: quantity,
       type: servicetype,
-      date:date
+      date: date,
     });
     const result = await docObj.save();
     return {
       success: true,
-      message: "SafetyToolPurchase Added",
+      message: 'SafetyToolPurchase Added',
       status: 200,
       data: JSON.stringify(result),
     };
@@ -49,15 +50,16 @@ const createService = async (
     return {
       success: false,
       status: 500,
-      message: "Internal Server Error",
+      message: 'Internal Server Error',
       err: JSON.stringify(err),
     };
   }
 };
 
 const deleteService = async (serviceId: any) => {
+  const dbConnection = await handleDBConnection();
+  if (!dbConnection.success) return dbConnection;
   try {
-    await connectToDB();
     const serviceDetails = await SafetyToolMaintenance.findOne({
       _id: serviceId,
     });
@@ -87,7 +89,7 @@ const deleteService = async (serviceId: any) => {
     });
     return {
       success: true,
-      message: "SafetyToolMaintenance Deleted",
+      message: 'SafetyToolMaintenance Deleted',
       status: 200,
       data: JSON.stringify(result),
     };
@@ -96,32 +98,32 @@ const deleteService = async (serviceId: any) => {
     return {
       success: false,
       status: 500,
-      message: "Internal Server Error",
+      message: 'Internal Server Error',
       err: JSON.stringify(err),
     };
   }
 };
 
-const fetchSafetyToolsInService = async() => {
-    try{
-        await connectToDB();
-        const result = await SafetyToolMaintenance.find({}).populate("toolId");
-        return{
-            success:true,
-            status:200,
-            message:'Tools Fetched',
-            data:JSON.stringify(result)
-            }
-    }
-    catch(err){
-        console.log(err);
+const fetchSafetyToolsInService = async () => {
+  const dbConnection = await handleDBConnection();
+  if (!dbConnection.success) return dbConnection;
+  try {
+    const result = await SafetyToolMaintenance.find({}).populate('toolId');
+    return {
+      success: true,
+      status: 200,
+      message: 'Tools Fetched',
+      data: JSON.stringify(result),
+    };
+  } catch (err) {
+    console.log(err);
     return {
       success: false,
       status: 500,
-      message: "Internal Server Error",
+      message: 'Internal Server Error',
       err: JSON.stringify(err),
     };
-    }
-}
+  }
+};
 
-export {createService,deleteService,fetchSafetyToolsInService}
+export { createService, deleteService, fetchSafetyToolsInService };

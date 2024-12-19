@@ -129,7 +129,10 @@ const AddItem = () => {
 
       const workOrderResp = await workOrderAction.FETCH.fetchAllWorkOrder();
       const success = workOrderResp.success;
-      const error = workOrderResp.error;
+      const error =
+        workOrderResp?.error ||
+        workOrderResp.message ||
+        'Failed to fetch woekorder, Please try again';
       const data = JSON.parse(workOrderResp.data);
 
       if (success) {
@@ -212,7 +215,7 @@ const AddItem = () => {
             name={`items.hsnNo`}
             render={({ field }) => (
               <FormItem className=' flex-col flex gap-1 flex-1'>
-                <FormLabel>hsnNo</FormLabel>
+                <FormLabel>HSN No.</FormLabel>
                 <FormControl>
                   <Input placeholder='' {...field} className=' bg-white ' />
                 </FormControl>

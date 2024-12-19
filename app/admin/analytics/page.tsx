@@ -30,7 +30,7 @@ const Page = () => {
       const resp = await vehicleAction.FETCH.fetchAllVehicles();
       console.warn(resp);
       if (resp.data) {
-        setVehicles(resp.data);
+        setVehicles(JSON.parse(resp.data));
       }
     };
     fn();

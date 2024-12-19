@@ -42,13 +42,6 @@ const FuelManagementSchema: mongoose.Schema<IFuelManagement> = new mongoose.Sche
         type:String,
         required:true,
     },
-    entry:{
-        type:Boolean,
-        default:false
-    },
-    chalan:{
-        type:String,
-    },
     duration:{
         type:Number,
     }
