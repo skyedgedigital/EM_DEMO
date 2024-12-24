@@ -20,6 +20,8 @@ import {
 import { fetchAllAttendance } from '@/lib/actions/attendance/fetch';
 
 import React, { useEffect, useState } from 'react';
+import { IEnterprise } from '@/interfaces/enterprise.interface';
+import { fetchEnterpriseInfo } from '@/lib/actions/enterprise';
 interface Attendance {
   day: number;
   status: string;
@@ -39,6 +41,7 @@ const Page = ({
   const [attendanceArray, setAttendanceArray] = useState<
     EmployeeIdAndAttendance[]
   >([]);
+  const [ent, setEnt] = useState<IEnterprise | null>(null);
 
   const contentRef = React.useRef(null);
   const reactToPrintFn = useReactToPrint({
@@ -52,7 +55,23 @@ const Page = ({
     }
     reactToPrintFn();
   };
-
+  useEffect(() => {
+    const fn = async () => {
+      const resp = await fetchEnterpriseInfo();
+      console.log('response we got ', resp);
+      if (resp.data) {
+        const inf = await JSON.parse(resp.data);
+        setEnt(inf);
+        console.log(ent);
+      }
+      if (!resp.success) {
+        toast.error(
+          `Failed to load enterprise details, Please Reload or try later. ERROR : ${resp.error}`
+        );
+      }
+    };
+    fn();
+  }, []);
   const handleDownloadPDF = async () => {
     if (!attendanceData) {
       toast.error('Attendance data not available for PDF generation.');
@@ -207,8 +226,21 @@ const Page = ({
                   Name and Address of Contractor:
                 </div>
                 <div className='uppercase'>
-                  Enterprise Management Address: C-1, BRINDAWAN GARDEN, SONARI,
-                  JAMSHEDPUR-831011
+                  {ent?.name ? (
+                    ent?.name
+                  ) : (
+                    <span className='text-red-500'>
+                      No company found. Try by Reloading
+                    </span>
+                  )}
+                  ,&nbsp;
+                  {ent?.address ? (
+                    ent?.address
+                  ) : (
+                    <span className='text-red-500'>
+                      No address found. Try by Reloading
+                    </span>
+                  )}
                 </div>
               </div>
               <div className='flex gap-3 mb-4'>
@@ -352,7 +384,7 @@ const Page = ({
                       {employee?.employee.name}
                     </TableCell>
                     <TableCell className='border-black border-2 text-black'>
-                      {employee?.employee.code}
+                      {employee?.employee.workManNo}
                     </TableCell>
                     {/* Table data for each day (status) */}
                     <TableCell className='border-black border-2 text-black'>
@@ -380,7 +412,7 @@ const Page = ({
                         {`${employee?.designation.basic} + ${employee?.designation.DA}`}
                       </div>
                       <div className='border-t-2 border-black text-left mt-1'>
-                        {employee?.designation.PayRate}
+                        {Number(employee?.designation.PayRate).toFixed(2)}
                       </div>
                     </TableCell>
                     <TableCell className='border-black border-2 text-black'>
@@ -412,7 +444,12 @@ const Page = ({
                       {Math.round(employee?.total).toFixed(2)}
                     </TableCell>
                     <TableCell className='border-black border-2 text-black'>
-                      {Math.round(0.12 * employee?.total).toFixed(2)}
+                      {/* {Math.round(0.12 * employee?.total).toFixed(2)} */}
+                      {Math.round(
+                        (employee?.attendance * employee?.designation.PayRate +
+                          employee?.otherCash) *
+                          0.12
+                      ).toFixed(2)}
                     </TableCell>
                     <TableCell className='border-black border-2 text-black'>
                       {Math.round(0.0075 * employee?.total).toFixed(2)}
@@ -425,7 +462,6 @@ const Page = ({
                     </TableCell>
                     <TableCell className='border-black border-2 text-black'>
                       {Number(employee?.otherCashDescription?.ca) +
-                        Number(employee?.otherCashDescription?.eoc) +
                         Number(employee?.otherCashDescription?.hra) +
                         Number(employee?.otherCashDescription?.incumb) +
                         Number(employee?.otherCashDescription?.ma) +
@@ -536,7 +572,7 @@ const Page = ({
                   {Math.round(
                     calculateTotal(
                       attendanceData?.map((item) =>
-                        Number(item?.designation?.basic)
+                        Number(item?.designation.basic * item?.attendance)
                       )
                     )
                   ).toFixed(2)}
@@ -548,7 +584,7 @@ const Page = ({
                   {Math.round(
                     calculateTotal(
                       attendanceData?.map((item) =>
-                        Number(item?.designation.DA)
+                        Number(item?.designation.DA * item?.attendance)
                       )
                     )
                   ).toFixed(2)}
@@ -578,7 +614,13 @@ const Page = ({
                 <span>
                   {Math.round(
                     calculateTotal(
-                      attendanceData.map((item) => 0.12 * Number(item?.total))
+                      attendanceData.map(
+                        (item) =>
+                          (Number(item?.attendance) *
+                            Number(item?.designation.PayRate) +
+                            Number(item?.otherCash)) *
+                          0.12
+                      )
                     )
                   ).toFixed(2)}
                 </span>

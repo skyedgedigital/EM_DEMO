@@ -10,6 +10,8 @@ import wagesAction from '@/lib/actions/HR/wages/wagesAction';
 import { useReactToPrint } from 'react-to-print';
 
 import React, { useEffect, useState } from 'react';
+import { fetchEnterpriseInfo } from '@/lib/actions/enterprise';
+import { IEnterprise } from '@/interfaces/enterprise.interface';
 
 const Page = ({
   searchParams,
@@ -18,18 +20,37 @@ const Page = ({
 }) => {
   // const [bonusData, setBonusData] = useState(null);
   const [leaveData, setLeaveData] = useState(null);
+  const [ent, setEnt] = useState<IEnterprise | null>(null);
 
   const contentRef = React.useRef(null);
- const reactToPrintFn = useReactToPrint({ contentRef,
-  documentTitle:`BonusStatement/${searchParams.year}`, })
- const handleOnClick = async () => {
-  if(!leaveData){
-    toast.error('Attendance data not available for Print generation.');
-    return;
-  }
+  const reactToPrintFn = useReactToPrint({
+    contentRef,
+    documentTitle: `BonusStatement/${searchParams.year}`,
+  });
+  const handleOnClick = async () => {
+    if (!leaveData) {
+      toast.error('Attendance data not available for Print generation.');
+      return;
+    }
     reactToPrintFn();
-};
-
+  };
+  useEffect(() => {
+    const fn = async () => {
+      const resp = await fetchEnterpriseInfo();
+      console.log('response we got ', resp);
+      if (resp.data) {
+        const inf = await JSON.parse(resp.data);
+        setEnt(inf);
+        console.log(ent);
+      }
+      if (!resp.success) {
+        toast.error(
+          `Failed to load enterprise details, Please Reload or try later. ERROR : ${resp.error}`
+        );
+      }
+    };
+    fn();
+  }, []);
   const handleDownloadPDF = async () => {
     if (!leaveData) {
       toast.error('Attendance data not available for PDF generation.');
@@ -149,11 +170,23 @@ const Page = ({
                 </div>
                 <div className='flex flex-col ml-4'>
                   {' '}
-                  <div className='text-left'>Enterprise Management</div>
                   <div className='text-left'>
-                    .H.NO 78 KAPLI NEAR HARI MANDIR,
+                    {ent?.name ? (
+                      ent?.name
+                    ) : (
+                      <span className='text-red-500'>
+                        No company found. Try by Reloading
+                      </span>
+                    )}
+                    ,&nbsp;
+                    {ent?.address ? (
+                      ent?.address
+                    ) : (
+                      <span className='text-red-500'>
+                        No address found. Try by Reloading
+                      </span>
+                    )}
                   </div>
-                  <div className='text-left'>.PO KAPALI SARAIKEA,</div>
                 </div>
               </div>
               <div className='text-left'>Nature and Location of work done</div>

@@ -1,11 +1,11 @@
-"use client";
-import { Button } from "@/components/ui/button";
-import toast from "react-hot-toast";
-import { Separator } from "@/components/ui/separator";
-import html2canvas from "html2canvas";
-import jsPDF from "jspdf";
-import wagesAction from "@/lib/actions/HR/wages/wagesAction";
-import { useReactToPrint } from "react-to-print";
+'use client';
+import { Button } from '@/components/ui/button';
+import toast from 'react-hot-toast';
+import { Separator } from '@/components/ui/separator';
+import html2canvas from 'html2canvas';
+import jsPDF from 'jspdf';
+import wagesAction from '@/lib/actions/HR/wages/wagesAction';
+import { useReactToPrint } from 'react-to-print';
 import {
   Table,
   TableBody,
@@ -14,9 +14,11 @@ import {
   TableHeader,
   TableRow,
   PDFTable,
-} from "@/components/ui/table";
-import React, { useEffect, useState } from "react";
-import Designation from "@/lib/models/HR/designation.model";
+} from '@/components/ui/table';
+import React, { useEffect, useState } from 'react';
+import Designation from '@/lib/models/HR/designation.model';
+import { fetchEnterpriseInfo } from '@/lib/actions/enterprise';
+import { IEnterprise } from '@/interfaces/enterprise.interface';
 
 //Expected Query Params -> start date, end date,workOrder.
 const Page = ({
@@ -32,17 +34,35 @@ const Page = ({
   const reactToPrintFn = useReactToPrint({
     contentRef,
   });
+  const [ent, setEnt] = useState<IEnterprise | null>(null);
+
   const handleOnClick = async () => {
     if (!yearlywages) {
-      toast.error("Attendance data not available for Print generation.");
+      toast.error('Attendance data not available for Print generation.');
       return;
     }
     reactToPrintFn();
   };
-
+  useEffect(() => {
+    const fn = async () => {
+      const resp = await fetchEnterpriseInfo();
+      console.log('response we got ', resp);
+      if (resp.data) {
+        const inf = await JSON.parse(resp.data);
+        setEnt(inf);
+        console.log(ent);
+      }
+      if (!resp.success) {
+        toast.error(
+          `Failed to load enterprise details, Please Reload or try later. ERROR : ${resp.error}`
+        );
+      }
+    };
+    fn();
+  }, []);
   const handleDownloadPDF = async () => {
     if (!yearlywages) {
-      toast.error("Attendance data not available for PDF generation.");
+      toast.error('Attendance data not available for PDF generation.');
       return;
     }
 
@@ -50,7 +70,7 @@ const Page = ({
   };
 
   const generatePDF = async (yearlywages) => {
-    const pdf = new jsPDF("l", "pt", "a4"); // Create a landscape PDF
+    const pdf = new jsPDF('l', 'pt', 'a4'); // Create a landscape PDF
     const ogId = `${smonth}/${syear}`;
 
     // Create a container element to hold the content and table
@@ -60,26 +80,26 @@ const Page = ({
 
     // Append the table to the container element
 
-    tableElement.style.width = "1250px";
+    tableElement.style.width = '1250px';
 
     pdf.html(tableElement, {
       callback: async () => {
         pdf.save(`${ogId}form17.pdf`);
-        const pdfDataUrl = pdf.output("dataurlstring");
+        const pdfDataUrl = pdf.output('dataurlstring');
       },
       x: 10,
       y: 10,
       html2canvas: { scale: 0.45 },
-      autoPaging: "text",
+      autoPaging: 'text',
     });
   };
 
-  console.log("Search Params", searchParams);
+  console.log('Search Params', searchParams);
 
   const startDate = searchParams.startDate;
-  const [syear, smonth, sday] = startDate.split("-").map(Number); //these value are in String
+  const [syear, smonth, sday] = startDate.split('-').map(Number); //these value are in String
   const endDate = searchParams.endDate;
-  const [eyear, emonth, eday] = endDate.split("-").map(Number);
+  const [eyear, emonth, eday] = endDate.split('-').map(Number);
 
   useEffect(() => {
     if (searchParams.modifiedWages) {
@@ -88,7 +108,7 @@ const Page = ({
   }, [searchParams.modifiedWages]);
 
   const keys = Object.keys(updateWageData); // it's keys array
-  console.log("keys", keys);
+  console.log('keys', keys);
 
   useEffect(() => {
     const fn = async () => {
@@ -117,10 +137,10 @@ const Page = ({
 
         // })
         setYearlywages(responseData);
-        console.log("response aa gaya", responseData);
+        console.log('response aa gaya', responseData);
       } catch (err) {
-        toast.error("Internal Server Error");
-        console.log("Internal Server Error:", err);
+        toast.error('Internal Server Error');
+        console.log('Internal Server Error:', err);
       }
     };
     if (syear && searchParams.workOrder) {
@@ -177,8 +197,21 @@ const Page = ({
                   Name and Address of Contractor:
                 </div>
                 <div>
-                  Enterprise Management Address: C-1, BRINDAWAN GARDEN, SONARI,
-                  JAMSHEDPUR-831011
+                  {ent?.name ? (
+                    ent?.name
+                  ) : (
+                    <span className='text-red-500'>
+                      No company found. Try by Reloading
+                    </span>
+                  )}
+                  ,&nbsp;
+                  {ent?.address ? (
+                    ent?.address
+                  ) : (
+                    <span className='text-red-500'>
+                      No address found. Try by Reloading
+                    </span>
+                  )}
                 </div>
               </div>
               <div className='flex gap-3 mb-4'>

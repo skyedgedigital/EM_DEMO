@@ -21,6 +21,8 @@ import { useReactToPrint } from 'react-to-print';
 
 import React, { useEffect, useState } from 'react';
 import WorkOrderHr from '@/lib/models/HR/workOrderHr.model';
+import { fetchEnterpriseInfo } from '@/lib/actions/enterprise';
+import { IEnterprise } from '@/interfaces/enterprise.interface';
 
 const Page = ({
   searchParams,
@@ -32,8 +34,26 @@ const Page = ({
   const [attTotals, setAttTotals] = useState([]);
   const [modifiedBonusData, setModifiedBonusData] = useState([]);
   const [totalWorkOrder, setTotalWorkOrder] = useState([]);
+  const [ent, setEnt] = useState<IEnterprise | null>(null);
 
   const contentRef = React.useRef(null);
+  useEffect(() => {
+    const fn = async () => {
+      const resp = await fetchEnterpriseInfo();
+      console.log('response we got ', resp);
+      if (resp.data) {
+        const inf = await JSON.parse(resp.data);
+        setEnt(inf);
+        console.log(ent);
+      }
+      if (!resp.success) {
+        toast.error(
+          `Failed to load enterprise details, Please Reload or try later. ERROR : ${resp.error}`
+        );
+      }
+    };
+    fn();
+  }, []);
   const reactToPrintFn = useReactToPrint({
     contentRef,
     documentTitle: `BonusStatement/${searchParams.year}`,
@@ -260,12 +280,23 @@ const Page = ({
           id='container-id'
         >
           <div className='flex flex-col'>
-            <div className='uppercase'>Enterprise Management</div>
-            <div>H.NO 78 KPLI NAGAR NEAR HARI MANDIR,</div>
-
-            <div>.PO KAPALI SARAIKEA,</div>
-
-            <div>.KHARSWAN JHARKHAND.</div>
+            {ent?.name ? (
+              <div className='uppercase'>{ent?.name}</div>
+            ) : (
+              <div className='text-red-500'>
+                {' '}
+                No company found. Try by Reloading
+              </div>
+            )}
+            ,&nbsp;
+            {ent?.address ? (
+              <div>{ent?.address}</div>
+            ) : (
+              <div className='text-red-500'>
+                {' '}
+                No address found. Try by Reloading
+              </div>
+            )}
           </div>
 
           <div className='flex flex-col gap-2 ml-16 mb-6 '>

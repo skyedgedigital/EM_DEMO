@@ -20,6 +20,8 @@ import { fetchAllAttendance } from '@/lib/actions/attendance/fetch';
 
 import React, { useEffect, useState } from 'react';
 import { set } from 'mongoose';
+import { IEnterprise } from '@/interfaces/enterprise.interface';
+import { fetchEnterpriseInfo } from '@/lib/actions/enterprise';
 
 const Page = ({
   searchParams,
@@ -30,6 +32,7 @@ const Page = ({
   const [finalSettlementData, setFinalSettlementData] = useState(null);
   const [settle, setSettle] = useState(0);
   const [reverse, setReverse] = useState(false);
+  const [ent, setEnt] = useState<IEnterprise | null>(null);
 
   const months = [
     'Jan',
@@ -47,14 +50,31 @@ const Page = ({
   ];
 
   const contentRef = React.useRef(null);
-  const reactToPrintFn = useReactToPrint({ contentRef, })
+  const reactToPrintFn = useReactToPrint({ contentRef });
+  useEffect(() => {
+    const fn = async () => {
+      const resp = await fetchEnterpriseInfo();
+      console.log('response we got ', resp);
+      if (resp.data) {
+        const inf = await JSON.parse(resp.data);
+        setEnt(inf);
+        console.log(ent);
+      }
+      if (!resp.success) {
+        toast.error(
+          `Failed to load enterprise details, Please Reload or try later. ERROR : ${resp.error}`
+        );
+      }
+    };
+    fn();
+  }, []);
   const handleOnClick = async () => {
-   if(!finalSettlementData){
-     toast.error('Attendance data not available for Print generation.');
-     return;
-   }
-     reactToPrintFn();
- };
+    if (!finalSettlementData) {
+      toast.error('Attendance data not available for Print generation.');
+      return;
+    }
+    reactToPrintFn();
+  };
   const handleDownloadPDF = async () => {
     if (!finalSettlementData) {
       toast.error('Attendance data not available for PDF generation.');
@@ -256,7 +276,13 @@ const Page = ({
           <div className='flex flex-col gap-3 mb-4 '>
             <div className='font-semibold flex gap-2  mb-6 '>
               <span>Vendor&apos;s Name =</span>
-              <span className='uppercase'>Shekhar Enterprises </span>
+              {ent?.name ? (
+                ent?.name
+              ) : (
+                <span className='text-red-500'>
+                  No company found. Try by Reloading
+                </span>
+              )}
             </div>
 
             <div className='flex gap-52'>

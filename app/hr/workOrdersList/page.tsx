@@ -21,6 +21,8 @@ import WorkOrderHrAction from "@/lib/actions/HR/workOrderHr/workOrderAction";
 
 import React, { useEffect, useState } from "react";
 import { parse } from "path";
+import { fetchEnterpriseInfo } from "@/lib/actions/enterprise";
+import { IEnterprise } from "@/interfaces/enterprise.interface";
 
 const Page = ({
   searchParams,
@@ -33,9 +35,27 @@ const Page = ({
   const [totalNetAmountPaidSum, setTotalNetAmountPaidSum] = useState(0);
   const [totalBonusSum, setTotalBonusSum] = useState(0);
   const [workOrderNumbers, setWorkOrderNumbers] = useState(null);
+  const [ent, setEnt] = useState<IEnterprise | null>(null);
 
   const contentRef = React.useRef(null);
   const reactToPrintFn = useReactToPrint({ contentRef });
+    useEffect(() => {
+      const fn = async () => {
+        const resp = await fetchEnterpriseInfo();
+        console.log('response we got ', resp);
+        if (resp.data) {
+          const inf = await JSON.parse(resp.data);
+          setEnt(inf);
+          console.log(ent);
+        }
+        if (!resp.success) {
+          toast.error(
+            `Failed to load enterprise details, Please Reload or try later. ERROR : ${resp.error}`
+          );
+        }
+      };
+      fn();
+    }, []);
   const handleOnClick = async () => {
     if (!bonusData) {
       toast.error("Attendance data not available for Print generation.");
@@ -159,8 +179,22 @@ const Page = ({
         >
           <div className='flex flex-col ml-4'>
             <div className='font-bold'>Name of Establishment</div>
-            <div>Enterprise Management</div>
-            <div>H.NO 78 KPLI NAGAR NEAR HARI MANDIR,</div>
+            <div>
+              {ent?.name ? (
+                ent?.name
+              ) : (
+                <span className='text-red-500'>
+                  No company found. Try by Reloading
+                </span>
+              )}
+              {ent?.address ? (
+                ent?.address
+              ) : (
+                <span className='text-red-500'>
+                  No address found. Try by Reloading
+                </span>
+              )}
+            </div>
           </div>
 
           <div className='flex flex-col gap-2 ml-16 mb-6'>
