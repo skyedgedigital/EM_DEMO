@@ -611,7 +611,7 @@ const WMDInvoice = ({
                       {`${item?.itemName}`}
                     </td>
                     <td className='border-[1px] border-black pl-2 pb-3 '>
-                      {`${(item?.itemCost.unit).toFixed(2)}`}
+                      {`${item?.itemCost.unit}`}
                     </td>
                     <td className='border-[1px] border-black pl-2 pb-3 '>
                       {`${(item?.itemCost.hours).toFixed(2)}`}

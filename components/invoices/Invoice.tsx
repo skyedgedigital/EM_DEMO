@@ -699,7 +699,7 @@ const Invoice = ({
                           {`${(item?.itemCost.hours).toFixed(2)}`}
                         </td>
                         <td className='border-[1px] border-black pl-2 pb-3 '>
-                          {`${(item?.itemCost.unit).toFixed(2)}`}
+                          {`${item?.itemCost.unit}`}
                         </td>
                         <td className='border-[1px] border-black pl-2 pb-3 '>
                           {`${item?.itemPrice?.toFixed(2)}`}
