@@ -173,14 +173,15 @@ const Page = ({
             <span>Name & Address of Contractor : </span>
             <div className='flex flex-col'>
               {ent?.name ? (
-                ent?.name
+                <span>{ent?.name},&nbsp;</span>
               ) : (
                 <span className='text-red-500'>
                   No company found. Try by Reloading
                 </span>
               )}
+
               {ent?.address ? (
-                ent?.address
+                <span>{ent?.address}</span>
               ) : (
                 <span className='text-red-500'>
                   No address found. Try by Reloading
@@ -263,13 +264,13 @@ const Page = ({
               <span>Rate of Daily Wages @ Piece Rate : </span>{' '}
               <span className='font-bold'>
                 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                {Number(wagesData?.designation.basic).toFixed(2)}
+                {Number(wagesData?.existingWage?.basic).toFixed(2)}
                 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; +
                 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                {Number(wagesData?.designation.DA).toFixed(2)}
+                {Number(wagesData?.existingWage.DA).toFixed(2)}
                 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; =
                 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                {Number(wagesData?.designation?.PayRate).toFixed(2)}
+                {Number(wagesData?.existingWage?.payRate).toFixed(2)}
               </span>
             </li>
             <li>
@@ -277,11 +278,11 @@ const Page = ({
               <span className='font-bold'>
                 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                 {(
-                  wagesData?.designation?.basic * wagesData?.attendance
+                  wagesData?.existingWage?.basic * wagesData?.attendance
                 ).toFixed(2)}
                 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; +
                 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                {(wagesData?.designation.DA * wagesData?.attendance)?.toFixed(
+                {(wagesData?.existingWage.DA * wagesData?.attendance)?.toFixed(
                   2
                 )}
                 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; +
@@ -320,7 +321,7 @@ const Page = ({
                 {(
                   0.12 *
                   (wagesData?.existingWage?.attendance *
-                    wagesData?.designation?.PayRate +
+                    wagesData?.existingWage?.payRate +
                     wagesData?.existingWage?.otherCash)
                 ).toFixed(2)}
               </span>
