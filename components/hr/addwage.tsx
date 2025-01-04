@@ -106,8 +106,12 @@ const AddWage = ({ employeee }) => {
       employee: employeee.name,
       year: employeee.year,
       month: employeee.month,
-      basic: employeee?.designation?.basic,
-      vda: employeee?.designation?.DA,
+      basic: employeee.existingWage?.basic
+        ? employeee.existingWage?.basic
+        : employeee?.designation?.basic,
+      vda: employeee.existingWage?.DA
+        ? employeee.existingWage?.DA
+        : employeee?.designation?.DA,
       des: employeee?.designation?.designation,
 
       hra: parsed_otherCashDescription?.hra?.toFixed(2) || '',
@@ -260,32 +264,34 @@ const AddWage = ({ employeee }) => {
       setAttendanceData(null);
       console.log('employeee aato ra ha', employeee);
       const newData = {
+        basic: parseFloat(formData.basic),
+        DA: parseFloat(formData.vda),
         employee: employeee.id,
-        month: parseInt(employeee.month),
-        year: parseInt(employeee.year), // No explicit radix
+        month: parseFloat(employeee.month),
+        year: parseFloat(employeee.year), // No explicit radix
         incentiveApplicable: incentiveCheckboxStatus,
         damageDeduction: damageDeductionAmount,
         advanceDeduction: advanceDeductionAmount,
         isAdvanceDeduction: isAdvanceDeduction,
         isDamageDeduction: isDamageDeduction,
         otherCash: {
-          // basic: parseInt(formData.basic),
-          // vda: parseInt(formData.vda),
-          hra: parseInt(formData.hra),
-          mob: parseInt(formData.mob),
-          incumb: parseInt(formData.incumb),
-          eoc: parseInt(formData.eoc),
-          pb: parseInt(formData.pb),
-          wa: parseInt(formData.wa),
-          ca: parseInt(formData.ca),
-          ma: parseInt(formData.ma),
-          ssa: parseInt(formData.ssa),
-          oa: parseInt(formData.oa),
+          // basic: parseFloat(formData.basic),
+          // vda: parseFloat(formData.vda),
+          hra: parseFloat(formData.hra),
+          mob: parseFloat(formData.mob),
+          incumb: parseFloat(formData.incumb),
+          eoc: parseFloat(formData.eoc),
+          pb: parseFloat(formData.pb),
+          wa: parseFloat(formData.wa),
+          ca: parseFloat(formData.ca),
+          ma: parseFloat(formData.ma),
+          ssa: parseFloat(formData.ssa),
+          oa: parseFloat(formData.oa),
         },
         otherDeduction: {
-          fine: parseInt(formData.fine),
-          od: parseInt(formData.od),
-          dppe: parseInt(formData.dppe),
+          fine: parseFloat(formData.fine),
+          od: parseFloat(formData.od),
+          dppe: parseFloat(formData.dppe),
         },
       };
 
