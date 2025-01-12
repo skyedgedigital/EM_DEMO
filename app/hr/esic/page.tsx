@@ -183,7 +183,6 @@ const Page = ({
   // }, [searchParams]);
 
   const days = Array.from({ length: 31 }, (_, i) => i + 1); // Array of days (1 to 31)
-
   const exportToExcelHandler = async () => {
     console.log('first');
     const excelReportTitle = `ESIC Report for year: ${searchParams.year} month: ${searchParams.month} state: ${searchParams.esistate}`;
@@ -191,8 +190,8 @@ const Page = ({
     const worksheetData = attendanceData.map((employee, index) => {
       return {
         'Sl No.': index + 1,
-        'IP Number': employee?.employee?.UAN || '',
-        'P.F. No.': employee?.employee?.pfNo || '',
+        'IP Number': employee?.employee?.ESICNo || '',
+        // 'P.F. No.': employee?.employee?.pfNo || '',
         'IP Name': employee?.employee?.name || '',
         'No. of days for which wages paid/payable': employee?.attendance || 0,
         'Total Monthly Wage': (employee?.total).toFixed(2),
@@ -203,7 +202,6 @@ const Page = ({
         header: 1,
       })
     );
-
     const worksheet = XLSX.utils.aoa_to_sheet(combinedExcelRows);
     const workbook = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(workbook, worksheet, 'ESIC Report');
@@ -246,9 +244,7 @@ const Page = ({
                   <TableHead className='bg-slate-400 text-black border-2 border-black'>
                     IP Number (10 Digits)
                   </TableHead>
-                  <TableHead className='bg-slate-400 text-black border-2 border-black'>
-                    P.F. No.
-                  </TableHead>
+                  {/*                     <TableHead className='bg-slate-400 text-black border-2 border-black'>P.F. No.</TableHead> */}
                   <TableHead className='bg-slate-400 text-black border-2 border-black'>
                     IP Name (Alphabetical only)
                   </TableHead>
@@ -267,11 +263,9 @@ const Page = ({
                       {index + 1}
                     </TableCell>
                     <TableCell className='border-black border-2 text-black'>
-                      {employee?.employee?.UAN}
+                      {employee?.employee?.ESICNo}
                     </TableCell>
-                    <TableCell className='border-black border-2 text-black'>
-                      {employee?.employee?.pfNo}
-                    </TableCell>
+                    {/*                       <TableCell className='border-black border-2 text-black'>{employee?.employee?.pfNo}</TableCell> */}
                     <TableCell className='border-black border-2 text-black'>
                       {employee?.employee?.name}
                     </TableCell>
