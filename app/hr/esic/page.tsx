@@ -183,6 +183,7 @@ const Page = ({
   // }, [searchParams]);
 
   const days = Array.from({ length: 31 }, (_, i) => i + 1); // Array of days (1 to 31)
+
   const exportToExcelHandler = async () => {
     console.log('first');
     const excelReportTitle = `ESIC Report for year: ${searchParams.year} month: ${searchParams.month} state: ${searchParams.esistate}`;
@@ -202,6 +203,7 @@ const Page = ({
         header: 1,
       })
     );
+
     const worksheet = XLSX.utils.aoa_to_sheet(combinedExcelRows);
     const workbook = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(workbook, worksheet, 'ESIC Report');
@@ -244,7 +246,9 @@ const Page = ({
                   <TableHead className='bg-slate-400 text-black border-2 border-black'>
                     IP Number (10 Digits)
                   </TableHead>
-                  {/*                     <TableHead className='bg-slate-400 text-black border-2 border-black'>P.F. No.</TableHead> */}
+                  {/* <TableHead className='bg-slate-400 text-black border-2 border-black'>
+                    P.F. No.
+                  </TableHead> */}
                   <TableHead className='bg-slate-400 text-black border-2 border-black'>
                     IP Name (Alphabetical only)
                   </TableHead>
@@ -265,7 +269,9 @@ const Page = ({
                     <TableCell className='border-black border-2 text-black'>
                       {employee?.employee?.ESICNo}
                     </TableCell>
-                    {/*                       <TableCell className='border-black border-2 text-black'>{employee?.employee?.pfNo}</TableCell> */}
+                    {/* <TableCell className='border-black border-2 text-black'>
+                      {employee?.employee?.pfNo}
+                    </TableCell> */}
                     <TableCell className='border-black border-2 text-black'>
                       {employee?.employee?.name}
                     </TableCell>

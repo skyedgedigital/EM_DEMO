@@ -1,9 +1,9 @@
-"use client";
-import { Button } from "@/components/ui/button";
-import FileFn from "@/lib/actions/adminAnalytics/fileData";
-import React, { useRef, useState } from "react";
-import toast from "react-hot-toast";
-import * as XLSX from "xlsx";
+'use client';
+import { Button } from '@/components/ui/button';
+import FileFn from '@/lib/actions/adminAnalytics/fileData';
+import React, { useRef, useState } from 'react';
+import toast from 'react-hot-toast';
+import * as XLSX from 'xlsx';
 
 const Page = () => {
   const [data, setData] = useState([]);
@@ -23,7 +23,7 @@ const Page = () => {
 
     reader.onload = (event) => {
       const binaryStr = event.target.result;
-      const workbook = XLSX.read(binaryStr, { type: "binary" });
+      const workbook = XLSX.read(binaryStr, { type: 'binary' });
 
       const sheetName = workbook.SheetNames[0];
       const worksheet = workbook.Sheets[sheetName];
@@ -37,17 +37,23 @@ const Page = () => {
 
         const days = [];
         for (let colIndex = 58; colIndex < 58 + 31; colIndex++) {
-          const status = row[colIndex];
+          const status = row[colIndex]?.trim().toLowerCase();
           const day = colIndex - 57;
 
           if (status) {
-            let normalizedStatus = "";
-            if (status === "p" || status === "P") {
-              normalizedStatus = "Present";
-            } else if (status === "a" || status === "A") {
-              normalizedStatus = "Absent";
+            let normalizedStatus = '';
+            if (status === 'p') {
+              normalizedStatus = 'Present';
+            } else if (status === 'a') {
+              normalizedStatus = 'Absent';
+            } else if (status === 'np') {
+              normalizedStatus = 'Not Paid';
+            } else if (status === 'hd') {
+              normalizedStatus = 'Half Day';
+            } else if (status === 'nh') {
+              normalizedStatus = 'National Holiday';
             } else {
-              normalizedStatus = "Leave";
+              normalizedStatus = 'Leave';
             }
 
             days.push({
@@ -57,7 +63,7 @@ const Page = () => {
           } else {
             days.push({
               day,
-              status: "No Data",
+              status: 'No Data',
             });
           }
         }
@@ -90,7 +96,7 @@ const Page = () => {
 
   const loadData = async () => {
     if (!fileRef.current) {
-      toast.error("No file uploaded!");
+      toast.error('No file uploaded!');
       return;
     }
     processFile(fileRef.current);
@@ -98,7 +104,7 @@ const Page = () => {
 
   const saveDataInDB = async () => {
     if (data.length < 1) {
-      toast.error("No data to save");
+      toast.error('No data to save');
       return;
     }
 
@@ -109,16 +115,16 @@ const Page = () => {
     setEmployeeCodeNotInDB(resp.data);
     // console.log(resp.data);
     if (resp.success) {
-      toast.success("Saved data in DB");
+      toast.success('Saved data in DB');
     } else {
-      toast.error("Nope");
+      toast.error('Nope');
     }
     setIsSaving(false);
   };
 
   const startChangeHandler = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (!parseInt(e.target.value)) {
-      toast.error("Invalid row value");
+      toast.error('Invalid row value');
       return;
     }
     setStart(parseInt(e.target.value, 10));
@@ -126,7 +132,7 @@ const Page = () => {
 
   const endChangeHandler = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (!parseInt(e.target.value)) {
-      toast.error("Invalid row value");
+      toast.error('Invalid row value');
       return;
     }
     setEnd(parseInt(e.target.value, 10));
@@ -134,33 +140,33 @@ const Page = () => {
   };
 
   return (
-    <div className="ml-16">
+    <div className='ml-16'>
       <h1>Upload Excel File</h1>
-      <input type="file" accept=".xlsx, .xls" onChange={handleFileUpload} />
+      <input type='file' accept='.xlsx, .xls' onChange={handleFileUpload} />
 
       <div>
         <label>Start Row:</label>
         <input
-          type="number"
+          type='number'
           value={start}
           onChange={startChangeHandler}
-          min="1"
+          min='1'
         />
       </div>
       <div>
         <label>End Row:</label>
         <input
-          type="number"
+          type='number'
           value={end}
           onChange={endChangeHandler}
           min={start}
         />
-        <div className="flex w-fit gap-10 mb-4 mt-4">
+        <div className='flex w-fit gap-10 mb-4 mt-4'>
           <Button
             onClick={() => {
               loadData();
             }}
-            variant="outline"
+            variant='outline'
             disabled={loading || isSaving}
           >
             Load Data
@@ -169,17 +175,17 @@ const Page = () => {
             onClick={() => {
               saveDataInDB();
             }}
-            variant="outline"
+            variant='outline'
             disabled={loading || isSaving}
           >
             Save Data in DB
           </Button>
         </div>
 
-        <p className="bg-red-400 mb-4">
+        <p className='bg-red-400 mb-4'>
           {employeeCodeNotInDB.length > 0 &&
             employeeCodeNotInDB.map((emp, idx) => (
-              <span key={emp + "" + idx} className="px-2">
+              <span key={emp + '' + idx} className='px-2'>
                 EmpCode: {emp},
               </span>
             ))}
@@ -193,7 +199,7 @@ const Page = () => {
       {isSaving && <p>Saving data in DB., Please wait...</p>}
 
       {data.length > 0 && (
-        <table className="b-1">
+        <table className='b-1'>
           <thead>
             <tr>
               <th>Year</th>
