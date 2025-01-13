@@ -1,5 +1,13 @@
-import { getEmpsInvolvedInWorkOrder } from "./empFromWorkOrder";
-import { createWorkOrderHr, deleteWorkOrderHr, fetchAllValidWorkOrderHr, fetchAllWorkOrderHr, fetchSingleWorkOrderHr, getTotalWorkOrder } from "./workOrderHr";
+import { getEmpsInvolvedInWorkOrder } from './empFromWorkOrder';
+import {
+  createWorkOrderHr,
+  deleteWorkOrderHr,
+  fetchAllValidWorkOrderHr,
+  fetchAllWorkOrderHr,
+  fetchSingleWorkOrderHr,
+  getTotalWorkOrder,
+  updateWorkOrderHr,
+} from './workOrderHr';
 
 const WorkOrderHrAction = {
   CREATE: {
@@ -15,6 +23,9 @@ const WorkOrderHrAction = {
   DELETE: {
     deleteWorkOrderHr: deleteWorkOrderHr,
   },
+  UPDATE: {
+    updateWorkOrderHr,
+  },
 };
 
-export default WorkOrderHrAction
+export default WorkOrderHrAction;
