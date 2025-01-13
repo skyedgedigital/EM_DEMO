@@ -313,30 +313,28 @@ const Page = ({
                     </TableCell>
                     {/* Table data for each day (status) */}
                     <TableCell className='border-black border-2 text-black'>
-                      {calculateTotal(employee).toFixed(2)}
+                      {Math.round(calculateTotal(employee))}
                     </TableCell>
                     <TableCell className='border-black border-2 text-black'>
                       {calculateTotal(employee) >= 15000
-                        ? (15000).toFixed(2)
-                        : calculateTotal(employee).toFixed(2)}
+                        ? 15000
+                        : Math.round(calculateTotal(employee))}
                     </TableCell>
                     <TableCell className='border-black border-2 text-black'>
                       {calculateAge(employee?.employee?.dob) > 60
                         ? 0
                         : calculateTotal(employee) >= 15000
-                        ? (15000).toFixed(2)
-                        : calculateTotal(employee).toFixed(2)}
+                        ? 15000
+                        : Math.round(calculateTotal(employee))}
                     </TableCell>
                     <TableCell className='border-black border-2 text-black'>
                       {calculateTotal(employee) >= 15000
-                        ? (15000).toFixed(2)
-                        : calculateTotal(employee).toFixed(2)}
+                        ? 15000
+                        : Math.round(calculateTotal(employee))}
                     </TableCell>
                     <TableCell className='border-black border-2 text-black'>
-                      {/* {(0.12 * employee?.total).toFixed(2)} */}
-                      {Math.round(
-                        Number(calculateTotal(employee) * 0.12)
-                      ).toFixed(2)}
+                      {/* {(0.12 * employee?.total)} */}
+                      {Math.round(Number(calculateTotal(employee) * 0.12))}
                     </TableCell>
                     <TableCell className='border-black border-2 text-black'>
                       {Math.round(
@@ -345,20 +343,20 @@ const Page = ({
                             ? 0
                             : calculateTotal(employee) > 15000
                             ? 1250
-                            : (0.0833 * calculateTotal(employee)).toFixed(2)
+                            : 0.0833 * calculateTotal(employee)
                         )
-                      ).toFixed(2)}
+                      )}
                     </TableCell>
                     <TableCell className='border-black border-2 text-black'>
                       {Math.round(
                         Number(
                           calculateAge(employee?.employee?.dob) > 60
-                            ? (0.12 * calculateTotal(employee)).toFixed(2)
+                            ? 0.12 * calculateTotal(employee)
                             : calculateTotal(employee) > 15000
                             ? 0.12 * calculateTotal(employee) - 1250
-                            : (0.0367 * calculateTotal(employee)).toFixed(2)
+                            : 0.0367 * calculateTotal(employee)
                         )
-                      ).toFixed(2)}
+                      )}
                     </TableCell>
                     <TableCell className='border-black border-2 text-black'>
                       {calculateAbsentDays(employee)}
