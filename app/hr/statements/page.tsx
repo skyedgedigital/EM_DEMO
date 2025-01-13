@@ -108,7 +108,7 @@ const Page = () => {
 
   useEffect(() => {
     const fetch = async () => {
-      const workOrderResp = await WorkOrderHrAction.FETCH.fetchAllWorkOrderHr();
+      const workOrderResp = await WorkOrderHrAction.FETCH.fetchAllValidWorkOrderHr();
       if (workOrderResp.success) {
         setAllWorkOrderNumbers(JSON.parse(workOrderResp.data));
       } else {
