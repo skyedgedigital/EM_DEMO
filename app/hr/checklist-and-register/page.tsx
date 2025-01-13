@@ -169,9 +169,11 @@ const Page = () => {
         window.open(`/hr/bonus-register?${queryString}`, '_blank');
       } else if (action === 'LR') {
         window.open(`/hr/leave-pay-register?${queryString}`, '_blank');
+      } else if (action === 'FK') {
+        window.open(`/hr/formk?${queryString}`, '_blank');
       } else window.open(`/hr/leave-checklist?${queryString}`, '_blank');
     } catch (error) {
-      toast.error('Internalll Server Error');
+      toast.error('Failed to fetch data, please try later');
       console.error('Internal Server Error:', error);
     }
   };
@@ -204,7 +206,7 @@ const Page = () => {
       // const { data, success, error } =
       //   await workOrderAction.FETCH.fetchAllWorkOrder();
 
-      const workOrderResp = await WorkOrderHrAction.FETCH.fetchAllWorkOrderHr();
+      const workOrderResp = await WorkOrderHrAction.FETCH.fetchAllValidWorkOrderHr();
       const success = workOrderResp.success;
       // const error = workOrderResp.error
       // const data = JSON.parse(workOrderResp.data)
@@ -223,7 +225,7 @@ const Page = () => {
   return (
     <div>
       <h1 className='font-bold text-blue-500 border-b-2 border-blue-500 text-center py-2 mb-4'>
-        Payments
+        Checklist and Registers
       </h1>
       <Form {...form}>
         <form
@@ -329,7 +331,7 @@ const Page = () => {
               {form.formState.isSubmitting && (
                 <Loader2 className='h-4 w-4 animate-spin' />
               )}
-              <>Generate BONUS CHECKLIST</>
+              <>Generate Bonus Checklist</>
             </Button>
             <Button
               type='submit'
@@ -339,7 +341,7 @@ const Page = () => {
               {form.formState.isSubmitting && (
                 <Loader2 className='h-4 w-4 animate-spin' />
               )}
-              <>Generate BONUS REGISTER</>
+              <>Generate Bonus Register</>
             </Button>
             <Button
               type='submit'
@@ -349,7 +351,7 @@ const Page = () => {
               {form.formState.isSubmitting && (
                 <Loader2 className='h-4 w-4 animate-spin' />
               )}
-              <>Generate LEAVE CHECKLIST</>
+              <>Generate Leave Checklist</>
             </Button>
             <Button
               type='submit'
@@ -359,7 +361,17 @@ const Page = () => {
               {form.formState.isSubmitting && (
                 <Loader2 className='h-4 w-4 animate-spin' />
               )}
-              <>Generate LEAVE REGISTER</>
+              <>Generate Leave Register</>
+            </Button>
+            <Button
+              type='submit'
+              value='FK'
+              className='flex items-center gap-1 border-2 px-4 rounded'
+            >
+              {form.formState.isSubmitting && (
+                <Loader2 className='h-4 w-4 animate-spin' />
+              )}
+              <>Generate Form K</>
             </Button>
           </div>
         </form>

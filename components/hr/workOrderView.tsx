@@ -334,8 +334,8 @@ const WorkOrderView = () => {
       )}
       {showEditModal && (
         <>
-          <div className=' justify-center items-center flex border-2 border-green-500 overflow-x-hidden overflow-y-auto fixed inset-0 z-50 outline-none focus:outline-none'>
-            <div className='relative w-full lg:w-2/3 my-6 border-2 border-red-500 p-4'>
+          <div className=' justify-center items-center flex  overflow-x-hidden overflow-y-auto fixed inset-0 z-50 outline-none focus:outline-none'>
+            <div className='relative w-full lg:w-2/3 my-6  p-4'>
               <div className=' rounded-lg shadow-lg relative flex flex-col gap-5 w-full bg-white outline-none focus:outline-none px-6'>
                 <div className='flex items-start justify-between p-3 border-b border-solid border-blueGray-200 rounded-t'>
                   <h3 className='text-2xl font-semibold'>

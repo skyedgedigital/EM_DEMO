@@ -370,7 +370,7 @@ const Page = () => {
   return (
     <div className='pr-2'>
       <h1 className='font-bold text-blue-500 border-b-2 border-blue-500 text-center py-2 mb-4'>
-        PF ESIC Bank Statement
+        PF ESIC
       </h1>
       <div className='grid grid-cols-1 lg:grid-cols-2 gap-4'>
         <Form {...form}>

@@ -33,8 +33,6 @@ import {
   Shield,
   TestTube,
   Wrench,
-  ListEndIcon,
-  ListChecks,
   LucideReceiptPoundSterling,
 } from 'lucide-react';
 import { Building } from 'lucide-react';
