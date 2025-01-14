@@ -10,7 +10,7 @@ import handleDBConnection from '@/lib/database';
 import { ApiResponse } from '@/interfaces/APIresponses.interface';
 import { revalidatePath } from 'next/cache';
 
-const checkIfExisting = async (
+const checkIfInvoiceExists = async (
   chalanNumbers: string[]
 ): Promise<ApiResponse<any>> => {
   const dbConnection = await handleDBConnection();
@@ -31,8 +31,8 @@ const checkIfExisting = async (
       };
     } else {
       return {
-        success: true,
-        message: 'Invoice Already Exists',
+        success: false,
+        message: 'Invoice Already Exists In Database',
         data: JSON.stringify(result),
         status: 400,
         error: null,
@@ -312,13 +312,13 @@ const getAllInvoices = async (): Promise<ApiResponse<any>> => {
 };
 
 const uploadInvoiceToFireBase = async (
-  invoice,
+  invoiceId,
   downloadUrl: string
 ): Promise<ApiResponse<any>> => {
   try {
     const dbConnection = await handleDBConnection();
     if (!dbConnection.success) return dbConnection;
-    const invoiceId = invoice.invoiceId;
+
     const filter = {
       invoiceId: invoiceId,
     };
@@ -326,7 +326,7 @@ const uploadInvoiceToFireBase = async (
       pdfLink: downloadUrl,
     };
     const found = await Invoice.findOne({
-      invoiceId: invoice.invoiceId,
+      invoiceId,
     });
     console.log('Found Invoice', found);
     const result = await Invoice.findOneAndUpdate(filter, update, {
@@ -350,11 +350,11 @@ const uploadInvoiceToFireBase = async (
   }
 };
 
-const uploadSummaryToFireBase = async (invoice, downloadUrl: string) => {
+const uploadSummaryToFireBase = async (invoiceId, downloadUrl: string) => {
   try {
     const dbConnection = await handleDBConnection();
     if (!dbConnection.success) return dbConnection;
-    const invoiceId = invoice.invoiceId;
+
     const filter = {
       invoiceId: invoiceId,
     };
@@ -362,7 +362,7 @@ const uploadSummaryToFireBase = async (invoice, downloadUrl: string) => {
       summaryLink: downloadUrl,
     };
     const found = await Invoice.findOne({
-      invoiceId: invoice.invoiceId,
+      invoiceId,
     });
     console.log('Found Invoice', found);
     const result = await Invoice.findOneAndUpdate(filter, update, {
@@ -412,7 +412,7 @@ function incrementInvoiceNumber(invoiceNumber) {
   return paddedNumber;
 }
 
-const generateContinousInvocieNumber = async (): Promise<ApiResponse<any>> => {
+const generateContinuousInvoiceNumber = async (): Promise<ApiResponse<any>> => {
   try {
     const dbConnection = await handleDBConnection();
     if (!dbConnection.success) return dbConnection;
@@ -482,7 +482,7 @@ const deleteInvoiceById = async (id: string) => {
 
 export {
   updateInvoice,
-  checkIfExisting,
+  checkIfInvoiceExists,
   getInvoiceByInvoiceId,
   uploadInvoicePDFToS3,
   uploadInvoiceSummaryPDFToS3,
@@ -490,6 +490,6 @@ export {
   getAllInvoices,
   uploadInvoiceToFireBase,
   uploadSummaryToFireBase,
-  generateContinousInvocieNumber,
+  generateContinuousInvoiceNumber,
   deleteInvoiceById,
 };
