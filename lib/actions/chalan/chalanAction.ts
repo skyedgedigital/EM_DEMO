@@ -17,6 +17,7 @@ import { mergeChalans, prepareMergedItems } from './merge';
 import {
   checkIfInvoiceExists,
   generateContinuousInvoiceNumber,
+  getLastTwoInvoiceNumbers,
 } from './invoice';
 import { getPhysicalChalansOfInvoice } from './getChalanOfInvoice';
 import { getDistinguishedSummaryData } from './summaryPdf';
@@ -47,6 +48,7 @@ const chalanAction = {
     getLatestInvoiceNumber: generateContinuousInvoiceNumber,
     getSummaryPdfData: getDistinguishedSummaryData,
     vehicleReport: vehicleReport,
+    getLastTwoInvoiceNumbers,
   },
   CHECK: {
     checkExistingInvoice: checkIfInvoiceExists,

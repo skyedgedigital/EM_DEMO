@@ -480,6 +480,35 @@ const deleteInvoiceById = async (id: string) => {
   }
 };
 
+const getLastTwoInvoiceNumbers = async (): Promise<ApiResponse<any>> => {
+  try {
+    const dbConnection = await handleDBConnection();
+    if (!dbConnection.success) return dbConnection;
+    const latestDoc = await Invoice.find()
+      .sort({
+        _id: -1,
+      })
+      .select('invoiceNumber')
+      .limit(2);
+    console.log('LATEST TWO DOC', latestDoc);
+
+    return {
+      success: true,
+      status: 200,
+      message: 'Latest Doc Number recieved',
+      data: JSON.stringify(latestDoc),
+      error: null,
+    };
+  } catch (err) {
+    return {
+      success: false,
+      status: 500,
+      message: 'Unexpected error occurred,Please try later',
+      error: JSON.stringify(err),
+      data: null,
+    };
+  }
+};
 export {
   updateInvoice,
   checkIfInvoiceExists,
@@ -492,4 +521,5 @@ export {
   uploadSummaryToFireBase,
   generateContinuousInvoiceNumber,
   deleteInvoiceById,
+  getLastTwoInvoiceNumbers,
 };

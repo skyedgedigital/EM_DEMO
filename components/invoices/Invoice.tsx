@@ -71,7 +71,9 @@ const Invoice = ({
   const [loadingStates, setLoadingStates] = useState({
     autoInvoiceNumberGenerateLoader: false,
   });
-
+  const [lastTwoInvoiceNumbers, setLastTwoInvoiceNumbers] = useState<
+    { _id: string; invoiceNumber: string }[]
+  >([]);
   const [itemsList, setItemsList] = useState([]);
   const [dateMapping, setDateMapping] = useState({});
   const contentInvoiceRef = useRef(null);
@@ -83,6 +85,19 @@ const Invoice = ({
     contentRef: contentSummaryRef,
   });
 
+  useEffect(() => {
+    const fetchLastTwoInvoiceNumbers = async () => {
+      const { data, message, error, status, success } =
+        await chalanAction.FETCH.getLastTwoInvoiceNumbers();
+
+      if (success) {
+        const latest2Docs = await JSON.parse(data);
+        // console.log('LAST TWO INVOICE NUMBERS', latest2Docs);
+        setLastTwoInvoiceNumbers(latest2Docs);
+      }
+    };
+    fetchLastTwoInvoiceNumbers();
+  }, []);
   useEffect(() => {
     const fn = async () => {
       const resp = await fetchEnterpriseInfo();
@@ -531,10 +546,11 @@ const Invoice = ({
   };
   const handleAutoGenerateInvoice = async () => {
     const generatedInvoiceNumberApi = await generateInvoiceNumber();
-    let generatedInvoiceNumber = generatedInvoiceNumberApi.slice(1, -1);
-    if (generatedInvoiceNumber) {
-      console.log(generatedInvoiceNumber.length);
-      setInvoiceNumber(generatedInvoiceNumber); // Update form with generated invoice number
+    console.log('RECEIVED LATEST INVOICE NUMBERS', generatedInvoiceNumberApi);
+    // let generatedInvoiceNumber = generatedInvoiceNumberApi.slice(1, -1);
+    if (generatedInvoiceNumberApi) {
+      console.log('generatedInvoiceNumber', generatedInvoiceNumberApi);
+      setInvoiceNumber(generatedInvoiceNumberApi); // Update form with generated invoice number
       toast.success('Invoice number generated successfully');
     } else {
       toast.error('Failed to generate invoice number');
@@ -544,25 +560,41 @@ const Invoice = ({
   return (
     <main className=' w-full flex flex-col gap-1 p-4 pt-20'>
       <div className='flex justify-between items-end p-6 '>
-        <div className='flex items-end justify-center gap-2'>
-          <form className='flex flex-col gap-1 justify-start items-start'>
-            <label>Enter invoice number</label>
-            <input
-              className='text-lg p-1 border-[1px] border-gray-300 rounded-sm bg-gray-50'
-              placeholder='123'
-              type='text'
-              value={invoiceNumber}
-              onChange={(e) => setInvoiceNumber(e.currentTarget.value)}
-            />
-          </form>{' '}
-          <span>or</span>
-          <button
-            onClick={handleAutoGenerateInvoice}
-            className='bg-blue-100 text-blue-500 px-2 py-1 rounded-sm flex justify-center items-center gap-1'
-          >
-            {loadingStates.autoInvoiceNumberGenerateLoader && <Loader />}
-            <>Auto generate invoice number</>
-          </button>
+        <div className='flex flex-col gap-3'>
+          <div className='flex items-end justify-center gap-2'>
+            <form className='flex flex-col gap-1 justify-start items-start'>
+              <label>Enter invoice number</label>
+              <input
+                className='text-lg p-1 border-[1px] border-gray-300 rounded-sm bg-gray-50'
+                placeholder='123'
+                type='text'
+                value={invoiceNumber}
+                onChange={(e) => setInvoiceNumber(e.currentTarget.value)}
+              />
+            </form>{' '}
+            <span>or</span>
+            <button
+              onClick={handleAutoGenerateInvoice}
+              className='bg-blue-100 text-blue-500 px-2 py-1 rounded-sm flex justify-center items-center gap-1'
+            >
+              {loadingStates.autoInvoiceNumberGenerateLoader && <Loader />}
+              <>Auto generate invoice number</>
+            </button>
+          </div>
+          <div className='text-gray-500 flex justify-start items-center gap-1'>
+            <p className='text-sm'>Last two created invoice numbers are : </p>
+            {lastTwoInvoiceNumbers.length > 0 ? (
+              <>
+                {lastTwoInvoiceNumbers.map((no) => (
+                  <span key={no?._id} className='text-gray-700 text-sm'>
+                    {no?.invoiceNumber},
+                  </span>
+                ))}
+              </>
+            ) : (
+              'Failed to fetch'
+            )}
+          </div>
         </div>
         <div className='flex justify-between items-center gap-3'>
           <Button
@@ -697,7 +729,12 @@ const Invoice = ({
               <div className='flex flex-col gap-1 min-w-52'>
                 <div className='flex gap-4 items-center '>
                   <p>Invoice no:</p>
-                  <p> {invoiceNumber ? invoiceNumber : 'N/A'}</p>
+                  <p>
+                    {' '}
+                    SE/{todayDate().split('/')[2].substring(2, 4)}-
+                    {Number(todayDate().split('/')[2].substring(2, 4)) + 1}/
+                    {invoiceNumber}
+                  </p>
                 </div>
                 <div className='flex gap-4 items-center'>
                   <p>Date of Issue :</p>
