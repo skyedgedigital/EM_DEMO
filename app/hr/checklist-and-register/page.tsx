@@ -53,6 +53,7 @@ import { Separator } from '@/components/ui/separator';
 import { Loader2 } from 'lucide-react';
 import vehicleAction from '@/lib/actions/vehicle/vehicleAction';
 import WorkOrderHrAction from '@/lib/actions/HR/workOrderHr/workOrderAction';
+import { years } from '@/constants';
 
 const schema = z.object({
   year: z.string().trim().min(1, 'Required'),
@@ -100,8 +101,6 @@ const Page = () => {
   const [year, setYear] = useState(null);
   const [month, setMonth] = useState(null);
 
-  const years = Array.from({ length: 2024 - 2010 + 1 }, (_, i) => 2010 + i);
-  const months = Array.from({ length: 12 }, (_, i) => i + 1);
   const [checkboxStatus, setCheckboxStatus] = useState(false);
 
   const handleToggle = (e) => {

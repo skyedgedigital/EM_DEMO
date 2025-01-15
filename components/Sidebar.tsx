@@ -108,12 +108,6 @@ const Sidebar = forwardRef<HTMLDivElement, Props>(
                 variant: 'ghost',
               },
               {
-                title: 'Upload_File',
-                href: '/admin/upload_file',
-                icon: Upload,
-                variant: 'ghost',
-              },
-              {
                 title: 'payment report',
                 href: '/admin/payment-report',
                 icon: LucideReceiptPoundSterling,
@@ -320,6 +314,12 @@ const Sidebar = forwardRef<HTMLDivElement, Props>(
                 title: 'Arrear Generator',
                 href: '/hr/Arrear',
                 icon: HandCoins,
+                variant: 'ghost',
+              },
+              {
+                title: 'Upload_File',
+                href: '/hr/upload_file',
+                icon: Upload,
                 variant: 'ghost',
               },
               {
