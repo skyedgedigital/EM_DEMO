@@ -90,7 +90,8 @@ const prepareMergedItems = async (
 // - RETURNING NEWLY CREATED INVOICE
 
 const mergeChalans = async (
-  chalanNumbers: string[]
+  chalanNumbers: string[],
+  invoiceNumber:string
 ): Promise<ApiResponse<any>> => {
   try {
     // checking any existing invoices with array of chalan number. returning TRUE if NO INVOICE already exists
@@ -149,15 +150,9 @@ const mergeChalans = async (
 
     const sortedChalanNumbers = chalanNumbers.sort().join(',').trim();
 
-    console.log(typeof sortedChalanNumbers);
-    // NEW INVOICE NUMBER GENERATE KAR RHA HAI JO SAVE HO JA RHA HAI BEFORE GENERATING OR ENTERING ANY NUMBER ON enter-inovice-number page
-    let generatedInvoiceNumber = await generateContinuousInvoiceNumber();
-
-    const finalInvoiceNumber = generatedInvoiceNumber.data.slice(1, -1);
-
     const invoiceObj = new Invoice({
       invoiceId: sortedChalanNumbers,
-      invoiceNumber: `SE/24-25/${finalInvoiceNumber}`,
+      invoiceNumber: `SE/24-25/${invoiceNumber}`,
       mergedItems: JSON.stringify(mergedItems),
       chalans: chalanNumbers,
     });
