@@ -247,7 +247,7 @@ const IndividualChalanContainer = ({ chalan }: { chalan: any }) => {
       // Format the dates
       const formattedString = `${formatDate(minDate)}`;
       const query = {
-        wo: chalan?.workOrder?.workOrderNumber,
+        wo: chalan?.workOrder?._id,
         location: chalan.location,
         service: formattedString,
         department: chalan.department?.departmentName,

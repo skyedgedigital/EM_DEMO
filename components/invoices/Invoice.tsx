@@ -755,7 +755,7 @@ const Invoice = ({
                   <p> {todayDate()}</p>
                 </div>
                 <div className='flex gap-4 items-center'>
-                  <p>Vendor code</p>
+                  <p>Vendor code: </p>
                   {ent?.vendorCode ? (
                     <p className='font-normal  mb-2'>{ent?.vendorCode}</p>
                   ) : (
@@ -765,7 +765,7 @@ const Invoice = ({
                   )}
                 </div>
                 <div className='flex gap-4 items-center'>
-                  <p>WO/PO No</p> <p>{workOrder}</p>
+                  <p>WO/PO No: </p> <p>{workOrder?.workOrderNumber}</p>
                 </div>
                 {/* <div className='flex gap-4 items-center'>
                   <p>WO/PO Date:</p>

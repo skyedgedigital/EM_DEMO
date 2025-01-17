@@ -56,8 +56,9 @@ const page = async ({
 
   // const resp = await fetchItemByItemId(items[0].itemId);
   // const workOrderItem = await JSON.parse(resp.data);
-  // const response = await fetchWorkOrderByWorkOrderId(searchParams?.wo);
-  // const workOrder = response.data;
+  const response = await fetchWorkOrderByWorkOrderId(searchParams?.wo);
+  console.log('FETCHED WORKORDER', response.data);
+  const workOrder = response.data;
   // // console.log(items);
   // console.log(searchParams?.department.toUpperCase());
 
@@ -67,7 +68,7 @@ const page = async ({
     DisplayableInvoice = (
       <WMDInvoice
         items={items}
-        workOrder={searchParams?.wo}
+        workOrder={workOrder}
         // invoice={invoice}
         selectedChalanNumbers={selectedChalanNumbers}
         itemCost={totalCost}
@@ -82,7 +83,7 @@ const page = async ({
     DisplayableInvoice = (
       <PublicHealthServiceInvoice
         items={items}
-        workOrder={searchParams?.wo}
+        workOrder={workOrder}
         // invoice={invoice}
         itemCost={totalCost}
         location={searchParams?.location}
@@ -95,7 +96,7 @@ const page = async ({
     DisplayableInvoice = (
       <Invoice
         items={items}
-        workOrder={searchParams?.wo}
+        workOrder={workOrder}
         // invoice={invoice}
         itemCost={totalCost}
         location={searchParams?.location}

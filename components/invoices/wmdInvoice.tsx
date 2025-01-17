@@ -702,7 +702,7 @@ const WMDInvoice = ({
                 </span>
                 <span className='border-[1px] border-black p-1 pl-2'>
                   {' '}
-                  {workOrder}
+                  {workOrder?.workOrderNumber}
                 </span>
                 <span className='border-[1px] border-black p-1 pl-2'>
                   {' '}
