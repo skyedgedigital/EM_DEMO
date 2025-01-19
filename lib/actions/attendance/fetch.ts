@@ -8,6 +8,7 @@ import { WorkOrderHrSchema } from '@/lib/models/HR/workOrderHr.model';
 import { DesignationSchema } from '@/lib/models/HR/designation.model';
 import handleDBConnection from '@/lib/database';
 import { ApiResponse } from '@/interfaces/APIresponses.interface';
+import { ILeavesCount } from '@/interfaces/HR/attendances.interface';
 
 const EmployeeDataModel =
   mongoose.models.EmployeeData ||
@@ -267,9 +268,46 @@ const fetchStatus = async (filter: string): Promise<ApiResponse<any>> => {
   }
 };
 
+const fetchYearlyLeavesAndPresentCounts = async (
+  filter: any
+): Promise<ILeavesCount> => {
+  const doc = await Attendance.find(filter).select(
+    'presentDays earnedLeaves casualLeaves furloughLeaves'
+  );
+  if (!doc) {
+  }
+  const yearlyLeavesCount: ILeavesCount = {
+    presentDaysCount: 0,
+    earnedLeaveDaysCount: 0,
+    casualLeaveDaysCount: 0,
+    furloughLeaveDaysCount: 0,
+  };
+
+  doc?.forEach((attDoc) => {
+    attDoc?.presentDays &&
+      (yearlyLeavesCount.presentDaysCount += attDoc?.presentDays);
+    attDoc?.earnedLeaves &&
+      (yearlyLeavesCount.earnedLeaveDaysCount += attDoc?.earnedLeaves);
+    attDoc?.casualLeaves &&
+      (yearlyLeavesCount.casualLeaveDaysCount += attDoc?.casualLeaves);
+    attDoc?.furloughLeaves &&
+      (yearlyLeavesCount.furloughLeaveDaysCount += attDoc?.furloughLeaves);
+  });
+
+  // console.log(
+  //   'casualLeaveDaysCount earnedLeaveDaysCount furloughLeaveDaysCount presentDaysCount',
+  //   yearlyLeavesCount.casualLeaveDaysCount,
+  //   yearlyLeavesCount.earnedLeaveDaysCount,
+  //   yearlyLeavesCount.furloughLeaveDaysCount,
+  //   yearlyLeavesCount.presentDaysCount
+  // );
+  return yearlyLeavesCount;
+};
+
 export {
   fetchAttendance,
   fetchStatus,
   fetchAllAttendance,
   fetchAllDepAttendance,
+  fetchYearlyLeavesAndPresentCounts,
 };
