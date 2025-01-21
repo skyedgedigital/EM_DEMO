@@ -247,6 +247,12 @@ const fetchStatus = async (filter: string): Promise<ApiResponse<any>> => {
         obj['Present'] = obj['Present'] + 1;
       } else if (ele.status == 'Half Day') {
         obj['Present'] = obj['Present'] + 0.5;
+      } else if (ele.status == 'Casual Leave') {
+        obj['Present'] = obj['Present'] + 1;
+      } else if (ele.status == 'Festival Leave') {
+        obj['Present'] = obj['Present'] + 1;
+      } else if (ele.status == 'Earned Leave') {
+        obj['Present'] = obj['Present'] + 1;
       }
     });
     return {
@@ -272,7 +278,7 @@ const fetchYearlyLeavesAndPresentCounts = async (
   filter: any
 ): Promise<ILeavesCount> => {
   const doc = await Attendance.find(filter).select(
-    'presentDays earnedLeaves casualLeaves furloughLeaves'
+    'presentDays earnedLeaves casualLeaves festivalLeaves'
   );
   if (!doc) {
   }
@@ -280,7 +286,7 @@ const fetchYearlyLeavesAndPresentCounts = async (
     presentDaysCount: 0,
     earnedLeaveDaysCount: 0,
     casualLeaveDaysCount: 0,
-    furloughLeaveDaysCount: 0,
+    festivalLeaveDaysCount: 0,
   };
 
   doc?.forEach((attDoc) => {
@@ -290,15 +296,15 @@ const fetchYearlyLeavesAndPresentCounts = async (
       (yearlyLeavesCount.earnedLeaveDaysCount += attDoc?.earnedLeaves);
     attDoc?.casualLeaves &&
       (yearlyLeavesCount.casualLeaveDaysCount += attDoc?.casualLeaves);
-    attDoc?.furloughLeaves &&
-      (yearlyLeavesCount.furloughLeaveDaysCount += attDoc?.furloughLeaves);
+    attDoc?.festivalLeaves &&
+      (yearlyLeavesCount.festivalLeaveDaysCount += attDoc?.festivalLeaves);
   });
 
   // console.log(
-  //   'casualLeaveDaysCount earnedLeaveDaysCount furloughLeaveDaysCount presentDaysCount',
+  //   'casualLeaveDaysCount earnedLeaveDaysCount festivalLeaveDaysCount presentDaysCount',
   //   yearlyLeavesCount.casualLeaveDaysCount,
   //   yearlyLeavesCount.earnedLeaveDaysCount,
-  //   yearlyLeavesCount.furloughLeaveDaysCount,
+  //   yearlyLeavesCount.festivalLeaveDaysCount,
   //   yearlyLeavesCount.presentDaysCount
   // );
   return yearlyLeavesCount;

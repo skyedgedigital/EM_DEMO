@@ -49,7 +49,7 @@ const AddAttendance = ({ employeee }) => {
   const [notPaid, setNotPaid] = useState(0);
   const [earnedLeaves, setEarnedLeaves] = useState(0);
   const [casualLeaves, setCasualLeaves] = useState(0);
-  const [furloughLeaves, setFurloughLeaves] = useState(0);
+  const [festivalLeaves, setFestivalLeaves] = useState(0);
   const [workOrderList, setWorkOrderList] = useState([]);
   const [workOrderListt, setWorkOrderListt] = useState([]);
   const [isDialogOpen, setDialogOpen] = useState(false);
@@ -156,11 +156,11 @@ const AddAttendance = ({ employeee }) => {
         el += 1;
       } else if (element.status === 'Casual Leave') {
         cl += 1;
-      } else if (element.status === 'Furlough Leave') {
+      } else if (element.status === 'Festival Leave') {
         fl += 1;
       }
     });
-    setFurloughLeaves(fl);
+    setFestivalLeaves(fl);
     setEarnedLeaves(el);
     setCasualLeaves(cl);
     setPresent(present);
@@ -397,14 +397,10 @@ const AddAttendance = ({ employeee }) => {
                                 <SelectItem value='Present'>Present</SelectItem>
                                 <SelectItem value='Absent'>Absent</SelectItem>
                                 <SelectItem value='Leave'>Leave</SelectItem>
-                                <SelectItem value='Casual Leave'>
-                                  Casual Leave
-                                </SelectItem>
-                                <SelectItem value='Earned Leave'>
-                                  Earned Leave
-                                </SelectItem>
-                                <SelectItem value='Furlough Leave'>
-                                  Furlough Leave
+                                <SelectItem value='Casual Leave'>CL</SelectItem>
+                                <SelectItem value='Earned Leave'>EL</SelectItem>
+                                <SelectItem value='Festival Leave'>
+                                  FL
                                 </SelectItem>
                                 <SelectItem value='Half Day'>
                                   Half Day
@@ -601,7 +597,7 @@ const AddAttendance = ({ employeee }) => {
           Casual Leaves (CL) {casualLeaves}
         </span>
         <span className='text-blue-500 font-semibold mx-2'>
-          Furlough Leaves (FL) {furloughLeaves}
+          Festival Leaves (FL) {festivalLeaves}
         </span>
         {!attendanceData ? (
           <div>Loading......</div>

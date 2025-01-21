@@ -22,7 +22,7 @@ const countLeavesMonthly = (
       | 'Not Paid'
       | 'Earned Leave'
       | 'Casual Leave'
-      | 'Furlough Leave';
+      | 'Festival Leave';
   }[],
   _id?: string
 ): ILeavesCount => {
@@ -30,7 +30,7 @@ const countLeavesMonthly = (
     presentDaysCount: 0,
     earnedLeaveDaysCount: 0,
     casualLeaveDaysCount: 0,
-    furloughLeaveDaysCount: 0,
+    festivalLeaveDaysCount: 0,
   };
   attendanceArrayFromFrontend.forEach((day) => {
     if (day.status === 'Present') {
@@ -43,8 +43,8 @@ const countLeavesMonthly = (
       leavesCount.earnedLeaveDaysCount++;
     } else if (day.status === 'Casual Leave') {
       leavesCount.casualLeaveDaysCount++;
-    } else if (day.status === 'Furlough Leave') {
-      leavesCount.furloughLeaveDaysCount++;
+    } else if (day.status === 'Festival Leave') {
+      leavesCount.festivalLeaveDaysCount++;
     }
   });
   return leavesCount;
@@ -107,14 +107,14 @@ const putAttendance = async (
       presentDaysCount,
       casualLeaveDaysCount,
       earnedLeaveDaysCount,
-      furloughLeaveDaysCount,
+      festivalLeaveDaysCount,
     } = countLeavesMonthly(attendanceArrayFromFrontend);
 
     const {
       presentDaysCount: yearlyPresentDaysCount,
       casualLeaveDaysCount: yearlyCasualLeaveDaysCount,
       earnedLeaveDaysCount: yearlyEarnedLeaveDaysCount,
-      furloughLeaveDaysCount: yearlyFurloughLeaveDaysCount,
+      festivalLeaveDaysCount: yearlyFestivalLeaveDaysCount,
     } = await countLeavesYearlyExcludingRequestedMonth(filterData);
 
     //CHECKING LEAVE CONSTRAINTS
@@ -130,13 +130,13 @@ const putAttendance = async (
         success: false,
       };
     }
-    if (furloughLeaveDaysCount + yearlyFurloughLeaveDaysCount > 4) {
+    if (festivalLeaveDaysCount + yearlyFestivalLeaveDaysCount > 4) {
       return {
         data: null,
         error: null,
         message: `Can not provide more than 4 yearly Furlough leaves per employee. Exceeding ${
-          furloughLeaveDaysCount + yearlyFurloughLeaveDaysCount - 4
-        } Furlough leave(s)`,
+          festivalLeaveDaysCount + yearlyFestivalLeaveDaysCount - 4
+        } Festival leave(s)`,
         status: 400,
         success: false,
       };
@@ -180,7 +180,7 @@ const putAttendance = async (
           days: currentAttendanceArrayInDB,
           workOrderHr: workOrder,
           earnedLeaves: earnedLeaveDaysCount,
-          furloughLeaves: furloughLeaveDaysCount,
+          festivalLeaves: festivalLeaveDaysCount,
           presentDays: presentDaysCount,
           casualLeaves: casualLeaveDaysCount,
         },
@@ -284,7 +284,7 @@ const putAttendance = async (
         days: attendanceArrayFromFrontend,
         workOrderHr: workOrder,
         earnedLeaves: earnedLeaveDaysCount,
-        furloughLeaves: furloughLeaveDaysCount,
+        furloughLeaves: festivalLeaveDaysCount,
         presentDays: presentDaysCount,
         casualLeaves: casualLeaveDaysCount,
       });

@@ -31,7 +31,7 @@ const AttendanceSchema: mongoose.Schema<any> = new mongoose.Schema({
           'Not Paid',
           'Earned Leave',
           'Casual Leave',
-          'Furlough Leave',
+          'Festival Leave',
         ],
         required: true,
       },
@@ -49,7 +49,7 @@ const AttendanceSchema: mongoose.Schema<any> = new mongoose.Schema({
     type: Number,
     default: 0,
   },
-  furloughLeaves: {
+  festivalLeaves: {
     type: Number,
     default: 0,
   },
