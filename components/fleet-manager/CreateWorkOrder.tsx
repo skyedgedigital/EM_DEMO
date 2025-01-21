@@ -95,6 +95,9 @@ const workOrderSchema = z.object({
 type FormFields = z.infer<typeof workOrderSchema>;
 
 const CreateWorkOrder = () => {
+  const [unitOptions, setUnitOptions] = useState(options);
+  const [newUnitInput, setNewUnitInput] = useState<string>('');
+  const [addingNewUnitInput, setAddingNewUnitInput] = useState<boolean>(false);
   const [creating, setCreating] = useState<boolean>(false);
   const form = useForm<FormFields>({
     defaultValues: {
@@ -309,14 +312,76 @@ const CreateWorkOrder = () => {
               </FormItem>
             )}
           /> */}
-          <div className='mt-2'>
-            <h1>Select Unit of Measurements </h1>
-            <MultiSelect
-              options={options}
-              value={selected}
-              onChange={setSelected}
-              labelledBy='Select'
-            />
+          <div className='flex flex-col gap-1'>
+            <div className='mt-2'>
+              <h1>Select Unit of Measurements </h1>
+              <MultiSelect
+                options={unitOptions}
+                value={selected}
+                onChange={setSelected}
+                labelledBy='Select'
+              />
+            </div>
+            <div className='flex flex-col gap-3'>
+              <div className='flex justify-end gap-1 items-center text-sm text-gray-500'>
+                {!addingNewUnitInput && <p>need more unit?</p>}{' '}
+                {addingNewUnitInput ? (
+                  <span
+                    // just to prevent another use state
+                    onClick={() => setAddingNewUnitInput(false)}
+                    className='bg-white text-blue-500 underline cursor-pointer'
+                  >
+                    cancel
+                  </span>
+                ) : (
+                  <span
+                    // just to prevent another use state
+                    onClick={() => setAddingNewUnitInput(true)}
+                    className='bg-white text-blue-500 underline cursor-pointer'
+                  >
+                    click to add
+                  </span>
+                )}
+              </div>
+              {addingNewUnitInput && (
+                <div className='flex flex-col gap-1'>
+                  <div className='flex justify-start items-center gap-1'>
+                    <input
+                      className='border-gray-300 border-[1px] p-2 rounded-md flex-grow'
+                      type='text'
+                      value={newUnitInput}
+                      placeholder='new unit'
+                      onChange={(e) => setNewUnitInput(e.currentTarget.value)}
+                    />
+                    <Button
+                      onClick={() => {
+                        const isUnitAlreadyExist = unitOptions.find(
+                          (units) =>
+                            units.label === newUnitInput ||
+                            units.value === newUnitInput
+                        );
+                        if (isUnitAlreadyExist) {
+                          return toast.error('Unit already in options');
+                        }
+                        setUnitOptions((prev) => [
+                          ...prev,
+                          { label: newUnitInput, value: newUnitInput },
+                        ]);
+                        setNewUnitInput('');
+                        toast.success('new unit added');
+                      }}
+                      type='button'
+                      className='h-full'
+                    >
+                      add unit
+                    </Button>
+                  </div>
+                  <p className='text-xs text-gray-400 italic'>
+                    Note: New unit will be added only for this work order
+                  </p>
+                </div>
+              )}
+            </div>
           </div>
         </div>
 
