@@ -266,6 +266,54 @@ const Page = ({
         <Button onClick={handleOnClick}>Print</Button>
       </div>
 
+      {leaveData && (
+        <div className='mb-2'>
+          <fieldset>
+            <legend>Choose Fields:</legend>
+            <div className='flex gap-2'>
+              <div>
+                <input type='checkbox' id='EL' name='EL' checked disabled />
+                <label htmlFor='el'>EL</label>
+              </div>
+              <div>
+                <input
+                  type='checkbox'
+                  id='cl'
+                  name='cl'
+                  checked={leaveFieldsRender.showCL}
+                  onChange={() =>
+                    setLeaveFieldsRender((prevState) => {
+                      return {
+                        ...prevState,
+                        showCL: !prevState.showCL,
+                      };
+                    })
+                  }
+                />
+                <label htmlFor='cl'>CL</label>
+              </div>
+              <div>
+                <input
+                  type='checkbox'
+                  id='fl'
+                  name='fl'
+                  checked={leaveFieldsRender.showFL}
+                  onChange={() =>
+                    setLeaveFieldsRender((prevState) => {
+                      return {
+                        ...prevState,
+                        showFL: !prevState.showFL,
+                      };
+                    })
+                  }
+                />
+                <label htmlFor='fl'>FL</label>
+              </div>
+            </div>
+          </fieldset>
+        </div>
+      )}
+
       <div
         id={`Leave-checklist/${searchParams.year}`}
         className='flex flex-col gap-4'
@@ -331,50 +379,6 @@ const Page = ({
             <div>{searchParams.wog}</div>
           </div>
         </div>
-
-        {leaveData && (
-          <div>
-            <fieldset>
-              <legend>Choose Fields:</legend>
-              <div className='flex gap-2'>
-                <div>
-                  <input
-                    type='checkbox'
-                    id='cl'
-                    name='cl'
-                    checked={leaveFieldsRender.showCL}
-                    onChange={() =>
-                      setLeaveFieldsRender((prevState) => {
-                        return {
-                          ...prevState,
-                          showCL: !prevState.showCL,
-                        };
-                      })
-                    }
-                  />
-                  <label htmlFor='cl'>CL</label>
-                </div>
-                <div>
-                  <input
-                    type='checkbox'
-                    id='fl'
-                    name='fl'
-                    checked={leaveFieldsRender.showFL}
-                    onChange={() =>
-                      setLeaveFieldsRender((prevState) => {
-                        return {
-                          ...prevState,
-                          showFL: !prevState.showFL,
-                        };
-                      })
-                    }
-                  />
-                  <label htmlFor='fl'>FL</label>
-                </div>
-              </div>
-            </fieldset>
-          </div>
-        )}
 
         {leaveData && (
           <PDFTable className='border-[1px] border-black font-mono '>
