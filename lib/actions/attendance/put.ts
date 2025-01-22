@@ -41,10 +41,13 @@ const countLeavesMonthly = (
       leavesCount.presentDaysCount += 0.5;
     } else if (day.status === 'Earned Leave') {
       leavesCount.earnedLeaveDaysCount++;
+      leavesCount.presentDaysCount++;
     } else if (day.status === 'Casual Leave') {
       leavesCount.casualLeaveDaysCount++;
+      leavesCount.presentDaysCount++;
     } else if (day.status === 'Festival Leave') {
       leavesCount.festivalLeaveDaysCount++;
+      leavesCount.presentDaysCount++;
     }
   });
   return leavesCount;
