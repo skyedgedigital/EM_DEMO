@@ -137,7 +137,7 @@ const putAttendance = async (
       return {
         data: null,
         error: null,
-        message: `Can not provide more than 4 yearly Furlough leaves per employee. Exceeding ${
+        message: `Can not provide more than 4 yearly Festival leaves per employee. Exceeding ${
           festivalLeaveDaysCount + yearlyFestivalLeaveDaysCount - 4
         } Festival leave(s)`,
         status: 400,
@@ -270,7 +270,7 @@ const putAttendance = async (
     } else {
       countLeavesYearlyExcludingRequestedMonth(filterData);
 
-      console.log('PUTTING NEW ATTENDANCE');
+      // console.log('PUTTING NEW ATTENDANCE');
       let sundays = getSundays(filterData.month, filterData.year);
       console.log('Sundays', sundays);
       for (let i = 0; i < sundays.length; i++) {
@@ -287,7 +287,7 @@ const putAttendance = async (
         days: attendanceArrayFromFrontend,
         workOrderHr: workOrder,
         earnedLeaves: earnedLeaveDaysCount,
-        furloughLeaves: festivalLeaveDaysCount,
+        festivalLeaves: festivalLeaveDaysCount,
         presentDays: presentDaysCount,
         casualLeaves: casualLeaveDaysCount,
       });
