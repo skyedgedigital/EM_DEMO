@@ -223,6 +223,44 @@ const Page = ({
     };
   }
 
+  function calculateBasic(basic: number, employee) {
+    return (
+      basic *
+      calculateSumOfLeavesLeft(
+        calculateRemainingLeaves(employee.employeeLeaves, {
+          actualCL: employee.CL,
+          actualEL: employee.EL,
+          actualFL: employee.FL,
+        })
+      )
+    );
+  }
+
+  function calculateDA(DA: number, employee) {
+    return (
+      DA *
+      calculateSumOfLeavesLeft(
+        calculateRemainingLeaves(employee.employeeLeaves, {
+          actualCL: employee.CL,
+          actualEL: employee.EL,
+          actualFL: employee.FL,
+        })
+      )
+    );
+  }
+
+  function calculateTotalEmployeeWages(leaveData) {
+    const lawda: number[] = leaveData.map((employee) => {
+      return (
+        calculateBasic(
+          employee.employee.designation_details[0].basic,
+          employee
+        ) + calculateDA(employee.employee.designation_details[0].DA, employee)
+      );
+    });
+    return lawda.reduce((acc, curr) => acc + curr, 0);
+  }
+
   return (
     <div className='ml-[80px] flex flex-col gap-4'>
       <div className='flex gap-2 mb-2'>
@@ -496,10 +534,18 @@ const Page = ({
                     <div className='flex  '>
                       <div className='flex-1 p-1 pr-2 border-r-2 border-black '>
                         {' '}
-                        {employee.basicWages.toFixed(2)}
+                        {/* {employee.basicWages.toFixed(2)} */}
+                        {calculateBasic(
+                          employee.employee.designation_details[0].basic,
+                          employee
+                        ).toFixed(2)}
                       </div>
                       <div className='flex-1 p-1 px-2 border-r-2 border-black '>
-                        {employee.totalDA.toFixed(2)}
+                        {/* {employee.totalDA.toFixed(2)} */}
+                        {calculateDA(
+                          employee.employee.designation_details[0].DA,
+                          employee
+                        ).toFixed(2)}
                       </div>
                       <div className='flex-1 p-1 '>-</div>
                     </div>
@@ -512,7 +558,17 @@ const Page = ({
                   </td> */}
                   <td className='border-black border-[1px] p-1 text-center  text-black'></td>
                   <td className='border-black border-[1px] p-1 text-center  text-black'>
-                    {employee?.Net?.toFixed(2)}
+                    {/* {employee?.Net?.toFixed(2)} */}
+                    {(
+                      calculateBasic(
+                        employee.employee.designation_details[0].basic,
+                        employee
+                      ) +
+                      calculateDA(
+                        employee.employee.designation_details[0].DA,
+                        employee
+                      )
+                    ).toFixed(2)}
                   </td>
                   {/* <td className='border-black border-[1px] p-1 text-center  text-black'></td>
                   <td className='border-black border-[1px] p-1 text-center  text-black'></td>
@@ -526,7 +582,17 @@ const Page = ({
                     </div>
                   </td>
                   <td className='border-black border-[1px] p-1 text-center  text-black'>
-                    {employee.Net.toFixed(2)}
+                    {/* {employee.Net.toFixed(2)} */}
+                    {(
+                      calculateBasic(
+                        employee.employee.designation_details[0].basic,
+                        employee
+                      ) +
+                      calculateDA(
+                        employee.employee.designation_details[0].DA,
+                        employee
+                      )
+                    ).toFixed(2)}
                   </td>
                   <td className='border-black border-[1px] p-1 text-center  text-black'></td>
                   <td className='border-black border-[1px] p-1 text-center  text-black'></td>
@@ -568,7 +634,8 @@ const Page = ({
 </td> */}
                   <td className='border-black border-[1px] p-1 text-center  text-black'></td>
                   <td className='border-black border-[1px] p-1 text-center  text-black'>
-                    {total}
+                    {/* {total} */}
+                    {calculateTotalEmployeeWages(leaveData).toFixed(2)}
                   </td>
                   {/* <td className='border-black border-[1px] p-1 text-center  text-black'></td>
 <td className='border-black border-[1px] p-1 text-center  text-black'></td>
@@ -582,7 +649,7 @@ const Page = ({
                     </div>
                   </td>
                   <td className='border-black border-[1px] p-1 text-center  text-black'>
-                    {total}
+                    {calculateTotalEmployeeWages(leaveData).toFixed(2)}
                   </td>
                   <td className='border-black border-[1px] p-1 text-center  text-black'></td>
                   <td className='border-black border-[1px] p-1 text-center  text-black'></td>
