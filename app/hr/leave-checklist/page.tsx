@@ -20,6 +20,11 @@ import wagesAction from '@/lib/actions/HR/wages/wagesAction';
 import React, { useEffect, useState } from 'react';
 import { IEnterprise } from '@/interfaces/enterprise.interface';
 import { fetchEnterpriseInfo } from '@/lib/actions/enterprise';
+import {
+  acutalLeave,
+  RemainingLeaves,
+  usedLeave,
+} from '@/interfaces/HR/leaves.interface';
 
 const Page = ({
   searchParams,
@@ -167,24 +172,6 @@ const Page = ({
     'dec',
   ];
   const months2 = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12];
-
-  interface usedLeave {
-    usedEL: number;
-    usedCL: number;
-    usedFL: number;
-  }
-
-  interface acutalLeave {
-    actualEL: number;
-    actualCL: number;
-    actualFL: number;
-  }
-
-  interface RemainingLeaves {
-    remainingEL: number;
-    remainingCL: number;
-    remainingFL: number;
-  }
 
   function calculateRemainingLeaves(
     leaves: usedLeave[],
