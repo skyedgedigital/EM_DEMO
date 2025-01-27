@@ -217,4 +217,101 @@ const uploadPhotos = async (
     };
   }
 };
+const uploadFiles = async (
+  filesData: FormData
+): Promise<ApiResponse<any>> => {
+  const dbConnection = await handleDBConnection();
+  if (!dbConnection.success) return dbConnection;
+  try {
+    // Extract files from FormData
+    const resume = filesData.get('resume');
+    const offerLetter = filesData.get('offerLetter');
+    const contract = filesData.get('contract');
+    const phoneNo = Number(filesData.get('phoneNo'));
+
+    const updatableURLs = {
+      resumeURL: undefined,
+      offerLetterURL: undefined,
+      contractURL: undefined,
+    };
+
+    // Upload Resume
+    if (resume && resume instanceof File) {
+      const fileName = resume.name; // Get the file name
+      const storageRef = ref(
+        storage,
+        `documents/${phoneNo}/Resume_${fileName}`
+      ); // Create a reference in Firebase Storage
+      const resumeDownloadURL = await uploadFile(storageRef, resume);
+      console.log('Resume URL', resumeDownloadURL);
+      if (resumeDownloadURL) {
+        updatableURLs.resumeURL = resumeDownloadURL as string;
+      }
+    }
+
+    // Upload Offer Letter
+    if (offerLetter && offerLetter instanceof File) {
+      const fileName = offerLetter.name; // Get the file name
+      const storageRef = ref(
+        storage,
+        `documents/${phoneNo}/Offer_Letter_${fileName}`
+      ); // Create a reference in Firebase Storage
+      const offerLetterDownloadURL = await uploadFile(storageRef, offerLetter);
+      console.log('Offer Letter URL', offerLetterDownloadURL);
+      if (offerLetterDownloadURL) {
+        updatableURLs.offerLetterURL = offerLetterDownloadURL as string;
+      }
+    }
+
+    // Upload Contract
+    if (contract && contract instanceof File) {
+      const fileName = contract.name; // Get the file name
+      const storageRef = ref(
+        storage,
+        `documents/${phoneNo}/Contract_${fileName}`
+      ); // Create a reference in Firebase Storage
+      const contractDownloadURL = await uploadFile(storageRef, contract);
+      console.log('Contract URL', contractDownloadURL);
+      if (contractDownloadURL) {
+        updatableURLs.contractURL = contractDownloadURL as string;
+      }
+    }
+
+    // Update PDF URLs in EmployeeData
+    try {
+      const res = await Employee.findOneAndUpdate(
+        { phoneNo: phoneNo },
+        {
+          $set: updatableURLs,
+        },
+        { new: true }
+      );
+      return {
+        success: true,
+        message: 'Files uploaded successfully',
+        status: 200,
+        data: JSON.stringify(res),
+        error: null,
+      };
+    } catch (error) {
+      return {
+        success: false,
+        message:
+          'Unexpected error occurred, Failed to update files, Please Try Later',
+        error: JSON.stringify(error),
+        data: null,
+        status: 500,
+      };
+    }
+  } catch (err) {
+    console.log(err);
+    return {
+      success: false,
+      message: 'Error uploading files',
+      error: JSON.stringify(err),
+      status: 500,
+      data: null,
+    };
+  }
+};
 export { createEmployee, uploadPhotos };

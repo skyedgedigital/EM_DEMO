@@ -1,5 +1,25 @@
 import mongoose, { Schema } from 'mongoose';
 
+export const docsEnums = [
+  'Safety Manual',
+  'Policy & Principal',
+  'Organization Structure',
+  'Safety Plan',
+  'Objective & Target',
+  'PPE Replacement Policy',
+  'Tool Replacement Policy',
+  'Campaign Calendar',
+  'Emergency Preparedness Plan',
+  'Employee List',
+  'First-aider Certificate',
+  'Safety Professional Certificate',
+  'Top Management Certificate',
+  'Appointment Letter',
+  'Sponsorship Letter',
+  'SOP',
+  'JHA',
+  'HIRA',
+] as const;
 interface Version {
   versionNumber: number;
   documentURL: string;
@@ -7,10 +27,10 @@ interface Version {
   uploadDate: Date;
 }
 
-interface Document {
+export interface Document {
   category: 'General' | 'SOP/JHA/HIRA';
   documentType: string;
-  versions: Version[];
+  versions?: Version[];
   currentVersion: number;
 }
 
@@ -44,26 +64,7 @@ const DocumentSchema: mongoose.Schema<Document> = new mongoose.Schema(
     documentType: {
       type: String,
       required: true,
-      enum: [
-        'Safety Manual',
-        'Policy & Principal',
-        'Organization Structure',
-        'Safety Plan',
-        'Objective & Target',
-        'PPE Replacement Policy',
-        'Tool Replacement Policy',
-        'Campaign Calendar',
-        'Emergency Preparedness Plan',
-        'Employee List',
-        'First-aider Certificate',
-        'Safety Professional Certificate',
-        'Top Management Certificate',
-        'Appointment Letter',
-        'Sponsorship Letter',
-        'SOP',
-        'JHA',
-        'HIRA',
-      ],
+      enum: docsEnums,
     },
     versions: [VersionSchema],
     currentVersion: {

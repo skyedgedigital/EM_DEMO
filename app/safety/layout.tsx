@@ -14,11 +14,7 @@ const layout = async ({ children }: { children: React.ReactNode }) => {
      if (session?.user?.access !== "Safety") {
         redirect('/deniedaccess');
     }
-    return (
-        <div className='flex pt-16'>
-         <SidebarANDRestContainer>{children}</SidebarANDRestContainer>
-        </div>
-    );
+    return <SidebarANDRestContainer>{children}</SidebarANDRestContainer>;
 };
 
 export default layout;
