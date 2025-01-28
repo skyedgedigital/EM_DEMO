@@ -50,7 +50,7 @@ const VersionSchema: mongoose.Schema<Version> = new mongoose.Schema({
   },
   uploadDate: {
     type: Date,
-    default: Date.now(),
+    default: new Date(),
   },
 });
 
