@@ -29,9 +29,40 @@ export const createDocument = async (
     });
 
     if (existingDocument) {
-      throw new Error('Document already exist');
+      const lastUpdatedVersion = existingDocument.versions.find(
+        (version) => version.versionNumber === document.currentVersion
+      );
+
+      if (!lastUpdatedVersion) {
+        throw new Error('Version mismatch');
+      }
+
+      const newVersion = {
+        versionNumber: lastUpdatedVersion.versionNumber + 1,
+        documentURL,
+        uploadDate,
+        uploadedBy,
+      };
+      existingDocument.versions.push(newVersion);
+      existingDocument.currentVersion = newVersion.versionNumber;
+      const updatedDoc = await existingDocument.save();
+      if (!updatedDoc) throw new Error("Couldn't update the document");
+      return {
+        success: true,
+        status: 201,
+        message: `Document successfully updated!`,
+        data: {
+          category: updatedDoc.category,
+          documentType: updatedDoc.documentType,
+          documentURL: newVersion.documentURL,
+          uploadDate: newVersion.uploadDate,
+          uploadedBy: newVersion.uploadedBy,
+        },
+        error: null,
+      };
     }
 
+    // currentVersion will be automatically assigned
     const document = await DocumentModel.create({
       category,
       documentType,
@@ -66,70 +97,7 @@ export const createDocument = async (
       status: 404,
       message: error.message || 'Something went wrong!',
       data: null,
-      error: null,
-    };
-  }
-};
-
-export const updateDocument = async (
-  params: CreateDocumentParams
-): Promise<ApiResponse<CreateDocumentParams>> => {
-  try {
-    const dbConnection = await handleDBConnection();
-    if (!dbConnection.success) return dbConnection;
-    const { category, documentType, documentURL, uploadDate, uploadedBy } =
-      params;
-    if (
-      !category ||
-      !documentType ||
-      !documentURL ||
-      !uploadDate ||
-      !uploadedBy
-    ) {
-      throw new Error('Invalid Values');
-    }
-    const existingDocument = await DocumentModel.findOne({
-      category,
-      documentType,
-    });
-    if (!existingDocument) {
-      throw new Error('Document does not exist');
-    }
-
-    const lastUpdatedVersion =
-      existingDocument.versions[existingDocument.versions.length - 1];
-
-    const newVersion = {
-      versionNumber: lastUpdatedVersion.versionNumber + 1,
-      documentURL,
-      uploadDate,
-      uploadedBy,
-    };
-    existingDocument.versions.push(newVersion);
-    existingDocument.currentVersion = newVersion.versionNumber;
-    const updatedDoc = await existingDocument.save();
-    if (!updatedDoc) throw new Error("Couldn't update the document");
-    await existingDocument.save();
-    return {
-      success: true,
-      status: 201,
-      message: `Document successfully updated!`,
-      data: {
-        category: updatedDoc.category,
-        documentType: updatedDoc.documentType,
-        documentURL: newVersion.documentURL,
-        uploadDate: newVersion.uploadDate,
-        uploadedBy: newVersion.uploadedBy,
-      },
-      error: null,
-    };
-  } catch (error) {
-    return {
-      success: false,
-      status: 404,
-      message: error.message || 'Something went wrong!',
-      data: null,
-      error: null,
+      error: error,
     };
   }
 };
@@ -171,9 +139,9 @@ export const getNextVersion = async (
     return {
       success: false,
       status: 404,
-      message: 'Failed to calculate next version',
+      message: error instanceof Error ? error.message : 'Something went wrong',
       data: null,
-      error: error instanceof Error ? error.message : 'Something went wrong',
+      error: error,
     };
   }
 };
