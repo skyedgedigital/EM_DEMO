@@ -20,7 +20,7 @@ export const docsEnums = [
   'JHA',
   'HIRA',
 ] as const;
-interface Version {
+export interface Version {
   versionNumber: number;
   documentURL: string;
   uploadedBy: mongoose.Types.ObjectId;
