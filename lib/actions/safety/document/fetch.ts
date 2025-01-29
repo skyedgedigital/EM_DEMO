@@ -37,13 +37,13 @@ export const fetchCurrentVersionOfAllDocuments = async (): Promise<
       error: null,
     };
   } catch (error) {
-    console.error('Error getting next version:', error);
+    console.error('Error fetching document', error);
     return {
       success: false,
       status: 404,
-      message: 'Failed to calculate next version',
+      message: error instanceof Error ? error.message : 'Something went wrong',
       data: null,
-      error: error instanceof Error ? error.message : 'Something went wrong',
+      error,
     };
   }
 };
@@ -88,13 +88,61 @@ export const getCurrentDocumentByDocTypeandCategory = async (
       error: null,
     };
   } catch (error) {
-    console.error('Error getting next version:', error);
+    console.error('Error fetching document:', error);
     return {
       success: false,
       status: 404,
-      message: 'Failed to calculate next version',
+      message: error instanceof Error ? error.message : 'Something went wrong',
       data: null,
-      error: error instanceof Error ? error.message : 'Something went wrong',
+      error,
+    };
+  }
+};
+
+export const getAllVersionsOfDocument = async (
+  category: string,
+  documentType: string
+): Promise<
+  ApiResponse<{
+    category: 'General' | 'SOP/JHA/HIRA';
+    documentType: string;
+    versions: Version[];
+  }>
+> => {
+  try {
+    const dbConnection = await handleDBConnection();
+    if (!dbConnection.success) return dbConnection;
+
+    if (!category || !documentType) {
+      throw new Error('Category and documentType is required');
+    }
+
+    const document = await DocumentModel.findOne({
+      category,
+      documentType,
+    });
+    if (!document) {
+      throw new Error('No Document found');
+    }
+    return {
+      success: true,
+      status: 200,
+      message: 'data fetched successfully',
+      data: {
+        category: document.category,
+        documentType: document.documentType,
+        versions: document.versions,
+      },
+      error: null,
+    };
+  } catch (error) {
+    console.error('Error fetching documents:', error);
+    return {
+      success: false,
+      status: 404,
+      message: error instanceof Error ? error.message : 'Something went wrong',
+      data: null,
+      error,
     };
   }
 };
