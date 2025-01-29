@@ -1,9 +1,7 @@
-// import { authOptions } from '@/app/api/auth/[...nextauth]/options';
 import { ApiResponse } from '@/interfaces/APIresponses.interface';
 import handleDBConnection from '@/lib/database';
-import { DocumentModel } from '@/lib/models/Safety/document.model';
+import DocumentModel from '@/lib/models/Safety/document.model';
 import mongoose from 'mongoose';
-// import { getServerSession } from 'next-auth';
 
 interface CreateDocumentParams {
   category: 'General' | 'SOP/JHA/HIRA';
@@ -17,12 +15,6 @@ export const createDocument = async (
   params: CreateDocumentParams
 ): Promise<ApiResponse<CreateDocumentParams>> => {
   try {
-    /**
-     * if this server session doesn't work, I will have to get the userId from the client
-     * some error is being thrown in the frontend when using this server action, when I add this line
-     */
-    // const session = await getServerSession(authOptions);
-    // console.log(session, 'HAHAHAHAH');
     const dbConnection = await handleDBConnection();
     if (!dbConnection.success) return dbConnection;
     const { category, documentType, documentURL, uploadDate, uploadedBy } =

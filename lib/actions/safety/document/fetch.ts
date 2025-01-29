@@ -1,6 +1,6 @@
 import { ApiResponse } from '@/interfaces/APIresponses.interface';
 import handleDBConnection from '@/lib/database';
-import { DocumentModel, Version } from '@/lib/models/Safety/document.model';
+import DocumentModel, { Version } from '@/lib/models/Safety/document.model';
 
 export const fetchCurrentVersionOfAllDocuments = async (): Promise<
   ApiResponse<
