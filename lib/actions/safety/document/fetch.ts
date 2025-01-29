@@ -1,15 +1,17 @@
 import { ApiResponse } from '@/interfaces/APIresponses.interface';
 import handleDBConnection from '@/lib/database';
-import DocumentModel, { Version } from '@/lib/models/Safety/document.model';
+import DocumentModel, {
+  DocNameTypes,
+  IVersion,
+} from '@/lib/models/Safety/document.model';
 
+export interface ICurrentVersionOfAllDocumentsResponse {
+  category: 'General' | 'SOP/JHA/HIRA';
+  documentType: DocNameTypes;
+  currentVersionDocument: IVersion;
+}
 export const fetchCurrentVersionOfAllDocuments = async (): Promise<
-  ApiResponse<
-    {
-      category: 'General' | 'SOP/JHA/HIRA';
-      documentType: string;
-      currentVersionDocument: Version;
-    }[]
-  >
+  ApiResponse<ICurrentVersionOfAllDocumentsResponse[]>
 > => {
   try {
     const dbConnection = await handleDBConnection();
@@ -23,7 +25,7 @@ export const fetchCurrentVersionOfAllDocuments = async (): Promise<
     const data = documents.map((document) => {
       return {
         category: document.category,
-        documentType: document.documentType,
+        documentType: document.documentType as DocNameTypes,
         currentVersionDocument: document.versions.find(
           (item) => item.versionNumber === document.currentVersion
         ),
@@ -50,12 +52,12 @@ export const fetchCurrentVersionOfAllDocuments = async (): Promise<
 
 export const getCurrentDocumentByDocTypeandCategory = async (
   category: string,
-  documentType: string
+  documentType: DocNameTypes
 ): Promise<
   ApiResponse<{
     category: 'General' | 'SOP/JHA/HIRA';
-    documentType: string;
-    currentVersionDocument: Version;
+    documentType: DocNameTypes;
+    currentVersionDocument: IVersion;
   }>
 > => {
   try {
@@ -80,7 +82,7 @@ export const getCurrentDocumentByDocTypeandCategory = async (
       message: 'data fetched successfully',
       data: {
         category: document.category,
-        documentType: document.documentType,
+        documentType: document.documentType as DocNameTypes,
         currentVersionDocument: document.versions.find(
           (item) => item.versionNumber === document.currentVersion
         ),
@@ -101,12 +103,12 @@ export const getCurrentDocumentByDocTypeandCategory = async (
 
 export const getAllVersionsOfDocument = async (
   category: string,
-  documentType: string
+  documentType: DocNameTypes
 ): Promise<
   ApiResponse<{
     category: 'General' | 'SOP/JHA/HIRA';
-    documentType: string;
-    versions: Version[];
+    documentType: DocNameTypes;
+    versions: IVersion[];
   }>
 > => {
   try {
@@ -130,7 +132,7 @@ export const getAllVersionsOfDocument = async (
       message: 'data fetched successfully',
       data: {
         category: document.category,
-        documentType: document.documentType,
+        documentType: document.documentType as DocNameTypes,
         versions: document.versions,
       },
       error: null,

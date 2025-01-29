@@ -13,102 +13,220 @@ import {
   AlertDialogAction,
   AlertDialogCancel,
 } from '@/components/ui/alert-dialog';
-import { fetchCurrentVersionOfAllDocuments } from '@/lib/actions/safety/document/fetch';
+import {
+  fetchCurrentVersionOfAllDocuments,
+  ICurrentVersionOfAllDocumentsResponse,
+} from '@/lib/actions/safety/document/fetch';
 import toast from 'react-hot-toast';
-
-type DocName = (typeof docsEnums)[number];
-interface DocItem {
-  _id?: string;
-  documentType: DocName;
-  docUrl: string;
-}
+import { Types } from 'mongoose';
 
 const Documents = () => {
   const [isDialogOpen, setDialogOpen] = useState(false);
-  // const [showViewModal, setShowViewModal] = useState<boolean>(false);
-  // const [showModal, setShowModal] = useState<boolean>(false);
-  // const [file, setFile] = useState<File | null>(null);
 
-  // const [fileUrl, setFileUrl] = useState<string | null>(null);
-
-  const [safetyDocs, setSafetyDocs] = useState<DocItem[]>([
+  const [generalDocs, setGeneralDocs] = useState<
+    ICurrentVersionOfAllDocumentsResponse[]
+  >([
     {
       documentType: 'Safety Manual',
-      docUrl:
-        'https://firebasestorage.googleapis.com/v0/b/em-webapp.appspot.com/o/safety-management-documents%2Fsafety-manual.pdf?alt=media&token=fa1cf6e2-b311-4db8-821c-0a3281e28f69',
-    },
-    {
-      documentType: 'Policy & Principal',
-      docUrl:
-        'https://firebasestorage.googleapis.com/v0/b/em-webapp.appspot.com/o/safety-management-documents%2Fpolicy-%26-principal.pdf?alt=media&token=64e324ce-76f4-4e84-ad92-6a3f12b0ba8f',
-    },
-    {
-      documentType: 'Organization Structure',
-      docUrl: '',
-    },
-    {
-      documentType: 'Safety Plan',
-      docUrl: '',
-    },
-    {
-      documentType: 'Objective & Target',
-      docUrl: '',
-    },
-    {
-      documentType: 'PPE Replacement Policy',
-      docUrl: '',
-    },
-    {
-      documentType: 'Tool Replacement Policy',
-      docUrl: '',
-    },
-    {
-      documentType: 'Campaign Calendar',
-      docUrl: '',
-    },
-    {
-      documentType: 'Emergency Preparedness Plan',
-      docUrl: '',
-    },
-    {
-      documentType: 'Employee List',
-      docUrl: '',
-    },
-    {
-      documentType: 'First-aider Certificate',
-      docUrl: '',
-    },
-    {
-      documentType: 'Safety Professional Certificate',
-      docUrl: '',
-    },
-    {
-      documentType: 'Top Management Certificate',
-      docUrl: '',
+      currentVersionDocument: {
+        uploadDate: new Date(),
+        documentURL:
+          'https://firebasestorage.googleapis.com/v0/b/em-webapp.appspot.com/o/safety-management-documents%2Fsafety-manual.pdf?alt=media&token=fa1cf6e2-b311-4db8-821c-0a3281e28f69',
+        versionNumber: 1,
+        uploadedBy: new Types.ObjectId(),
+      },
+      category: 'General',
     },
     {
       documentType: 'Appointment Letter',
-      docUrl: '',
+      currentVersionDocument: {
+        uploadDate: new Date(),
+        documentURL:
+          'https://firebasestorage.googleapis.com/v0/b/em-webapp.appspot.com/o/safety-management-documents%2Fpolicy-%26-principal.pdf?alt=media&token=64e324ce-76f4-4e84-ad92-6a3f12b0ba8f',
+        versionNumber: 1,
+        uploadedBy: new Types.ObjectId(),
+      },
+      category: 'General',
+    },
+    {
+      documentType: 'Campaign Calendar',
+      currentVersionDocument: {
+        uploadDate: new Date(),
+        documentURL:
+          'https://firebasestorage.googleapis.com/v0/b/em-webapp.appspot.com/o/safety-management-documents%2Fpolicy-%26-principal.pdf?alt=media&token=64e324ce-76f4-4e84-ad92-6a3f12b0ba8f',
+        versionNumber: 1,
+        uploadedBy: new Types.ObjectId(),
+      },
+      category: 'General',
+    },
+    {
+      documentType: 'Emergency Preparedness Plan',
+      currentVersionDocument: {
+        uploadDate: new Date(),
+        documentURL:
+          'https://firebasestorage.googleapis.com/v0/b/em-webapp.appspot.com/o/safety-management-documents%2Fpolicy-%26-principal.pdf?alt=media&token=64e324ce-76f4-4e84-ad92-6a3f12b0ba8f',
+        versionNumber: 1,
+        uploadedBy: new Types.ObjectId(),
+      },
+      category: 'General',
+    },
+    {
+      documentType: 'Employee List',
+      currentVersionDocument: {
+        uploadDate: new Date(),
+        documentURL:
+          'https://firebasestorage.googleapis.com/v0/b/em-webapp.appspot.com/o/safety-management-documents%2Fpolicy-%26-principal.pdf?alt=media&token=64e324ce-76f4-4e84-ad92-6a3f12b0ba8f',
+        versionNumber: 1,
+        uploadedBy: new Types.ObjectId(),
+      },
+      category: 'General',
+    },
+    {
+      documentType: 'First-aider Certificate',
+      currentVersionDocument: {
+        uploadDate: new Date(),
+        documentURL:
+          'https://firebasestorage.googleapis.com/v0/b/em-webapp.appspot.com/o/safety-management-documents%2Fpolicy-%26-principal.pdf?alt=media&token=64e324ce-76f4-4e84-ad92-6a3f12b0ba8f',
+        versionNumber: 1,
+        uploadedBy: new Types.ObjectId(),
+      },
+      category: 'General',
+    },
+    {
+      documentType: 'Objective & Target',
+      currentVersionDocument: {
+        uploadDate: new Date(),
+        documentURL:
+          'https://firebasestorage.googleapis.com/v0/b/em-webapp.appspot.com/o/safety-management-documents%2Fpolicy-%26-principal.pdf?alt=media&token=64e324ce-76f4-4e84-ad92-6a3f12b0ba8f',
+        versionNumber: 1,
+        uploadedBy: new Types.ObjectId(),
+      },
+      category: 'General',
+    },
+    {
+      documentType: 'Organization Structure',
+      currentVersionDocument: {
+        uploadDate: new Date(),
+        documentURL:
+          'https://firebasestorage.googleapis.com/v0/b/em-webapp.appspot.com/o/safety-management-documents%2Fpolicy-%26-principal.pdf?alt=media&token=64e324ce-76f4-4e84-ad92-6a3f12b0ba8f',
+        versionNumber: 1,
+        uploadedBy: new Types.ObjectId(),
+      },
+      category: 'General',
+    },
+    {
+      documentType: 'PPE Replacement Policy',
+      currentVersionDocument: {
+        uploadDate: new Date(),
+        documentURL:
+          'https://firebasestorage.googleapis.com/v0/b/em-webapp.appspot.com/o/safety-management-documents%2Fpolicy-%26-principal.pdf?alt=media&token=64e324ce-76f4-4e84-ad92-6a3f12b0ba8f',
+        versionNumber: 1,
+        uploadedBy: new Types.ObjectId(),
+      },
+      category: 'General',
+    },
+    {
+      documentType: 'Policy & Principal',
+      currentVersionDocument: {
+        uploadDate: new Date(),
+        documentURL:
+          'https://firebasestorage.googleapis.com/v0/b/em-webapp.appspot.com/o/safety-management-documents%2Fpolicy-%26-principal.pdf?alt=media&token=64e324ce-76f4-4e84-ad92-6a3f12b0ba8f',
+        versionNumber: 1,
+        uploadedBy: new Types.ObjectId(),
+      },
+      category: 'General',
+    },
+    {
+      documentType: 'Safety Plan',
+      currentVersionDocument: {
+        uploadDate: new Date(),
+        documentURL:
+          'https://firebasestorage.googleapis.com/v0/b/em-webapp.appspot.com/o/safety-management-documents%2Fpolicy-%26-principal.pdf?alt=media&token=64e324ce-76f4-4e84-ad92-6a3f12b0ba8f',
+        versionNumber: 1,
+        uploadedBy: new Types.ObjectId(),
+      },
+      category: 'General',
+    },
+    {
+      documentType: 'Safety Professional Certificate',
+      currentVersionDocument: {
+        uploadDate: new Date(),
+        documentURL:
+          'https://firebasestorage.googleapis.com/v0/b/em-webapp.appspot.com/o/safety-management-documents%2Fpolicy-%26-principal.pdf?alt=media&token=64e324ce-76f4-4e84-ad92-6a3f12b0ba8f',
+        versionNumber: 1,
+        uploadedBy: new Types.ObjectId(),
+      },
+      category: 'General',
     },
     {
       documentType: 'Sponsorship Letter',
-      docUrl: '',
+      currentVersionDocument: {
+        uploadDate: new Date(),
+        documentURL:
+          'https://firebasestorage.googleapis.com/v0/b/em-webapp.appspot.com/o/safety-management-documents%2Fpolicy-%26-principal.pdf?alt=media&token=64e324ce-76f4-4e84-ad92-6a3f12b0ba8f',
+        versionNumber: 1,
+        uploadedBy: new Types.ObjectId(),
+      },
+      category: 'General',
+    },
+    {
+      documentType: 'Tool Replacement Policy',
+      currentVersionDocument: {
+        uploadDate: new Date(),
+        documentURL:
+          'https://firebasestorage.googleapis.com/v0/b/em-webapp.appspot.com/o/safety-management-documents%2Fpolicy-%26-principal.pdf?alt=media&token=64e324ce-76f4-4e84-ad92-6a3f12b0ba8f',
+        versionNumber: 1,
+        uploadedBy: new Types.ObjectId(),
+      },
+      category: 'General',
+    },
+    {
+      documentType: 'Top Management Certificate',
+      currentVersionDocument: {
+        uploadDate: new Date(),
+        documentURL:
+          'https://firebasestorage.googleapis.com/v0/b/em-webapp.appspot.com/o/safety-management-documents%2Fpolicy-%26-principal.pdf?alt=media&token=64e324ce-76f4-4e84-ad92-6a3f12b0ba8f',
+        versionNumber: 1,
+        uploadedBy: new Types.ObjectId(),
+      },
+      category: 'General',
     },
   ]);
-  const [sopJhaHiraDocs, setSopJhaHira] = useState<DocItem[]>([
+  const [sopJhaHiraDocs, setSopJhaHira] = useState<
+    ICurrentVersionOfAllDocumentsResponse[]
+  >([
     {
-      documentType: 'SOP',
-      docUrl:
-        'https://firebasestorage.googleapis.com/v0/b/em-webapp.appspot.com/o/safety-management-documents%2Fsafety-manual.pdf?alt=media&token=fa1cf6e2-b311-4db8-821c-0a3281e28f69',
+      documentType: 'HIRA',
+      currentVersionDocument: {
+        uploadDate: new Date(),
+        documentURL:
+          'https://firebasestorage.googleapis.com/v0/b/em-webapp.appspot.com/o/safety-management-documents%2Fsafety-manual.pdf?alt=media&token=cbcf08a7-eeac-4025-8fd7-88a1fddb4339',
+        versionNumber: 1,
+        uploadedBy: new Types.ObjectId(),
+      },
+      category: 'General',
     },
     {
       documentType: 'JHA',
-      docUrl:
-        'https://firebasestorage.googleapis.com/v0/b/em-webapp.appspot.com/o/safety-management-documents%2Fpolicy-%26-principal.pdf?alt=media&token=64e324ce-76f4-4e84-ad92-6a3f12b0ba8f',
+      currentVersionDocument: {
+        uploadDate: new Date(),
+        documentURL:
+          'https://firebasestorage.googleapis.com/v0/b/em-webapp.appspot.com/o/safety-management-documents%2Fpolicy-%26-principal.pdf?alt=media&token=64e324ce-76f4-4e84-ad92-6a3f12b0ba8f',
+        versionNumber: 1,
+        uploadedBy: new Types.ObjectId(),
+      },
+      category: 'General',
     },
     {
-      documentType: 'HIRA',
-      docUrl: '',
+      documentType: 'SOP',
+      currentVersionDocument: {
+        uploadDate: new Date(),
+        documentURL:
+          'https://firebasestorage.googleapis.com/v0/b/em-webapp.appspot.com/o/safety-management-documents%2Fpolicy-%26-principal.pdf?alt=media&token=64e324ce-76f4-4e84-ad92-6a3f12b0ba8f',
+        versionNumber: 1,
+        uploadedBy: new Types.ObjectId(),
+      },
+      category: 'General',
     },
   ]);
 
@@ -119,6 +237,17 @@ const Documents = () => {
         const parsedData = docs.data;
         console.log('parderd docs', parsedData);
         toast.success(docs.message);
+        const generalDocs = parsedData.filter(
+          (docs) => docs.category === 'General'
+        );
+        console.log('genralDocs',generalDocs)
+        setGeneralDocs(generalDocs);
+        
+        const sopHiraJhaDocs = parsedData.filter(
+          (docs) => docs.category === 'SOP/JHA/HIRA'
+        );
+        setSopJhaHira(sopHiraJhaDocs);
+        console.log('sopHiraJhaDocs', sopHiraJhaDocs);
       }
     } catch (error) {
       toast.error(
@@ -152,7 +281,7 @@ const Documents = () => {
         <TabsContent value='documents'>
           <section className='flex flex-col h-screen'>
             <div className='w-full grid grid-cols-4 gap-5'>
-              {safetyDocs?.map((doc) => (
+              {generalDocs?.map((doc) => (
                 <div
                   key={doc.documentType}
                   className='rounded border-[1px] border-gray-300 flex flex-col gap-4 justify-center items-center h-fit'
@@ -160,14 +289,14 @@ const Documents = () => {
                   <h2 className='text-lg bg-gray-100 w-full p-1'>
                     {doc.documentType}
                   </h2>
-                  {doc?.docUrl ? (
+                  {doc?.currentVersionDocument ? (
                     <div className=' h-[180px]  rounded p-2'>
                       {/* <p>{doc.docUrl}</p> */}
                       <embed
                         // height={180}
                         // width={200}
                         // alt={doc.documentType}
-                        src={doc.docUrl}
+                        src={doc.currentVersionDocument?.documentURL}
                         className='w-fit h-[180px] border-none'
                       />
                     </div>
@@ -183,8 +312,6 @@ const Documents = () => {
                       onClick={() => {
                         const query = {
                           documentType: doc.documentType,
-                          docId: doc?._id,
-                          docUrl: doc.docUrl,
                           category: 'General',
                         };
                         const queryString = new URLSearchParams(
@@ -223,14 +350,14 @@ const Documents = () => {
                   <h2 className='text-lg bg-gray-100 w-full p-1'>
                     {doc.documentType}
                   </h2>
-                  {doc?.docUrl ? (
+                  {doc?.currentVersionDocument ? (
                     <div className=' h-[180px]  rounded p-2'>
                       {/* <p>{doc.docUrl}</p> */}
                       <embed
                         // height={180}
                         // width={200}
                         // alt={doc.documentType}
-                        src={doc.docUrl}
+                        src={doc.currentVersionDocument?.documentURL}
                         className='w-fit h-[180px] border-none'
                       />
                     </div>
@@ -246,8 +373,8 @@ const Documents = () => {
                       onClick={() => {
                         const query = {
                           documentType: doc.documentType,
-                          docId: doc?._id,
-                          docUrl: doc.docUrl,
+                          // docId: doc?._id,
+                          // docUrl: doc.docUrl,
                           category: 'General',
                         };
                         const queryString = new URLSearchParams(

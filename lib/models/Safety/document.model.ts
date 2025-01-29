@@ -20,21 +20,23 @@ export const docsEnums = [
   'JHA',
   'HIRA',
 ] as const;
-export interface Version {
+export type DocNameTypes = (typeof docsEnums)[number];
+
+export interface IVersion {
   versionNumber: number;
   documentURL: string;
   uploadedBy: mongoose.Types.ObjectId;
   uploadDate: Date;
 }
 
-export interface Document {
+export interface IDocument {
   category: 'General' | 'SOP/JHA/HIRA';
   documentType: string;
-  versions?: Version[];
+  versions?: IVersion[];
   currentVersion: number;
 }
 
-const VersionSchema: mongoose.Schema<Version> = new mongoose.Schema({
+const VersionSchema: mongoose.Schema<IVersion> = new mongoose.Schema({
   versionNumber: {
     type: Number,
     required: true,
@@ -54,7 +56,7 @@ const VersionSchema: mongoose.Schema<Version> = new mongoose.Schema({
   },
 });
 
-const DocumentSchema: mongoose.Schema<Document> = new mongoose.Schema(
+const DocumentSchema: mongoose.Schema<IDocument> = new mongoose.Schema(
   {
     category: {
       type: String,
@@ -75,8 +77,8 @@ const DocumentSchema: mongoose.Schema<Document> = new mongoose.Schema(
   { timestamps: true }
 );
 
-const DocumentModel: mongoose.Model<Document> =
+const DocumentModel: mongoose.Model<IDocument> =
   mongoose.models?.Document ||
-  mongoose.model<Document>('Document', DocumentSchema);
+  mongoose.model<IDocument>('Document', DocumentSchema);
 
 export default DocumentModel;
