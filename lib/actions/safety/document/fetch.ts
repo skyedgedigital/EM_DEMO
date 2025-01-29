@@ -50,7 +50,7 @@ export const fetchCurrentVersionOfAllDocuments = async (): Promise<
   }
 };
 
-export const getCurrentDocumentByDocTypeandCategory = async (
+export const getCurrentDocumentByDocTypeAndCategory = async (
   category: string,
   documentType: DocNameTypes
 ): Promise<
@@ -145,6 +145,50 @@ export const getAllVersionsOfDocument = async (
       message: error instanceof Error ? error.message : 'Something went wrong',
       data: null,
       error,
+    };
+  }
+};
+export const getNextVersion = async (
+  category: string,
+  documentType: string
+): Promise<
+  ApiResponse<{
+    nextVersion: number;
+  }>
+> => {
+  console.log(category, documentType);
+  try {
+    if (!category || !documentType) {
+      throw new Error('Category and document type are required');
+    }
+
+    const dbConnection = await handleDBConnection();
+    if (!dbConnection.success) return dbConnection;
+
+    const existingDocument = await DocumentModel.findOne({
+      category,
+      documentType,
+    }).select('currentVersion');
+
+    const nextVersion = existingDocument
+      ? existingDocument.currentVersion + 1
+      : 1;
+    console.log('next version', nextVersion);
+    return {
+      success: true,
+      status: 200,
+      message: 'Next version calculated successfully',
+      data: { nextVersion },
+      error: null,
+    };
+  } catch (error) {
+    console.error('Error getting next version:', error);
+    return {
+      success: false,
+      status: 404,
+      message: error instanceof Error ? error.message : 'Something went wrong',
+      data: null,
+      error: error,
     };
   }
 };
