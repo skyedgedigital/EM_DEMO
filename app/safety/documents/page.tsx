@@ -1,6 +1,6 @@
 'use client';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { docsEnums } from '@/lib/models/Safety/document.model';
 import {
   AlertDialog,
@@ -13,6 +13,8 @@ import {
   AlertDialogAction,
   AlertDialogCancel,
 } from '@/components/ui/alert-dialog';
+import { fetchCurrentVersionOfAllDocuments } from '@/lib/actions/safety/document/fetch';
+import toast from 'react-hot-toast';
 
 type DocName = (typeof docsEnums)[number];
 interface DocItem {
@@ -109,6 +111,24 @@ const Documents = () => {
       docUrl: '',
     },
   ]);
+
+  const fetchAllDocs = async () => {
+    try {
+      const docs = await fetchCurrentVersionOfAllDocuments();
+      if (docs.success) {
+        const parsedData = docs.data;
+        console.log('parderd docs', parsedData);
+        toast.success(docs.message);
+      }
+    } catch (error) {
+      toast.error(
+        error.message || 'Failed to fetch documents, please try later'
+      );
+    }
+  };
+  useEffect(() => {
+    fetchAllDocs();
+  }, []);
   const handleDelete = async () => {
     //  const resp = await designationAction.DELETE.deleteDesignation(id);
     //  if (resp.status === 200) {
