@@ -41,7 +41,7 @@ const VersionSchema: mongoose.Schema<Version> = new mongoose.Schema({
   },
   uploadedBy: {
     type: Schema.Types.ObjectId,
-    ref: 'EmployeeData',
+    ref: 'Employee',
     required: true,
   },
   documentURL: {
@@ -75,7 +75,6 @@ const DocumentSchema: mongoose.Schema<Document> = new mongoose.Schema(
   { timestamps: true }
 );
 
-export const DocumentModel = mongoose.model<Document>(
-  'Document',
-  DocumentSchema
-);
+export const DocumentModel: mongoose.Model<Document> =
+  mongoose.models.Document ||
+  mongoose.model<Document>('Document', DocumentSchema);

@@ -145,7 +145,11 @@ export const updateDocument = async (
 export const getNextVersion = async (
   category: string,
   documentType: string
-) => {
+): Promise<
+  ApiResponse<{
+    nextVersion: number;
+  }>
+> => {
   try {
     if (!category || !documentType) {
       throw new Error('Category and document type are required');
@@ -165,6 +169,7 @@ export const getNextVersion = async (
 
     return {
       success: true,
+      status: 200,
       message: 'Next version calculated successfully',
       data: { nextVersion },
       error: null,
@@ -173,6 +178,7 @@ export const getNextVersion = async (
     console.error('Error getting next version:', error);
     return {
       success: false,
+      status: 404,
       message: 'Failed to calculate next version',
       data: null,
       error: error instanceof Error ? error.message : 'Something went wrong',

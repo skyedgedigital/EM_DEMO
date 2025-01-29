@@ -47,3 +47,54 @@ export const fetchCurrentVersionOfAllDocuments = async (): Promise<
     };
   }
 };
+
+export const getCurrentDocumentByDocTypeandCategory = async (
+  category: string,
+  documentType: string
+): Promise<
+  ApiResponse<{
+    category: 'General' | 'SOP/JHA/HIRA';
+    documentType: string;
+    currentVersionDocument: Version;
+  }>
+> => {
+  try {
+    const dbConnection = await handleDBConnection();
+    if (!dbConnection.success) return dbConnection;
+
+    if (!category || !documentType) {
+      throw new Error('Category and documentType is required');
+    }
+
+    const document = await DocumentModel.findOne({
+      category,
+      documentType,
+    });
+
+    if (!document) {
+      throw new Error('No document found!');
+    }
+    return {
+      success: true,
+      status: 200,
+      message: 'data fetched successfully',
+      data: {
+        category: document.category,
+        documentType: document.documentType,
+        currentVersionDocument: document.versions.find(
+          (item) => item.versionNumber === document.currentVersion
+        ),
+      },
+      error: null,
+    };
+  } catch (error) {
+    console.error('Error getting next version:', error);
+    return {
+      success: false,
+      status: 404,
+      message: 'Failed to calculate next version',
+      data: null,
+      error: error instanceof Error ? error.message : 'Something went wrong',
+    };
+  }
+};
