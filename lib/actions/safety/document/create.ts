@@ -42,16 +42,16 @@ export const createDocument = async (
     console.log('existing doc', existingDocument);
     if (existingDocument) {
       const lastUpdatedVersion = existingDocument.versions.find(
-        (version) => version.versionNumber === document.currentVersion
+        (version) => version.versionNumber === existingDocument.currentVersion
       );
       console.log('lastUpdatedVersion', lastUpdatedVersion);
 
       if (!lastUpdatedVersion) {
         console.log('lastUpdatedVersion', lastUpdatedVersion);
-        
+
         throw new Error('Version mismatch');
       }
-      
+
       const newVersion = {
         versionNumber: lastUpdatedVersion.versionNumber + 1,
         documentURL,
@@ -59,7 +59,7 @@ export const createDocument = async (
         uploadedBy,
       };
       console.log('newVersion', newVersion);
-      
+
       existingDocument.versions.push(newVersion);
       existingDocument.currentVersion = newVersion.versionNumber;
       const updatedDoc = await existingDocument.save();
