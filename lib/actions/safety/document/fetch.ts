@@ -4,12 +4,13 @@ import handleDBConnection from '@/lib/database';
 import DocumentModel, {
   DocNameTypes,
   DocsCategoryTypes,
+  IDocument,
   IVersion,
 } from '@/lib/models/Safety/document.model';
 import { Types } from 'mongoose';
 
 export interface ICurrentVersionOfAllDocumentsResponse {
-  category: 'General' | 'SOP/JHA/HIRA';
+  category: DocsCategoryTypes;
   documentType: DocNameTypes;
   currentVersionDocument: IVersion;
 }
@@ -20,218 +21,23 @@ export const fetchCurrentVersionOfAllDocuments = async (): Promise<
     const dbConnection = await handleDBConnection();
     if (!dbConnection.success) return dbConnection;
 
-    const documents = await DocumentModel.find({});
+    const documents = await DocumentModel.find({}).lean();
     console.log('Documents', documents);
     if (!documents) {
       throw new Error('No documents found!');
     }
 
-    const data: ICurrentVersionOfAllDocumentsResponse[] = [
-      {
-        documentType: 'Safety Manual',
-        currentVersionDocument: {
-          uploadDate: new Date(),
-          documentURL:
-            'https://firebasestorage.googleapis.com/v0/b/em-webapp.appspot.com/o/safety-management-documents%2Fsafety-manual.pdf?alt=media&token=fa1cf6e2-b311-4db8-821c-0a3281e28f69',
-          versionNumber: 1,
-          uploadedBy: new Types.ObjectId(),
-        },
-        category: 'General',
-      },
-      {
-        documentType: 'Appointment Letter',
-        currentVersionDocument: {
-          uploadDate: new Date(),
-          documentURL:
-            'https://firebasestorage.googleapis.com/v0/b/em-webapp.appspot.com/o/safety-management-documents%2Fpolicy-%26-principal.pdf?alt=media&token=64e324ce-76f4-4e84-ad92-6a3f12b0ba8f',
-          versionNumber: 1,
-          uploadedBy: new Types.ObjectId(),
-        },
-        category: 'General',
-      },
-      {
-        documentType: 'Campaign Calendar',
-        currentVersionDocument: {
-          uploadDate: new Date(),
-          documentURL:
-            'https://firebasestorage.googleapis.com/v0/b/em-webapp.appspot.com/o/safety-management-documents%2Fpolicy-%26-principal.pdf?alt=media&token=64e324ce-76f4-4e84-ad92-6a3f12b0ba8f',
-          versionNumber: 1,
-          uploadedBy: new Types.ObjectId(),
-        },
-        category: 'General',
-      },
-      {
-        documentType: 'Emergency Preparedness Plan',
-        currentVersionDocument: {
-          uploadDate: new Date(),
-          documentURL:
-            'https://firebasestorage.googleapis.com/v0/b/em-webapp.appspot.com/o/safety-management-documents%2Fpolicy-%26-principal.pdf?alt=media&token=64e324ce-76f4-4e84-ad92-6a3f12b0ba8f',
-          versionNumber: 1,
-          uploadedBy: new Types.ObjectId(),
-        },
-        category: 'General',
-      },
-      {
-        documentType: 'Employee List',
-        currentVersionDocument: {
-          uploadDate: new Date(),
-          documentURL:
-            'https://firebasestorage.googleapis.com/v0/b/em-webapp.appspot.com/o/safety-management-documents%2Fpolicy-%26-principal.pdf?alt=media&token=64e324ce-76f4-4e84-ad92-6a3f12b0ba8f',
-          versionNumber: 1,
-          uploadedBy: new Types.ObjectId(),
-        },
-        category: 'General',
-      },
-      {
-        documentType: 'First-aider Certificate',
-        currentVersionDocument: {
-          uploadDate: new Date(),
-          documentURL:
-            'https://firebasestorage.googleapis.com/v0/b/em-webapp.appspot.com/o/safety-management-documents%2Fpolicy-%26-principal.pdf?alt=media&token=64e324ce-76f4-4e84-ad92-6a3f12b0ba8f',
-          versionNumber: 1,
-          uploadedBy: new Types.ObjectId(),
-        },
-        category: 'General',
-      },
-      {
-        documentType: 'Objective & Target',
-        currentVersionDocument: {
-          uploadDate: new Date(),
-          documentURL:
-            'https://firebasestorage.googleapis.com/v0/b/em-webapp.appspot.com/o/safety-management-documents%2Fpolicy-%26-principal.pdf?alt=media&token=64e324ce-76f4-4e84-ad92-6a3f12b0ba8f',
-          versionNumber: 1,
-          uploadedBy: new Types.ObjectId(),
-        },
-        category: 'General',
-      },
-      {
-        documentType: 'Organization Structure',
-        currentVersionDocument: {
-          uploadDate: new Date(),
-          documentURL:
-            'https://firebasestorage.googleapis.com/v0/b/em-webapp.appspot.com/o/safety-management-documents%2Fpolicy-%26-principal.pdf?alt=media&token=64e324ce-76f4-4e84-ad92-6a3f12b0ba8f',
-          versionNumber: 1,
-          uploadedBy: new Types.ObjectId(),
-        },
-        category: 'General',
-      },
-      {
-        documentType: 'PPE Replacement Policy',
-        currentVersionDocument: {
-          uploadDate: new Date(),
-          documentURL:
-            'https://firebasestorage.googleapis.com/v0/b/em-webapp.appspot.com/o/safety-management-documents%2Fpolicy-%26-principal.pdf?alt=media&token=64e324ce-76f4-4e84-ad92-6a3f12b0ba8f',
-          versionNumber: 1,
-          uploadedBy: new Types.ObjectId(),
-        },
-        category: 'General',
-      },
-      {
-        documentType: 'Policy & Principal',
-        currentVersionDocument: {
-          uploadDate: new Date(),
-          documentURL:
-            'https://firebasestorage.googleapis.com/v0/b/em-webapp.appspot.com/o/safety-management-documents%2Fpolicy-%26-principal.pdf?alt=media&token=64e324ce-76f4-4e84-ad92-6a3f12b0ba8f',
-          versionNumber: 1,
-          uploadedBy: new Types.ObjectId(),
-        },
-        category: 'General',
-      },
-      {
-        documentType: 'Safety Plan',
-        currentVersionDocument: {
-          uploadDate: new Date(),
-          documentURL:
-            'https://firebasestorage.googleapis.com/v0/b/em-webapp.appspot.com/o/safety-management-documents%2Fpolicy-%26-principal.pdf?alt=media&token=64e324ce-76f4-4e84-ad92-6a3f12b0ba8f',
-          versionNumber: 1,
-          uploadedBy: new Types.ObjectId(),
-        },
-        category: 'General',
-      },
-      {
-        documentType: 'Safety Professional Certificate',
-        currentVersionDocument: {
-          uploadDate: new Date(),
-          documentURL:
-            'https://firebasestorage.googleapis.com/v0/b/em-webapp.appspot.com/o/safety-management-documents%2Fpolicy-%26-principal.pdf?alt=media&token=64e324ce-76f4-4e84-ad92-6a3f12b0ba8f',
-          versionNumber: 1,
-          uploadedBy: new Types.ObjectId(),
-        },
-        category: 'General',
-      },
-      {
-        documentType: 'Sponsorship Letter',
-        currentVersionDocument: {
-          uploadDate: new Date(),
-          documentURL:
-            'https://firebasestorage.googleapis.com/v0/b/em-webapp.appspot.com/o/safety-management-documents%2Fpolicy-%26-principal.pdf?alt=media&token=64e324ce-76f4-4e84-ad92-6a3f12b0ba8f',
-          versionNumber: 1,
-          uploadedBy: new Types.ObjectId(),
-        },
-        category: 'General',
-      },
-      {
-        documentType: 'Tool Replacement Policy',
-        currentVersionDocument: {
-          uploadDate: new Date(),
-          documentURL:
-            'https://firebasestorage.googleapis.com/v0/b/em-webapp.appspot.com/o/safety-management-documents%2Fpolicy-%26-principal.pdf?alt=media&token=64e324ce-76f4-4e84-ad92-6a3f12b0ba8f',
-          versionNumber: 1,
-          uploadedBy: new Types.ObjectId(),
-        },
-        category: 'General',
-      },
-      {
-        documentType: 'Top Management Certificate',
-        currentVersionDocument: {
-          uploadDate: new Date(),
-          documentURL: '',
-          versionNumber: 1,
-          uploadedBy: new Types.ObjectId(),
-        },
-        category: 'General',
-      },
-      {
-        documentType: 'HIRA',
-        currentVersionDocument: {
-          uploadDate: new Date(),
-          documentURL:
-            'https://firebasestorage.googleapis.com/v0/b/em-webapp.appspot.com/o/safety-management-documents%2Fsafety-manual.pdf?alt=media&token=cbcf08a7-eeac-4025-8fd7-88a1fddb4339',
-          versionNumber: 1,
-          uploadedBy: new Types.ObjectId(),
-        },
-        category: 'SOP/JHA/HIRA',
-      },
-      {
-        documentType: 'JHA',
-        currentVersionDocument: {
-          uploadDate: new Date(),
-          documentURL: '',
-          versionNumber: 1,
-          uploadedBy: new Types.ObjectId(),
-        },
-        category: 'SOP/JHA/HIRA',
-      },
-      {
-        documentType: 'SOP',
-        currentVersionDocument: {
-          uploadDate: new Date(),
-          documentURL: '',
-          versionNumber: 1,
-          uploadedBy: new Types.ObjectId(),
-        },
-        category: 'SOP/JHA/HIRA',
-      },
-    ];
-    // const data = documents.map((document) => {
-    //   return {
-    //     category: document.category,
-    //     documentType: document.documentType as DocNameTypes,
-    //     currentVersionDocument: document.versions.find(
-    //       (item) => item.versionNumber === document.currentVersion
-    //     ),
-    //   };
-    // });
+    const data: ICurrentVersionOfAllDocumentsResponse[] = documents.map(
+      (document) => {
+        return {
+          category: document.category as DocsCategoryTypes,
+          documentType: document.documentType as DocNameTypes,
+          currentVersionDocument: document.versions.find(
+            (item) => item.versionNumber === document.currentVersion
+          ),
+        };
+      }
+    );
     console.log(data);
     return {
       success: true,
@@ -306,13 +112,7 @@ export const getCurrentDocumentByDocTypeAndCategory = async (
 export const getAllVersionsOfDocument = async (
   category: DocsCategoryTypes,
   documentType: DocNameTypes
-): Promise<
-  ApiResponse<{
-    category: DocsCategoryTypes;
-    documentType: DocNameTypes;
-    versions: IVersion[];
-  }>
-> => {
+): Promise<ApiResponse<IDocument>> => {
   try {
     const dbConnection = await handleDBConnection();
     if (!dbConnection.success) return dbConnection;
@@ -324,19 +124,37 @@ export const getAllVersionsOfDocument = async (
     const document = await DocumentModel.findOne({
       category,
       documentType,
-    });
+    }).lean();
+    console.log('DOC', document);
+    // if (document && document) {
+    //   return {
+    //     data: null,
+    //     error: null,
+    //     message: 'Unexpected error occurred, Please try later',
+    //     status: 500,
+    //     success: false,
+    //   };
+    // }
     if (!document) {
-      throw new Error('No Document found');
+      return {
+        data: null,
+        error: null,
+        message: 'No Uploaded Documents found',
+        status: 200,
+        success: true,
+      };
     }
+    const sortedDoc = {
+      ...document,
+      versions: document.versions.sort(
+        (a, b) => b.versionNumber - a.versionNumber
+      ),
+    };
     return {
       success: true,
       status: 200,
-      message: 'data fetched successfully',
-      data: {
-        category: document.category as DocsCategoryTypes,
-        documentType: document.documentType as DocNameTypes,
-        versions: document.versions,
-      },
+      message: `${documentType} fetched successfully`,
+      data: JSON.parse(JSON.stringify(document)),
       error: null,
     };
   } catch (error) {

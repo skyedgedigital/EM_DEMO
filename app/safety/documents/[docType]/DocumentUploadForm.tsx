@@ -11,6 +11,22 @@ import { useSession } from 'next-auth/react';
 import React, { useState } from 'react';
 import toast from 'react-hot-toast';
 import { FaUpload, FaSpinner, FaTrash } from 'react-icons/fa6';
+import { Session } from 'next-auth';
+import { IEmployee } from '@/interfaces/employee.interface';
+import { access } from '@/utils/enum';
+
+// interface CustomSession extends Session {
+//   user: {
+//     _id: string;
+//     employee: IEmployee;
+//     phoneNo: number;
+//     access: access;
+//     name: string;
+//   } & {
+//     email?: string | null;
+//     image?: string | null;
+//   };
+// }
 
 interface IDocumentUploadForm {
   documentType: DocNameTypes;
@@ -21,7 +37,7 @@ const DocumentUploadForm: React.FC<IDocumentUploadForm> = ({
   documentType,
   documentCategory,
 }) => {
-  const session = useSession();
+  const session = useSession() ;
   console.log(session);
   const [file, setFile] = useState<File | null>(null);
   const [fileUrl, setFileUrl] = useState<string | null>(null);
@@ -112,14 +128,15 @@ const DocumentUploadForm: React.FC<IDocumentUploadForm> = ({
 
       if (!nextVersion) {
         return toast.error(
-          'Filed to generate next version for new upload. Please try later'
+          JSON.stringify(error) ||
+            'Filed to generate next version for new upload. Please try later'
         );
       }
 
-      console.log('next version', nextVersion);
+      // console.log('next version', nextVersion);
       const downloadURL = await handlePDFUpload(
         file,
-        `safety-management-documents/${documentCategory}/${documentType}/${nextVersion}/${docName}.pdf`, // Firebase Storage path
+        `safety-management-documents/${documentCategory}/${documentType}/${nextVersion}`, // Firebase Storage path
         `${docName}.pdf` // Unique file name
       );
 
@@ -140,15 +157,7 @@ const DocumentUploadForm: React.FC<IDocumentUploadForm> = ({
         uploadedBy: new Types.ObjectId(session.data.user._id), // Convert string to ObjectId
       });
 
-      console.log(data, Error, Message, Status, Success);
-
-      // Step 2: Call the onUpload callback with the download URL
-      //   await onUpload({
-      //     documentType: docName,
-      //     fileUrl: downloadURL,
-      //     category: documentCategory,
-      //   });
-
+      // console.log(data, Error, Message, Status, Success);
       toast.success(`${documentType} uploaded successfully!`);
     } catch (error) {
       toast.error(`Failed to upload ${documentType}`);
@@ -165,17 +174,15 @@ const DocumentUploadForm: React.FC<IDocumentUploadForm> = ({
   };
 
   return (
-    <div
-      className={`lg:${fileUrl ? 'w-1/2' : 'w-1/3'} border-2 border-red-500`}
-    >
-      <div className='lg:sticky lg:top-0 border-2 border-green-500 max-h-screen'>
-        <div className='w-full flex-col justify-center p-4 gap-2 border-[1px] border-gray-300 rounded'>
-          <h2 className='text-lg font-semibold capitalize mb-4'>
+    <div className={`w-full lg:w-1/2 `}>
+      <div className='lg:sticky lg:top-0  max-h-screen'>
+        <div className='w-full flex-col justify-center items-center p-4 gap-4 border-[1px] border-gray-300 rounded'>
+          <h2 className='text-lg text-center w-full font-semibold capitalize mb-4'>
             Upload New {documentType}
           </h2>
-          <div className='flex flex-col items-center gap-4'>
+          <div className='flex flex-col items-center justify-center gap-4'>
             {fileUrl ? (
-              <iframe
+              <embed
                 src={fileUrl}
                 className='border rounded min-h-[500px] w-full'
                 title={`${documentType} Preview`}

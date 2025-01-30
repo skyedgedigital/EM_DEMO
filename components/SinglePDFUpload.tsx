@@ -1,29 +1,32 @@
+import documentActions from '@/lib/actions/safety/document/documentActions';
+import { DocNameTypes } from '@/lib/models/Safety/document.model';
 import { storage } from '@/utils/fireBase/config';
 import { ref, uploadBytesResumable } from 'firebase/storage';
 import { getDownloadURL } from 'firebase/storage';
+import { Types } from 'mongoose';
+import { useSession } from 'next-auth/react';
 import React, { useState } from 'react';
 import toast from 'react-hot-toast';
 import { FaUpload, FaSpinner, FaTrash } from 'react-icons/fa6';
 
 interface SinglePDFUploadProps {
-  documentType: string;
-  onUpload: (uploadedDocumentInfo: {
-    documentType: string;
-    fileUrl: string;
-    category?: string;
-  }) => Promise<void>;
-  onDelete?: () => void;
+  documentType: DocNameTypes;
+  // onUpload: (uploadedDocumentInfo: {
+  //   documentType: DocNameTypes;
+  //   fileUrl: string;
+  //   category?: DocsCategoryTypes;
+  // }) => Promise<void>;
+  // onDelete?: () => void;
   initialFileUrl?: string | null;
   documentCategory?: string;
 }
 
 const SinglePDFUpload: React.FC<SinglePDFUploadProps> = ({
   documentType,
-  onUpload,
-  onDelete,
   initialFileUrl = null,
   documentCategory,
 }) => {
+  const session = useSession();
   const [file, setFile] = useState<File | null>(null);
   const [fileUrl, setFileUrl] = useState<string | null>(initialFileUrl);
   const [uploading, setUploading] = useState<boolean>(false);
@@ -54,9 +57,9 @@ const SinglePDFUpload: React.FC<SinglePDFUploadProps> = ({
       const blob = new Blob([file], { type: file.type });
 
       // Step 2: Upload the Blob to Firebase Storage
+
       const storageRef = ref(storage, `${storagePath}/${fileName}`);
       const uploadTask = uploadBytesResumable(storageRef, blob);
-
       const downloadURL = await new Promise<string>((resolve, reject) => {
         uploadTask.on(
           'state_changed',
@@ -100,18 +103,48 @@ const SinglePDFUpload: React.FC<SinglePDFUploadProps> = ({
 
       const docName = documentType.toLowerCase().split(' ').join('-');
       // Step 1: Upload the PDF to Firebase Storage
+      const {
+        data: { nextVersion },
+        error,
+        message,
+        status,
+        success,
+      } = await documentActions.FETCH.getNextDocumentVersion(
+        documentCategory,
+        documentType
+      );
+
+      if (!nextVersion) {
+        return toast.error(
+          'Filed to generate next version for new upload. Please try later'
+        );
+      }
+
+      console.log('next version', nextVersion);
       const downloadURL = await handlePDFUpload(
         file,
-        'safety-management-documents', // Firebase Storage path
+        `safety-management-documents/${documentCategory}/${documentType}/${nextVersion}`, // Firebase Storage path
         `${docName}.pdf` // Unique file name
       );
 
-      // Step 2: Call the onUpload callback with the download URL
-      await onUpload({
-        documentType: docName,
-        fileUrl: downloadURL,
+      console.log('downloadURL', downloadURL);
+      // save document to database
+
+      const {
+        data,
+        error: Error,
+        message: Message,
+        status: Status,
+        success: Success,
+      } = await documentActions.CREATE.createDocument({
         category: documentCategory,
+        documentType,
+        documentURL: downloadURL,
+        uploadDate: new Date(),
+        uploadedBy: new Types.ObjectId(session.data.user._id), // Convert string to ObjectId
       });
+
+      console.log(data, Error, Message, Status, Success);
 
       toast.success(`${documentType} uploaded successfully!`);
     } catch (error) {
@@ -124,7 +157,7 @@ const SinglePDFUpload: React.FC<SinglePDFUploadProps> = ({
   const handleDelete = () => {
     setFile(null);
     setFileUrl(null);
-    if (onDelete) onDelete();
+    // if (onDelete) onDelete();
     toast.success(`${documentType} deleted successfully!`);
   };
 
