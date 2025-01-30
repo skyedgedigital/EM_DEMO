@@ -1,14 +1,19 @@
 'use client';
 
 import SinglePDFUpload from '@/components/SinglePDFUpload';
-import { DocNameTypes, DocsCategoryTypes } from '@/lib/models/Safety/document.model';
+import {
+  DocNameTypes,
+  DocsCategoryTypes,
+} from '@/lib/models/Safety/document.model';
 
 import React from 'react';
 
 const Page = ({
   searchParams,
 }: {
-  searchParams: { [key: string]: string | DocsCategoryTypes | DocNameTypes | undefined };
+  searchParams: {
+    [key: string]: string | DocsCategoryTypes | DocNameTypes | undefined;
+  };
 }) => {
   console.log(searchParams);
   const { documentType, category, documentURL } = searchParams;
@@ -17,7 +22,7 @@ const Page = ({
     <SinglePDFUpload
       documentType={documentType as DocNameTypes}
       initialFileUrl={documentURL}
-      documentCategory={category}
+      documentCategory={category as DocsCategoryTypes}
     />
   );
 };

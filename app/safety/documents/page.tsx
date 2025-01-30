@@ -1,7 +1,11 @@
 'use client';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import React, { useEffect, useState } from 'react';
-import { docsEnums } from '@/lib/models/Safety/document.model';
+import {
+  DocNameTypes,
+  DocsCategoryTypes,
+  docsEnums,
+} from '@/lib/models/Safety/document.model';
 import {
   AlertDialog,
   AlertDialogTrigger,
@@ -31,7 +35,7 @@ const Documents = () => {
       currentVersionDocument: {
         uploadDate: new Date(),
         documentURL: '',
-        versionNumber: 1,
+        versionNumber: null,
         uploadedBy: new Types.ObjectId(),
       },
       category: 'General',
@@ -41,7 +45,7 @@ const Documents = () => {
       currentVersionDocument: {
         uploadDate: new Date(),
         documentURL: '',
-        versionNumber: 1,
+        versionNumber: null,
         uploadedBy: new Types.ObjectId(),
       },
       category: 'General',
@@ -51,7 +55,7 @@ const Documents = () => {
       currentVersionDocument: {
         uploadDate: new Date(),
         documentURL: '',
-        versionNumber: 1,
+        versionNumber: null,
         uploadedBy: new Types.ObjectId(),
       },
       category: 'General',
@@ -61,7 +65,7 @@ const Documents = () => {
       currentVersionDocument: {
         uploadDate: new Date(),
         documentURL: '',
-        versionNumber: 1,
+        versionNumber: null,
         uploadedBy: new Types.ObjectId(),
       },
       category: 'General',
@@ -71,7 +75,7 @@ const Documents = () => {
       currentVersionDocument: {
         uploadDate: new Date(),
         documentURL: '',
-        versionNumber: 1,
+        versionNumber: null,
         uploadedBy: new Types.ObjectId(),
       },
       category: 'General',
@@ -81,7 +85,7 @@ const Documents = () => {
       currentVersionDocument: {
         uploadDate: new Date(),
         documentURL: '',
-        versionNumber: 1,
+        versionNumber: null,
         uploadedBy: new Types.ObjectId(),
       },
       category: 'General',
@@ -91,7 +95,7 @@ const Documents = () => {
       currentVersionDocument: {
         uploadDate: new Date(),
         documentURL: '',
-        versionNumber: 1,
+        versionNumber: null,
         uploadedBy: new Types.ObjectId(),
       },
       category: 'General',
@@ -101,7 +105,7 @@ const Documents = () => {
       currentVersionDocument: {
         uploadDate: new Date(),
         documentURL: '',
-        versionNumber: 1,
+        versionNumber: null,
         uploadedBy: new Types.ObjectId(),
       },
       category: 'General',
@@ -111,7 +115,7 @@ const Documents = () => {
       currentVersionDocument: {
         uploadDate: new Date(),
         documentURL: '',
-        versionNumber: 1,
+        versionNumber: null,
         uploadedBy: new Types.ObjectId(),
       },
       category: 'General',
@@ -121,7 +125,7 @@ const Documents = () => {
       currentVersionDocument: {
         uploadDate: new Date(),
         documentURL: '',
-        versionNumber: 1,
+        versionNumber: null,
         uploadedBy: new Types.ObjectId(),
       },
       category: 'General',
@@ -131,7 +135,7 @@ const Documents = () => {
       currentVersionDocument: {
         uploadDate: new Date(),
         documentURL: '',
-        versionNumber: 1,
+        versionNumber: null,
         uploadedBy: new Types.ObjectId(),
       },
       category: 'General',
@@ -141,7 +145,7 @@ const Documents = () => {
       currentVersionDocument: {
         uploadDate: new Date(),
         documentURL: '',
-        versionNumber: 1,
+        versionNumber: null,
         uploadedBy: new Types.ObjectId(),
       },
       category: 'General',
@@ -151,7 +155,7 @@ const Documents = () => {
       currentVersionDocument: {
         uploadDate: new Date(),
         documentURL: '',
-        versionNumber: 1,
+        versionNumber: null,
         uploadedBy: new Types.ObjectId(),
       },
       category: 'General',
@@ -161,7 +165,7 @@ const Documents = () => {
       currentVersionDocument: {
         uploadDate: new Date(),
         documentURL: '',
-        versionNumber: 1,
+        versionNumber: null,
         uploadedBy: new Types.ObjectId(),
       },
       category: 'General',
@@ -171,7 +175,7 @@ const Documents = () => {
       currentVersionDocument: {
         uploadDate: new Date(),
         documentURL: '',
-        versionNumber: 1,
+        versionNumber: null,
         uploadedBy: new Types.ObjectId(),
       },
       category: 'General',
@@ -185,30 +189,30 @@ const Documents = () => {
       currentVersionDocument: {
         uploadDate: new Date(),
         documentURL: '',
-        versionNumber: 1,
+        versionNumber: null,
         uploadedBy: new Types.ObjectId(),
       },
-      category: 'General',
+      category: 'SOP/JHA/HIRA',
     },
     {
       documentType: 'JHA',
       currentVersionDocument: {
         uploadDate: new Date(),
         documentURL: '',
-        versionNumber: 1,
+        versionNumber: null,
         uploadedBy: new Types.ObjectId(),
       },
-      category: 'General',
+      category: 'SOP/JHA/HIRA',
     },
     {
       documentType: 'SOP',
       currentVersionDocument: {
         uploadDate: new Date(),
         documentURL: '',
-        versionNumber: 1,
+        versionNumber: null,
         uploadedBy: new Types.ObjectId(),
       },
-      category: 'General',
+      category: 'SOP/JHA/HIRA',
     },
   ]);
 
@@ -277,7 +281,7 @@ const Documents = () => {
 
   return (
     <>
-      <Tabs defaultValue='documents' className='relative'>
+      <Tabs defaultValue='documents' className='relative flex flex-col gap-2'>
         <h1 className='font-bold text-blue-500 border-b-2 border-blue-500 text-center py-2 mb-4 w-full'>
           Safety Management Documentation
         </h1>
@@ -286,121 +290,132 @@ const Documents = () => {
           <TabsTrigger value='sop/jha/hira'>SOP/JHA/ HIRA</TabsTrigger>
         </TabsList>
         <TabsContent value='documents'>
-          <section className='flex flex-col h-screen'>
-            <div className='w-full grid grid-cols-4 gap-5'>
+          <section className='flex flex-col'>
+            <div className='w-full grid md:grid-cols-2 lg:grid-cols-4 gap-5'>
               {generalDocs?.map((doc) => (
-                <div
-                  key={doc.documentType}
-                  className='rounded border-[1px] border-gray-300 flex flex-col gap-4 justify-center items-center h-fit'
-                >
-                  <h2 className='text-lg bg-gray-100 w-full p-1'>
-                    {doc.documentType}
-                  </h2>
-                  {doc?.currentVersionDocument.documentURL ? (
-                    <div className=' h-[180px]  rounded p-2'>
-                      {/* <p>{doc.docUrl}</p> */}
-                      <embed
-                        // height={180}
-                        // width={200}
-                        // alt={doc.documentType}
-                        src={doc.currentVersionDocument?.documentURL}
-                        className='w-fit h-[180px] border-none'
-                      />
-                    </div>
-                  ) : (
-                    <div className='w-[200px] h-[180px] flex justify-center items-center'>
-                      <p className='text-gray-400 text-center w-full '>
-                        No uploaded document found
-                      </p>
-                    </div>
-                  )}
-                  <div className='flex items-center justify-center p-1 pb-3 gap-2'>
-                    <button
-                      onClick={() => {
-                        const query = {
-                          documentType: doc.documentType,
-                          category: 'General',
-                        };
-                        const queryString = new URLSearchParams(
-                          query
-                        ).toString();
-                        // console.log('query string', queryString);
-                        window.open(
-                          `/safety/documents/${doc.documentType}?${queryString}`
-                        );
-                      }}
-                      className='bg-blue-500 text-white hover:bg-blue-400 px-2 py-1 rounded'
-                    >
-                      see doc
-                    </button>
-                    <button className='bg-red-500 text-white hover:bg-red-400 px-2 py-1 rounded'>
-                      delete{' '}
-                    </button>
-                  </div>
-                </div>
+                // <div
+                //   key={doc.documentType}
+                //   className='rounded border-[1px] border-gray-300 flex flex-col gap-4 justify-center items-center h-fit'
+                // >
+                //   <h2 className='text-lg bg-gray-100 w-full p-1'>
+                //     {doc.documentType}
+                //   </h2>
+                //   {doc?.currentVersionDocument.documentURL ? (
+                //     <div className=' h-[180px]  rounded border-[1px] border-gray-200'>
+                //       {/* <p>{doc.docUrl}</p> */}
+                //       <embed
+                //         // height={180}
+                //         // width={200}
+                //         // alt={doc.documentType}
+                //         src={doc.currentVersionDocument?.documentURL}
+                //         className='w-fit h-full border-none'
+                //       />
+                //     </div>
+                //   ) : (
+                //     <div className='w-[200px] h-[180px] flex justify-center items-center'>
+                //       <p className='text-gray-400 text-center w-full '>
+                //         No uploaded document found
+                //       </p>
+                //     </div>
+                //   )}
+                //   <div className='flex items-center justify-between w-full p-1 px-2 pb-3 gap-2'>
+                //     <div>
+                //       <div>
+                //         <span>
+                //           Latest Document Version:{' '}
+                //           {doc.currentVersionDocument.versionNumber}
+                //         </span>
+                //       </div>
+                //     </div>
+                //     <button
+                //       onClick={() => {
+                //         const query: {
+                //           documentType: DocNameTypes;
+                //           category: DocsCategoryTypes;
+                //         } = {
+                //           documentType: doc.documentType,
+                //           category: 'General',
+                //         };
+                //         const queryString = new URLSearchParams(
+                //           query
+                //         ).toString();
+                //         // console.log('query string', queryString);
+                //         window.open(
+                //           `/safety/documents/${doc.documentType}?${queryString}`
+                //         );
+                //       }}
+                //       className='bg-blue-500 text-white hover:bg-blue-400 px-2 py-1 rounded'
+                //     >
+                //       see PDFs
+                //     </button>
+                //   </div>
+                // </div>
+                <TileBox key={doc.documentType} doc={doc} />
               ))}
             </div>
           </section>
         </TabsContent>
         <TabsContent value='sop/jha/hira'>
-          <section className='flex flex-col h-screen'>
+          <section className='flex flex-col '>
             {/* <div className='w-full rounded p-2 flex flex-col gap-2'>
             <h2 className='text-lg font-semibold'>
               Safety Management Documentation:
             </h2> */}
             <div className='w-full grid grid-cols-4 gap-5'>
               {sopJhaHiraDocs?.map((doc) => (
-                <div
-                  key={doc.documentType}
-                  className='rounded border-[1px] border-gray-300 flex flex-col gap-4 justify-center items-center h-fit'
-                >
-                  <h2 className='text-lg bg-gray-100 w-full p-1'>
-                    {doc.documentType}
-                  </h2>
-                  {doc?.currentVersionDocument.documentURL ? (
-                    <div className=' h-[180px]  rounded p-2'>
-                      {/* <p>{doc.docUrl}</p> */}
-                      <embed
-                        // height={180}
-                        // width={200}
-                        // alt={doc.documentType}
-                        src={doc.currentVersionDocument?.documentURL}
-                        className='w-fit h-[180px] border-none'
-                      />
-                    </div>
-                  ) : (
-                    <div className='w-[200px] h-[180px] flex justify-center items-center'>
-                      <p className='text-gray-400 text-center w-full '>
-                        No uploaded document found
-                      </p>
-                    </div>
-                  )}
-                  <div className='flex items-center justify-center p-1 pb-3 gap-2'>
-                    <button
-                      onClick={() => {
-                        const query = {
-                          documentType: doc.documentType,
-                          // docId: doc?._id,
-                          // docUrl: doc.docUrl,
-                          category: 'General',
-                        };
-                        const queryString = new URLSearchParams(
-                          query
-                        ).toString();
-                        // console.log('query string', queryString);
-                        window.open(
-                          `/safety/documents/${doc.documentType}?${queryString}`
-                        );
-                      }}
-                      className='bg-blue-500 text-white hover:bg-blue-400 px-2 py-1 rounded'
-                    >
-                      see doc
-                    </button>
-                    <button className='bg-red-500 text-white hover:bg-red-400 px-2 py-1 rounded'>
-                      delete{' '}
-                    </button>
-                  </div>
-                </div>
+                // <div
+                //   key={doc.documentType}
+                //   className='rounded border-[1px] border-gray-300 flex flex-col gap-4 justify-center items-center h-fit'
+                // >
+                //   <h2 className='text-lg bg-gray-100 w-full p-1'>
+                //     {doc.documentType}
+                //   </h2>
+                //   {doc?.currentVersionDocument.documentURL ? (
+                //     <div className=' h-[180px]  rounded p-2'>
+                //       {/* <p>{doc.docUrl}</p> */}
+                //       <embed
+                //         // height={180}
+                //         // width={200}
+                //         // alt={doc.documentType}
+                //         src={doc.currentVersionDocument?.documentURL}
+                //         className='w-fit h-[180px] border-none'
+                //       />
+                //     </div>
+                //   ) : (
+                //     <div className='w-[200px] h-[180px] flex justify-center items-center'>
+                //       <p className='text-gray-400 text-center w-full '>
+                //         No uploaded document found
+                //       </p>
+                //     </div>
+                //   )}
+                //   <div className='flex items-center justify-center p-1 pb-3 gap-2'>
+                //     <button
+                //       onClick={() => {
+                //         const query: {
+                //           documentType: DocNameTypes;
+                //           category: DocsCategoryTypes;
+                //         } = {
+                //           documentType: doc.documentType,
+                //           category: 'SOP/JHA/HIRA',
+                //         };
+                //         const queryString = new URLSearchParams(
+                //           query
+                //         ).toString();
+                //         // console.log('query string', queryString);
+                //         window.open(
+                //           `/safety/documents/${doc.documentType}?${queryString}`
+                //         );
+                //       }}
+                //       className='bg-blue-500 text-white hover:bg-blue-400 px-2 py-1 rounded'
+                //     >
+                //       see doc
+                //     </button>
+                //     <button className='bg-red-500 text-white hover:bg-red-400 px-2 py-1 rounded'>
+                //       delete{' '}
+                //     </button>
+                //   </div>
+                // </div>
+                <TileBox key={doc.documentType} doc={doc} />
               ))}
             </div>
             {/* </div> */}
@@ -438,3 +453,124 @@ const Documents = () => {
 };
 
 export default Documents;
+
+const TileBox = ({ doc }: { doc: ICurrentVersionOfAllDocumentsResponse }) => {
+  const doesAnyPdfExist = !!doc?.currentVersionDocument.versionNumber;
+  return (
+    <div
+      key={doc.documentType}
+      className='rounded border-[1px] border-gray-300 flex flex-col gap-4 justify-center items-center h-fit'
+    >
+      <h2 className='text-lg bg-gray-100 w-full py-1 px-2'>
+        {doc.documentType}
+      </h2>
+      <div className='flex flex-col gap-2 p-2 w-full'>
+        <div className='flex items-end justify-between w-full gap-2'>
+          <div className='flex flex-col gap-1'>
+            <div className='text-xs flex justify-start items-center gap-1'>
+              <span className='text-gray-500'>Latest PDF Version:</span>
+              <span>
+                {doc.currentVersionDocument.versionNumber
+                  ? doc.currentVersionDocument.versionNumber
+                  : 'N/A'}
+              </span>
+            </div>
+            <div className='text-xs flex justify-start items-center gap-1'>
+              <span className='text-gray-500'> Uploaded On:</span>
+              <span>
+                {new Date(
+                  doc.currentVersionDocument.uploadDate
+                ).toLocaleDateString()}
+              </span>
+            </div>
+          </div>
+          {doesAnyPdfExist && (
+            <button
+              onClick={() => {
+                const query: {
+                  documentType: DocNameTypes;
+                  category: DocsCategoryTypes;
+                } = {
+                  documentType: doc.documentType,
+                  category: 'General',
+                };
+                const queryString = new URLSearchParams(query).toString();
+                // console.log('query string', queryString);
+                window.open(
+                  `/safety/documents/${doc.documentType}?${queryString}`
+                );
+              }}
+              className='text-blue-500 hover:underline rounded text-sm'
+            >
+              See All PDFs
+            </button>
+          )}
+        </div>
+        {doesAnyPdfExist ? (
+          <button
+            className='border-[1px] border-blue-100 text-blue-500 w-full rounded py-1'
+            onClick={() => {
+              const query = {
+                documentType: doc.documentType.toString(),
+                version: doc.currentVersionDocument.versionNumber.toString(),
+                category: doc.category.toString(),
+                documentURL: doc?.currentVersionDocument.documentURL.toString(),
+              };
+
+              const queryString = new URLSearchParams(query).toString();
+              // console.log('query string', queryString);
+              window.open(
+                `/safety/documents/${doc.documentType}/version?${queryString}`
+              );
+            }}
+          >
+            See Latest PDF
+          </button>
+        ) : (
+          <button
+            className='border-[1px] border-blue-100 text-blue-500 w-full rounded py-1'
+            onClick={() => {
+              const query: {
+                documentType: DocNameTypes;
+                category: DocsCategoryTypes;
+              } = {
+                documentType: doc.documentType,
+                category: 'General',
+              };
+              const queryString = new URLSearchParams(query).toString();
+              // console.log('query string', queryString);
+              window.open(
+                `/safety/documents/${doc.documentType}?${queryString}`
+              );
+            }}
+          >
+            Upload PDF
+          </button>
+        )}
+      </div>
+    </div>
+  );
+};
+
+// EMBED IF NEEDED
+// <h2 className='text-lg bg-gray-100 w-full py-1 px-2'>
+//   {doc.documentType}
+// </h2>;
+
+// {
+//   doc?.currentVersionDocument.documentURL ? (
+//     <div className=' h-[180px]  rounded border-[1px] border-gray-200'>
+//       {/* <p>{doc.docUrl}</p> */}
+//       <embed
+//         src={doc.currentVersionDocument?.documentURL}
+//         className='w-fit h-full border-none'
+//       />
+//     </div>
+//   ) : (
+//     <div className='w-[98%] h-[180px] flex justify-center items-center border-[1px] border-gray-200 '>
+//       <p className='text-gray-400 text-center w-full '>
+//         No uploaded document found
+//       </p>
+//     </div>
+//   );
+// }

@@ -13,7 +13,9 @@ import { Loader } from 'lucide-react';
 const Documents = ({
   searchParams,
 }: {
-  searchParams: { [key: string]: string | undefined };
+  searchParams: {
+    [key: string]: string | DocNameTypes | DocsCategoryTypes | undefined;
+  };
 }) => {
   const { documentType, category } = searchParams;
   const [docs, setDocs] = useState<IDocument | null>(null);
@@ -21,7 +23,7 @@ const Documents = ({
   const fetchAllDocs = async () => {
     try {
       const docs = await documentActions.FETCH.getAllVersionsOfDocument(
-        category,
+        category as DocsCategoryTypes,
         documentType as DocNameTypes
       );
       console.log(docs);

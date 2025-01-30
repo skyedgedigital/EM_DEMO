@@ -1,6 +1,6 @@
 import mongoose, { Schema } from 'mongoose';
 
-export const docsCategoryEnums = ['General', 'SOP/JHA/HIRA'];
+export const docsCategoryEnums = ['General', 'SOP/JHA/HIRA'] as const;
 export type DocsCategoryTypes = (typeof docsCategoryEnums)[number];
 export const docsEnums = [
   'Safety Manual',

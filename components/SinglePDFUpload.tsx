@@ -1,5 +1,5 @@
 import documentActions from '@/lib/actions/safety/document/documentActions';
-import { DocNameTypes } from '@/lib/models/Safety/document.model';
+import { DocNameTypes, DocsCategoryTypes } from '@/lib/models/Safety/document.model';
 import { storage } from '@/utils/fireBase/config';
 import { ref, uploadBytesResumable } from 'firebase/storage';
 import { getDownloadURL } from 'firebase/storage';
@@ -18,7 +18,7 @@ interface SinglePDFUploadProps {
   // }) => Promise<void>;
   // onDelete?: () => void;
   initialFileUrl?: string | null;
-  documentCategory?: string;
+  documentCategory?: DocsCategoryTypes;
 }
 
 const SinglePDFUpload: React.FC<SinglePDFUploadProps> = ({
