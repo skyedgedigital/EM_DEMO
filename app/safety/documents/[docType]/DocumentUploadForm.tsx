@@ -1,15 +1,20 @@
 import documentActions from '@/lib/actions/safety/document/documentActions';
+import {
+  DocNameTypes,
+  DocsCategoryTypes,
+} from '@/lib/models/Safety/document.model';
 import { storage } from '@/utils/fireBase/config';
 import { ref, uploadBytesResumable } from 'firebase/storage';
 import { getDownloadURL } from 'firebase/storage';
+import { Types } from 'mongoose';
 import { useSession } from 'next-auth/react';
 import React, { useState } from 'react';
 import toast from 'react-hot-toast';
 import { FaUpload, FaSpinner, FaTrash } from 'react-icons/fa6';
 
 interface IDocumentUploadForm {
-  documentType: string;
-  documentCategory: string;
+  documentType: DocNameTypes;
+  documentCategory: DocsCategoryTypes;
 }
 
 const DocumentUploadForm: React.FC<IDocumentUploadForm> = ({
@@ -48,15 +53,9 @@ const DocumentUploadForm: React.FC<IDocumentUploadForm> = ({
       const blob = new Blob([file], { type: file.type });
 
       // Step 2: Upload the Blob to Firebase Storage
+
       const storageRef = ref(storage, `${storagePath}/${fileName}`);
       const uploadTask = uploadBytesResumable(storageRef, blob);
-      const { data, error, message, status, success } =
-        await documentActions.FETCH.getNextDocumentVersion(
-          documentCategory,
-          documentType
-        );
-
-      console.log('next version', data);
       const downloadURL = await new Promise<string>((resolve, reject) => {
         uploadTask.on(
           'state_changed',
@@ -100,13 +99,48 @@ const DocumentUploadForm: React.FC<IDocumentUploadForm> = ({
 
       const docName = documentType.toLowerCase().split(' ').join('-');
       // Step 1: Upload the PDF to Firebase Storage
+      const {
+        data: { nextVersion },
+        error,
+        message,
+        status,
+        success,
+      } = await documentActions.FETCH.getNextDocumentVersion(
+        documentCategory,
+        documentType
+      );
+
+      if (!nextVersion) {
+        return toast.error(
+          'Filed to generate next version for new upload. Please try later'
+        );
+      }
+
+      console.log('next version', nextVersion);
       const downloadURL = await handlePDFUpload(
         file,
-        'safety-management-documents', // Firebase Storage path
+        `safety-management-documents/${documentCategory}/${documentType}/${nextVersion}/${docName}.pdf`, // Firebase Storage path
         `${docName}.pdf` // Unique file name
       );
 
       console.log('downloadURL', downloadURL);
+      // save document to database
+
+      const {
+        data,
+        error: Error,
+        message: Message,
+        status: Status,
+        success: Success,
+      } = await documentActions.CREATE.createDocument({
+        category: documentCategory,
+        documentType,
+        documentURL: downloadURL,
+        uploadDate: new Date(),
+        uploadedBy: new Types.ObjectId(session.data.user._id), // Convert string to ObjectId
+      });
+
+      console.log(data, Error, Message, Status, Success);
 
       // Step 2: Call the onUpload callback with the download URL
       //   await onUpload({

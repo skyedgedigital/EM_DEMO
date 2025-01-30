@@ -1,5 +1,7 @@
 import mongoose, { Schema } from 'mongoose';
 
+export const docsCategoryEnums = ['General', 'SOP/JHA/HIRA'];
+export type DocsCategoryTypes = (typeof docsCategoryEnums)[number];
 export const docsEnums = [
   'Safety Manual',
   'Policy & Principal',
@@ -30,8 +32,8 @@ export interface IVersion {
 }
 
 export interface IDocument {
-  category: 'General' | 'SOP/JHA/HIRA';
-  documentType: string;
+  category: DocsCategoryTypes;
+  documentType: DocNameTypes;
   versions?: IVersion[];
   currentVersion: number;
 }

@@ -2,7 +2,7 @@
 import React, { useEffect, useState } from 'react';
 import {
   DocNameTypes,
-  docsEnums,
+  DocsCategoryTypes,
   IDocument,
 } from '@/lib/models/Safety/document.model';
 import { fetchCurrentVersionOfAllDocuments } from '@/lib/actions/safety/document/fetch';
@@ -317,8 +317,8 @@ const Documents = ({
           </div>
 
           <DocumentUploadForm
-            documentType={documentType}
-            documentCategory={category}
+            documentType={documentType as DocNameTypes}
+            documentCategory={category as DocsCategoryTypes}
           />
         </div>
       </div>
