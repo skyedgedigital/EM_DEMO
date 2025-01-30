@@ -1,27 +1,51 @@
 import mongoose, { Schema } from 'mongoose';
 
-interface Version {
+export const docsCategoryEnums = ['General', 'SOP/JHA/HIRA'] as const;
+export type DocsCategoryTypes = (typeof docsCategoryEnums)[number];
+export const docsEnums = [
+  'Safety Manual',
+  'Policy & Principal',
+  'Organization Structure',
+  'Safety Plan',
+  'Objective & Target',
+  'PPE Replacement Policy',
+  'Tool Replacement Policy',
+  'Campaign Calendar',
+  'Emergency Preparedness Plan',
+  'Employee List',
+  'First-aider Certificate',
+  'Safety Professional Certificate',
+  'Top Management Certificate',
+  'Appointment Letter',
+  'Sponsorship Letter',
+  'SOP',
+  'JHA',
+  'HIRA',
+] as const;
+export type DocNameTypes = (typeof docsEnums)[number];
+
+export interface IVersion {
   versionNumber: number;
   documentURL: string;
   uploadedBy: mongoose.Types.ObjectId;
   uploadDate: Date;
 }
 
-interface Document {
-  category: 'General' | 'SOP/JHA/HIRA';
-  documentType: string;
-  versions: Version[];
+export interface IDocument {
+  category: DocsCategoryTypes;
+  documentType: DocNameTypes;
+  versions?: IVersion[];
   currentVersion: number;
 }
 
-const VersionSchema: mongoose.Schema<Version> = new mongoose.Schema({
+const VersionSchema: mongoose.Schema<IVersion> = new mongoose.Schema({
   versionNumber: {
     type: Number,
     required: true,
   },
   uploadedBy: {
     type: Schema.Types.ObjectId,
-    ref: 'EmployeeData',
+    ref: 'Employee',
     required: true,
   },
   documentURL: {
@@ -30,11 +54,11 @@ const VersionSchema: mongoose.Schema<Version> = new mongoose.Schema({
   },
   uploadDate: {
     type: Date,
-    default: Date.now(),
+    default: new Date(),
   },
 });
 
-const DocumentSchema: mongoose.Schema<Document> = new mongoose.Schema(
+const DocumentSchema: mongoose.Schema<IDocument> = new mongoose.Schema(
   {
     category: {
       type: String,
@@ -44,26 +68,7 @@ const DocumentSchema: mongoose.Schema<Document> = new mongoose.Schema(
     documentType: {
       type: String,
       required: true,
-      enum: [
-        'Safety Manual',
-        'Policy & Principal',
-        'Organization Structure',
-        'Safety Plan',
-        'Objective & Target',
-        'PPE Replacement Policy',
-        'Tool Replacement Policy',
-        'Campaign Calendar',
-        'Emergency Preparedness Plan',
-        'Employee List',
-        'First-aider Certificate',
-        'Safety Professional Certificate',
-        'Top Management Certificate',
-        'Appointment Letter',
-        'Sponsorship Letter',
-        'SOP',
-        'JHA',
-        'HIRA',
-      ],
+      enum: docsEnums,
     },
     versions: [VersionSchema],
     currentVersion: {
@@ -74,7 +79,8 @@ const DocumentSchema: mongoose.Schema<Document> = new mongoose.Schema(
   { timestamps: true }
 );
 
-export const DocumentModel = mongoose.model<Document>(
-  'Document',
-  DocumentSchema
-);
+const DocumentModel: mongoose.Model<IDocument> =
+  mongoose.models?.Document ||
+  mongoose.model<IDocument>('Document', DocumentSchema);
+
+export default DocumentModel;

@@ -275,6 +275,12 @@ const Sidebar = forwardRef<HTMLDivElement, Props>(
                 icon: LayoutDashboard,
                 variant: 'ghost',
               },
+              {
+                title: 'Documents',
+                href: '/safety/documents',
+                icon: FileText,
+                variant: 'ghost',
+              },
             ]}
           />
         )}
