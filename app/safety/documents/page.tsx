@@ -33,7 +33,7 @@ const Documents = () => {
     {
       documentType: 'Safety Manual',
       currentVersionDocument: {
-        uploadDate: new Date(),
+        uploadDate: null,
         documentURL: '',
         versionNumber: null,
         uploadedBy: new Types.ObjectId(),
@@ -43,7 +43,7 @@ const Documents = () => {
     {
       documentType: 'Appointment Letter',
       currentVersionDocument: {
-        uploadDate: new Date(),
+        uploadDate: null,
         documentURL: '',
         versionNumber: null,
         uploadedBy: new Types.ObjectId(),
@@ -53,7 +53,7 @@ const Documents = () => {
     {
       documentType: 'Campaign Calendar',
       currentVersionDocument: {
-        uploadDate: new Date(),
+        uploadDate: null,
         documentURL: '',
         versionNumber: null,
         uploadedBy: new Types.ObjectId(),
@@ -63,7 +63,7 @@ const Documents = () => {
     {
       documentType: 'Emergency Preparedness Plan',
       currentVersionDocument: {
-        uploadDate: new Date(),
+        uploadDate: null,
         documentURL: '',
         versionNumber: null,
         uploadedBy: new Types.ObjectId(),
@@ -73,7 +73,7 @@ const Documents = () => {
     {
       documentType: 'Employee List',
       currentVersionDocument: {
-        uploadDate: new Date(),
+        uploadDate: null,
         documentURL: '',
         versionNumber: null,
         uploadedBy: new Types.ObjectId(),
@@ -83,7 +83,7 @@ const Documents = () => {
     {
       documentType: 'First-aider Certificate',
       currentVersionDocument: {
-        uploadDate: new Date(),
+        uploadDate: null,
         documentURL: '',
         versionNumber: null,
         uploadedBy: new Types.ObjectId(),
@@ -93,7 +93,7 @@ const Documents = () => {
     {
       documentType: 'Objective & Target',
       currentVersionDocument: {
-        uploadDate: new Date(),
+        uploadDate: null,
         documentURL: '',
         versionNumber: null,
         uploadedBy: new Types.ObjectId(),
@@ -103,7 +103,7 @@ const Documents = () => {
     {
       documentType: 'Organization Structure',
       currentVersionDocument: {
-        uploadDate: new Date(),
+        uploadDate: null,
         documentURL: '',
         versionNumber: null,
         uploadedBy: new Types.ObjectId(),
@@ -113,7 +113,7 @@ const Documents = () => {
     {
       documentType: 'PPE Replacement Policy',
       currentVersionDocument: {
-        uploadDate: new Date(),
+        uploadDate: null,
         documentURL: '',
         versionNumber: null,
         uploadedBy: new Types.ObjectId(),
@@ -123,7 +123,7 @@ const Documents = () => {
     {
       documentType: 'Policy & Principal',
       currentVersionDocument: {
-        uploadDate: new Date(),
+        uploadDate: null,
         documentURL: '',
         versionNumber: null,
         uploadedBy: new Types.ObjectId(),
@@ -133,7 +133,7 @@ const Documents = () => {
     {
       documentType: 'Safety Plan',
       currentVersionDocument: {
-        uploadDate: new Date(),
+        uploadDate: null,
         documentURL: '',
         versionNumber: null,
         uploadedBy: new Types.ObjectId(),
@@ -143,7 +143,7 @@ const Documents = () => {
     {
       documentType: 'Safety Professional Certificate',
       currentVersionDocument: {
-        uploadDate: new Date(),
+        uploadDate: null,
         documentURL: '',
         versionNumber: null,
         uploadedBy: new Types.ObjectId(),
@@ -153,7 +153,7 @@ const Documents = () => {
     {
       documentType: 'Sponsorship Letter',
       currentVersionDocument: {
-        uploadDate: new Date(),
+        uploadDate: null,
         documentURL: '',
         versionNumber: null,
         uploadedBy: new Types.ObjectId(),
@@ -163,7 +163,7 @@ const Documents = () => {
     {
       documentType: 'Tool Replacement Policy',
       currentVersionDocument: {
-        uploadDate: new Date(),
+        uploadDate: null,
         documentURL: '',
         versionNumber: null,
         uploadedBy: new Types.ObjectId(),
@@ -173,7 +173,7 @@ const Documents = () => {
     {
       documentType: 'Top Management Certificate',
       currentVersionDocument: {
-        uploadDate: new Date(),
+        uploadDate: null,
         documentURL: '',
         versionNumber: null,
         uploadedBy: new Types.ObjectId(),
@@ -185,9 +185,9 @@ const Documents = () => {
     ICurrentVersionOfAllDocumentsResponse[]
   >([
     {
-      documentType: 'HIRA',
+      documentType: 'SOP',
       currentVersionDocument: {
-        uploadDate: new Date(),
+        uploadDate: null,
         documentURL: '',
         versionNumber: null,
         uploadedBy: new Types.ObjectId(),
@@ -197,7 +197,7 @@ const Documents = () => {
     {
       documentType: 'JHA',
       currentVersionDocument: {
-        uploadDate: new Date(),
+        uploadDate: null,
         documentURL: '',
         versionNumber: null,
         uploadedBy: new Types.ObjectId(),
@@ -205,9 +205,9 @@ const Documents = () => {
       category: 'SOP/JHA/HIRA',
     },
     {
-      documentType: 'SOP',
+      documentType: 'HIRA',
       currentVersionDocument: {
-        uploadDate: new Date(),
+        uploadDate: null,
         documentURL: '',
         versionNumber: null,
         uploadedBy: new Types.ObjectId(),
@@ -286,8 +286,8 @@ const Documents = () => {
           Safety Management Documentation
         </h1>
         <TabsList className='w-full flex  justify-center items-center bg-white '>
-          <TabsTrigger value='documents'> Documents</TabsTrigger>
-          <TabsTrigger value='sop/jha/hira'>SOP/JHA/ HIRA</TabsTrigger>
+          <TabsTrigger value='documents'>Safety Documents</TabsTrigger>
+          <TabsTrigger value='sop/jha/hira'>SOP/JHA/HIRA</TabsTrigger>
         </TabsList>
         <TabsContent value='documents'>
           <section className='flex flex-col'>
@@ -478,9 +478,11 @@ const TileBox = ({ doc }: { doc: ICurrentVersionOfAllDocumentsResponse }) => {
             <div className='text-xs flex justify-start items-center gap-1'>
               <span className='text-gray-500'> Uploaded On:</span>
               <span>
-                {new Date(
-                  doc.currentVersionDocument.uploadDate
-                ).toLocaleDateString()}
+                {doc?.currentVersionDocument?.uploadDate
+                  ? new Date(
+                      doc.currentVersionDocument.uploadDate
+                    ).toLocaleDateString()
+                  : 'N/A'}
               </span>
             </div>
           </div>
