@@ -2,38 +2,46 @@ import mongoose, { Schema } from 'mongoose';
 
 interface IQA {
   question: string;
-  answer: string;
+  answer?: string;
 }
 
 interface IRecord {
   action: string;
-  when: string;
+  when?: string;
   date: Date;
   status: string;
+}
+
+interface IPoint {
+  point: string;
+  color?: string;
 }
 
 export interface IToolboxTalkVersion {
   questions: IQA[];
   revNo: number;
   workOrderNo: mongoose.Types.ObjectId;
-  totalManPower: number;
-  totalWorkers: number;
-  totalEmployees: number;
-  totalSafety: number;
+  totalManPower?: number;
+  totalWorkers?: number;
+  totalEmployees?: number;
+  totalSafety?: number;
   records: IRecord[];
-  updatedDate: Date;
-  suggestion: string;
-  feedback: string;
+  uploadDate?: Date;
+  suggestion?: string;
+  feedback?: string;
+  points: IPoint[];
+  attendanceFileURL: string;
+  siteFileURL?: string;
   supervisor: 'Company Supervisor' | 'Line Manager';
 }
 
 export interface IToolboxTalk {
   documentNo: string;
-  programName: string;
+  programName?: string;
   effectiveDate: Date;
   vendorCode: string;
-  safetyRep: string;
-  contractorRep: string;
+  safetyRepresentative?: string;
+  contractorRepresentative?: string;
   versions: IToolboxTalkVersion[];
   currentVersion: number;
 }
@@ -68,6 +76,17 @@ const RecordSchema: mongoose.Schema<IRecord> = new mongoose.Schema({
   },
 });
 
+const PointSchema: mongoose.Schema<IPoint> = new mongoose.Schema({
+  color: {
+    type: String,
+    default: '',
+  },
+  point: {
+    type: String,
+    required: true,
+  },
+});
+
 const ToolboxTalkVersionSchema: mongoose.Schema<IToolboxTalkVersion> =
   new mongoose.Schema({
     questions: [QASchema],
@@ -96,7 +115,7 @@ const ToolboxTalkVersionSchema: mongoose.Schema<IToolboxTalkVersion> =
       type: Number,
       default: 0,
     },
-    updatedDate: {
+    uploadDate: {
       type: Date,
       default: new Date(),
     },
@@ -109,6 +128,15 @@ const ToolboxTalkVersionSchema: mongoose.Schema<IToolboxTalkVersion> =
       default: '',
     },
     records: [RecordSchema],
+    points: [PointSchema],
+    attendanceFileURL: {
+      type: String,
+      required: true,
+    },
+    siteFileURL: {
+      type: String,
+      default: '',
+    },
     supervisor: {
       type: String,
       enum: ['Company Supervisor', 'Line Manager'],
@@ -117,9 +145,10 @@ const ToolboxTalkVersionSchema: mongoose.Schema<IToolboxTalkVersion> =
   });
 
 const ToolboxTalkSchema: mongoose.Schema<IToolboxTalk> = new mongoose.Schema({
-  contractorRep: {
+  contractorRepresentative: {
     type: String,
     required: true,
+    default: '',
   },
   documentNo: {
     type: String,
@@ -134,7 +163,7 @@ const ToolboxTalkSchema: mongoose.Schema<IToolboxTalk> = new mongoose.Schema({
     type: String,
     default: '',
   },
-  safetyRep: {
+  safetyRepresentative: {
     type: String,
     default: '',
   },
@@ -148,3 +177,9 @@ const ToolboxTalkSchema: mongoose.Schema<IToolboxTalk> = new mongoose.Schema({
   },
   versions: [ToolboxTalkVersionSchema],
 });
+
+const ToolboxTalkModel: mongoose.Model<IToolboxTalk> =
+  mongoose.models.ToolboxTalk ||
+  mongoose.model<IToolboxTalk>('ToolboxTalk', ToolboxTalkSchema);
+
+export default ToolboxTalkModel;
