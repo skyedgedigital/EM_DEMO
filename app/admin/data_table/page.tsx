@@ -196,7 +196,7 @@ const Page = () => {
                   {vehicle?.vehicleNumber}
                 </td>
                 <td className='border border-gray-300 px-4 py-2'>
-                  {vehicle?.totalHours > 0 && (
+                  {vehicle?.totalHours >= 1 && (
                     <div className='flex justify-around'>
                       <span>hours:</span>
                       <span>{Math.round(vehicle?.totalHours)}</span>
