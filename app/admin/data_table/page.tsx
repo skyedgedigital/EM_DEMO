@@ -196,10 +196,12 @@ const Page = () => {
                   {vehicle?.vehicleNumber}
                 </td>
                 <td className='border border-gray-300 px-4 py-2'>
-                  <div className='flex justify-around'>
-                    <span>hours:</span>
-                    <span>{Math.round(vehicle?.totalHours)}</span>
-                  </div>
+                  {vehicle?.totalHours > 0 && (
+                    <div className='flex justify-around'>
+                      <span>hours:</span>
+                      <span>{Math.round(vehicle?.totalHours)}</span>
+                    </div>
+                  )}
                   {vehicle.totalShifts >= 1 && (
                     <div className='flex justify-around'>
                       <span>shifts:</span>
