@@ -50,7 +50,7 @@ const deleteWorkorderFromEmployeeData = async (
   }
   const dbConnection = await handleDBConnection();
   if (!dbConnection.success) return dbConnection;
-  
+
   const session = await mongoose.startSession();
   session.startTransaction();
   // console.log(workOrderHr_Id, employee_Id, month, year);
@@ -58,6 +58,7 @@ const deleteWorkorderFromEmployeeData = async (
   try {
     const employeeExist = await EmployeeData.findOne(
       { _id: employee_Id },
+      null,
       { session }
     );
     if (!employeeExist) {
