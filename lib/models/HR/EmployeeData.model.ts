@@ -264,19 +264,8 @@ const EmployeeDataSchema = new Schema({
 });
 
 EmployeeDataSchema.index(
-  {
-    _id: 1,
-    'workOrderHr.period': 1,
-    'workOrderHr.workOrderHr': 1,
-  },
-  {
-    unique: true,
-    name: 'unique_workOrder_per_employee_period',
-    partialFilterExpression: {
-      'workOrderHr.period': { $exists: true },
-      'workOrderHr.workOrderHr': { $exists: true },
-    },
-  }
+  { _id: 1, 'workOrderHr.period': 1, 'workOrderHr.workOrderHr': 1 },
+  { unique: true }
 );
 
 // Model initialization
