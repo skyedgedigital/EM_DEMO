@@ -1,15 +1,24 @@
 import mongoose, { Schema } from 'mongoose';
-
+export const SupervisorNames = ['Company Supervisor', 'Line Manager'] as const;
+export type SupervisorNamesTypes = (typeof SupervisorNames)[number];
 interface IQA {
   question: string;
   answer?: string;
 }
 
+export const RecordStatusNames = [
+  'Issued',
+  'In Progress',
+  'Completed',
+  'Rejected',
+] as const;
+export type RecordStatusNamesTypes = (typeof RecordStatusNames)[number];
 interface IRecord {
-  action: string;
+  actionBy: string;
   when?: string;
-  date: Date;
-  status: string;
+  targetDate: Date;
+  status: RecordStatusNamesTypes;
+  item: string;
 }
 
 interface IPoint {
@@ -32,7 +41,7 @@ export interface IToolboxTalkVersion {
   points: IPoint[];
   attendanceFileURL: string;
   siteFileURL?: string;
-  supervisor: 'Company Supervisor' | 'Line Manager';
+  supervisor: SupervisorNamesTypes;
 }
 
 export interface IToolboxTalk {
@@ -58,19 +67,25 @@ const QASchema: mongoose.Schema<IQA> = new mongoose.Schema({
 });
 
 const RecordSchema: mongoose.Schema<IRecord> = new mongoose.Schema({
-  action: {
+  actionBy: {
     type: String,
     required: true,
   },
-  date: {
+  targetDate: {
     type: Date,
     default: new Date(),
   },
   status: {
     type: String,
+    enum: RecordStatusNames,
     required: true,
+    default: 'Issued',
   },
   when: {
+    type: String,
+    default: '',
+  },
+  item: {
     type: String,
     default: '',
   },
@@ -139,7 +154,7 @@ const ToolboxTalkVersionSchema: mongoose.Schema<IToolboxTalkVersion> =
     },
     supervisor: {
       type: String,
-      enum: ['Company Supervisor', 'Line Manager'],
+      enum: SupervisorNames,
       required: true,
     },
   });
@@ -179,7 +194,7 @@ const ToolboxTalkSchema: mongoose.Schema<IToolboxTalk> = new mongoose.Schema({
 });
 
 const ToolboxTalkModel: mongoose.Model<IToolboxTalk> =
-  mongoose.models.ToolboxTalk ||
+  mongoose.models?.ToolboxTalk ||
   mongoose.model<IToolboxTalk>('ToolboxTalk', ToolboxTalkSchema);
 
 export default ToolboxTalkModel;
