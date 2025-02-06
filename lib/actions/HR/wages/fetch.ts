@@ -404,6 +404,7 @@ const fetchWagesForFinancialYear = async (dataString) => {
           year: month >= 4 ? year : year + 1,
           attendance: 0,
           netAmountPaid: 0,
+          payRate: 0,
         }));
 
         // Concatenate missingWages with fetched wages
@@ -433,8 +434,10 @@ const fetchWagesForFinancialYear = async (dataString) => {
           console.log('Updated SuccessFully');
         }
         // Calculate bonus and totalAttendance
+        // NEW_CHANGES_________________________________________________________NEW_CHANGES
+        // instead of netAmountPaid, we are only using (basic+da(payrate)) * attendance
         const totalNetAmountPaid = allWages.reduce(
-          (sum, wage) => sum + wage.netAmountPaid,
+          (sum, wage) => sum + wage.attendance * wage.payRate,
           0
         );
         const totalAttendance = allWages.reduce(
