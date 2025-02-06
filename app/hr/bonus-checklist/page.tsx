@@ -112,7 +112,8 @@ const Page = ({
         const monthIndex = (wage.month - 4 + 12) % 12; // Adjust to financial year (April is index 0)
 
         // Add the netAmountPaid for the corresponding month
-        monthlyTotals[monthIndex] += parseFloat(wage.netAmountPaid); // Accumulate the netAmountPaid
+        monthlyTotals[monthIndex] +=
+          parseFloat(wage.payRate) * parseFloat(wage.attendance); // Accumulate the netAmountPaid
       });
     });
 
@@ -408,11 +409,12 @@ const Page = ({
                   const aggregatedWages = employee.wages.reduce((acc, wage) => {
                     if (acc[wage.month]) {
                       acc[wage.month].attendance += wage.attendance;
-                      acc[wage.month].netAmountPaid += wage.netAmountPaid;
+                      acc[wage.month].netAmountPaid +=
+                        wage.payRate * wage.attendance;
                     } else {
                       acc[wage.month] = {
                         attendance: wage.attendance,
-                        netAmountPaid: wage.netAmountPaid,
+                        netAmountPaid: wage.payRate * wage.attendance,
                       };
                     }
                     return acc;

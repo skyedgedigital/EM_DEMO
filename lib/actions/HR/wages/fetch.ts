@@ -259,9 +259,9 @@ const fetchWagesForFinancialYear = async (dataString) => {
   try {
     const data = JSON.parse(dataString);
     const { year, workOrder, bonusPercentage } = data;
-    console.log('yeich ', year);
+    // console.log('yeich ', year);
     const startDate = new Date(year, 3, 1); // April of the given year
-    console.log(startDate);
+    // console.log(startDate);
     const endDate = new Date(year + 1, 2, 31); // March of the following year
 
     // Fetch all employees whose appointment and resignation dates meet the criteria
@@ -455,7 +455,7 @@ const fetchWagesForFinancialYear = async (dataString) => {
         });
       }
     }
-    console.log(wagesData, bonusPercentage, 'yeiiii hai bhaiii');
+    // console.log(wagesData, bonusPercentage, 'yeiiii hai bhaiii');
 
     return {
       success: true,
