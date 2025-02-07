@@ -56,19 +56,6 @@ const ToolBoxTalkHome = () => {
           </li>
           <li className='me-2'>
             <button
-              onClick={() => handleTabClick('site')}
-              className={`inline-block p-4 rounded-t-lg ${
-                activeTab === 'site'
-                  ? 'text-green-600 bg-gray-100'
-                  : 'hover:text-gray-600 hover:bg-gray-50 dark:hover:bg-gray-800 dark:hover:text-gray-300'
-              }`}
-            >
-              Site
-            </button>
-          </li>
-
-          <li className='me-2'>
-            <button
               onClick={() => handleTabClick('strip')}
               className={`inline-block p-4 rounded-t-lg ${
                 activeTab === 'strip'
