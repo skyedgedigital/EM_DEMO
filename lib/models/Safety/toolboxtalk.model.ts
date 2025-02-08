@@ -26,9 +26,14 @@ interface IPoint {
   color?: string;
 }
 
+interface IAttendance {
+  permitNo: string;
+  remarks?: string;
+  attendanceFileURL: string;
+}
+
 export interface IToolboxTalkVersion {
   questions: IQA[];
-  revNo: number;
   workOrderNo: mongoose.Types.ObjectId;
   totalManPower?: number;
   totalWorkers?: number;
@@ -37,11 +42,12 @@ export interface IToolboxTalkVersion {
   records: IRecord[];
   uploadDate?: Date;
   suggestion?: string;
-  feedback?: string;
+  feedback: IQA[];
   points: IPoint[];
-  attendanceFileURL: string;
+  attendance: IAttendance;
   siteFileURL?: string;
   supervisor: SupervisorNamesTypes;
+  uploadedBy: mongoose.Types.ObjectId;
 }
 
 export interface IToolboxTalk {
@@ -53,6 +59,10 @@ export interface IToolboxTalk {
   contractorRepresentative?: string;
   versions: IToolboxTalkVersion[];
   currentVersion: number;
+}
+
+export interface IToolboxTalkVersionWithRevNo extends IToolboxTalkVersion {
+  revNo: number;
 }
 
 const QASchema: mongoose.Schema<IQA> = new mongoose.Schema({
@@ -102,7 +112,22 @@ const PointSchema: mongoose.Schema<IPoint> = new mongoose.Schema({
   },
 });
 
-const ToolboxTalkVersionSchema: mongoose.Schema<IToolboxTalkVersion> =
+const AttendanceSchema: mongoose.Schema<IAttendance> = new mongoose.Schema({
+  attendanceFileURL: {
+    type: String,
+    required: true,
+  },
+  permitNo: {
+    type: String,
+    required: true,
+  },
+  remarks: {
+    type: String,
+    default: '',
+  },
+});
+
+const ToolboxTalkVersionSchema: mongoose.Schema<IToolboxTalkVersionWithRevNo> =
   new mongoose.Schema({
     questions: [QASchema],
     revNo: {
@@ -134,20 +159,14 @@ const ToolboxTalkVersionSchema: mongoose.Schema<IToolboxTalkVersion> =
       type: Date,
       default: new Date(),
     },
-    feedback: {
-      type: String,
-      default: '',
-    },
+    feedback: [QASchema],
     suggestion: {
       type: String,
       default: '',
     },
     records: [RecordSchema],
     points: [PointSchema],
-    attendanceFileURL: {
-      type: String,
-      required: true,
-    },
+    attendance: AttendanceSchema,
     siteFileURL: {
       type: String,
       default: '',
@@ -156,6 +175,11 @@ const ToolboxTalkVersionSchema: mongoose.Schema<IToolboxTalkVersion> =
       type: String,
       enum: SupervisorNames,
       required: true,
+    },
+    uploadedBy: {
+      type: Schema.Types.ObjectId,
+      required: true,
+      ref: 'Employee',
     },
   });
 
