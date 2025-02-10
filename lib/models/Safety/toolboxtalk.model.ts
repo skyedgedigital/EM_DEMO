@@ -57,7 +57,7 @@ export interface IToolboxTalk {
   vendorCode: string;
   safetyRepresentative?: string;
   contractorRepresentative?: string;
-  versions: IToolboxTalkVersion[];
+  versions: IToolboxTalkVersionWithRevNo[];
   currentVersion: number;
 }
 
