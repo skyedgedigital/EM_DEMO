@@ -3,7 +3,9 @@
 import { ApiResponse } from '@/interfaces/APIresponses.interface';
 import handleDBConnection from '@/lib/database';
 import ToolboxTalkModel, {
+  IToolboxTalk,
   IToolboxTalkVersion,
+  IToolboxTalkVersionWithRevNo,
 } from '@/lib/models/Safety/toolboxtalk.model';
 
 interface CurrentVersionToolboxTalk {
@@ -65,6 +67,10 @@ export const getCurrentToolboxTalk = async (
     const dbConnection = await handleDBConnection();
     if (!dbConnection.success) return dbConnection;
 
+    if (!documentNo.trim()) {
+      throw new Error(`provide valid document no`);
+    }
+
     const currentDocument = await ToolboxTalkModel.findOne({ documentNo });
     if (!currentDocument) {
       throw new Error(`No document exist for documentNumber: ${documentNo}`);
@@ -102,6 +108,45 @@ export const getCurrentToolboxTalk = async (
       totalSafety: currentVersion.totalSafety,
       totalWorkers: currentVersion.totalWorkers,
     };
+
+    return {
+      success: true,
+      status: 200,
+      message: 'data fetched successfully',
+      data,
+      error: null,
+    };
+  } catch (error) {
+    console.error('Error fetching document', error);
+    return {
+      success: false,
+      status: 404,
+      message: error instanceof Error ? error.message : 'Something went wrong',
+      data: null,
+      error,
+    };
+  }
+};
+
+export const getAllVersionsOfToolboxTalk = async (
+  documentNo: string
+): Promise<ApiResponse<IToolboxTalk>> => {
+  try {
+    const dbConnection = await handleDBConnection();
+    if (!dbConnection.success) return dbConnection;
+
+    if (!documentNo.trim()) {
+      throw new Error(`provide valid document no`);
+    }
+
+    const document = await ToolboxTalkModel.findOne({ documentNo });
+    if (!document) {
+      throw new Error(`No document exist for documentNumber: ${documentNo}`);
+    }
+
+    const data = { ...document };
+    delete data.__v;
+    delete data._id;
 
     return {
       success: true,
