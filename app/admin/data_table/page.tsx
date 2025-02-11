@@ -81,6 +81,26 @@ const Page = () => {
     return accumulator + vehicle.complianceCost;
   }, 0);
 
+  const totalDays = data?.reduce((accumulator, vehicle) => {
+    return accumulator + vehicle.totalDays;
+  }, 0);
+
+  const totalShifts = data?.reduce((accumulator, vehicle) => {
+    return accumulator + vehicle.totalShifts;
+  }, 0);
+
+  const totalMonths = data?.reduce((accumulator, vehicle) => {
+    return accumulator + vehicle.totalMonths;
+  }, 0);
+
+  const totalMinutes = data?.reduce((accumulator, vehicle) => {
+    return accumulator + vehicle.totalMinutes;
+  }, 0);
+
+  const totalOT = data?.reduce((accumulator, vehicle) => {
+    return accumulator + vehicle.totalOT;
+  }, 0);
+
   return (
     <div>
       <h1 className='font-bold text-base text-blue-500 border-b-2 border-blue-500 text-center py-2 mb-4'>
@@ -176,7 +196,44 @@ const Page = () => {
                   {vehicle?.vehicleNumber}
                 </td>
                 <td className='border border-gray-300 px-4 py-2'>
-                  {Math.round(vehicle?.totalHours)}
+                  {vehicle?.totalHours >= 1 && (
+                    <div className='flex justify-around'>
+                      <span>hours:</span>
+                      <span>{Math.round(vehicle?.totalHours)}</span>
+                    </div>
+                  )}
+                  {vehicle.totalShifts >= 1 && (
+                    <div className='flex justify-around'>
+                      <span>shifts:</span>
+                      <span>{Math.round(vehicle.totalShifts)}</span>
+                    </div>
+                  )}
+                  {vehicle.totalDays >= 1 && (
+                    <div className='flex justify-around'>
+                      <span>days:</span>
+                      <span>{Math.round(vehicle.totalDays)}</span>
+                    </div>
+                  )}
+                  {vehicle.totalMonths >= 1 && (
+                    <div className='flex justify-around'>
+                      <span>months:</span>
+                      <span>{Math.round(vehicle.totalMonths)}</span>
+                    </div>
+                  )}
+                  {vehicle.totalMinutes >= 1 && (
+                    <div className='flex justify-around'>
+                      <span>minutes:</span>
+                      <span>{Math.round(vehicle.totalMinutes)}</span>
+                    </div>
+                  )}
+                  {vehicle.totalOT >= 1 && (
+                    <div className='flex justify-around'>
+                      <span>OT:</span>
+                      <span>{Math.round(vehicle.totalOT)}</span>
+                    </div>
+                  )}
+
+                  {/* {Math.round(vehicle?.totalHours)} */}
                 </td>
                 <td className='border border-gray-300 px-4 py-2'>
                   {formatCurrency(vehicle?.totalCost)}
@@ -205,8 +262,25 @@ const Page = () => {
             ))}
             <tr className='bg-gray-800 text-white'>
               <td className='border border-gray-300 px-4 py-4'>Total</td>
-              <td className='border border-gray-300 px-4 py-2'>
-                {Math.round(totalHours)} Hour
+              <td className='border border-gray-300 px-4 py-2 flex gap-2'>
+                <div className='flex flex-col justify-center items-center'>
+                  <span>hours</span> <span>{Math.round(totalHours)}</span>
+                </div>
+                <div className='flex flex-col justify-center items-center'>
+                  <span>shifts</span> <span>{Math.round(totalShifts)}</span>
+                </div>
+                <div className='flex flex-col justify-center items-center'>
+                  <span>days</span> <span>{Math.round(totalDays)}</span>
+                </div>
+                <div className='flex flex-col justify-center items-center'>
+                  <span>months</span> <span>{Math.round(totalMonths)}</span>
+                </div>
+                <div className='flex flex-col justify-center items-center'>
+                  <span>minutes</span> <span>{Math.round(totalMinutes)}</span>
+                </div>
+                <div className='flex flex-col justify-center items-center'>
+                  <span>OT</span> <span>{Math.round(totalOT)}</span>
+                </div>
               </td>
               <td className='border border-gray-300 px-4 py-2'>
                 {formatCurrency(totalCost)}

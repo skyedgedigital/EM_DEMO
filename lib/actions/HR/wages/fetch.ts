@@ -259,9 +259,9 @@ const fetchWagesForFinancialYear = async (dataString) => {
   try {
     const data = JSON.parse(dataString);
     const { year, workOrder, bonusPercentage } = data;
-    console.log('yeich ', year);
+    // console.log('yeich ', year);
     const startDate = new Date(year, 3, 1); // April of the given year
-    console.log(startDate);
+    // console.log(startDate);
     const endDate = new Date(year + 1, 2, 31); // March of the following year
 
     // Fetch all employees whose appointment and resignation dates meet the criteria
@@ -404,6 +404,7 @@ const fetchWagesForFinancialYear = async (dataString) => {
           year: month >= 4 ? year : year + 1,
           attendance: 0,
           netAmountPaid: 0,
+          payRate: 0,
         }));
 
         // Concatenate missingWages with fetched wages
@@ -433,8 +434,10 @@ const fetchWagesForFinancialYear = async (dataString) => {
           console.log('Updated SuccessFully');
         }
         // Calculate bonus and totalAttendance
+        // NEW_CHANGES_________________________________________________________NEW_CHANGES
+        // instead of netAmountPaid, we are only using (basic+da(payrate)) * attendance
         const totalNetAmountPaid = allWages.reduce(
-          (sum, wage) => sum + wage.netAmountPaid,
+          (sum, wage) => sum + wage.attendance * wage.payRate,
           0
         );
         const totalAttendance = allWages.reduce(
@@ -452,7 +455,7 @@ const fetchWagesForFinancialYear = async (dataString) => {
         });
       }
     }
-    console.log(wagesData, bonusPercentage, 'yeiiii hai bhaiii');
+    // console.log(wagesData, bonusPercentage, 'yeiiii hai bhaiii');
 
     return {
       success: true,
