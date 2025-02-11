@@ -5,7 +5,6 @@ import handleDBConnection from '@/lib/database';
 import ToolboxTalkModel, {
   IToolboxTalk,
   IToolboxTalkVersion,
-  IToolboxTalkVersionWithRevNo,
 } from '@/lib/models/Safety/toolboxtalk.model';
 
 interface CurrentVersionToolboxTalk {
@@ -163,6 +162,46 @@ export const getAllVersionsOfToolboxTalk = async (
       message: error instanceof Error ? error.message : 'Something went wrong',
       data: null,
       error,
+    };
+  }
+};
+
+export const getNextToolboxtalkVersion = async (
+  documentNo: string
+): Promise<
+  ApiResponse<{
+    nextVersion: number;
+  }>
+> => {
+  try {
+    const dbConnection = await handleDBConnection();
+    if (!dbConnection.success) return dbConnection;
+
+    if (!documentNo) throw new Error(`provide valid document no`);
+
+    const existingDocument = await ToolboxTalkModel.findOne({
+      documentNo,
+    }).select('currentVersion');
+
+    const nextVersion = existingDocument
+      ? existingDocument.currentVersion + 1
+      : 1;
+
+    return {
+      success: true,
+      status: 200,
+      message: 'Next version calculated successfully',
+      data: { nextVersion },
+      error: null,
+    };
+  } catch (error) {
+    console.error('Error getting next version:', error);
+    return {
+      success: false,
+      status: 404,
+      message: error instanceof Error ? error.message : 'Something went wrong',
+      data: null,
+      error: error,
     };
   }
 };
