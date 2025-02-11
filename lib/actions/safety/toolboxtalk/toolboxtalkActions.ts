@@ -3,10 +3,10 @@ import {
   fetchCurrentVersionOfAllToolboxTalk,
   getAllVersionsOfToolboxTalk,
   getCurrentToolboxTalk,
-  getNextToolboxtalkVersion,
+  getNextToolboxTalkVersion,
 } from './fetch';
 
-const toolboxtalkActions = {
+const toolboxTalkActions = {
   CREATE: {
     createToolboxTalk,
   },
@@ -14,10 +14,10 @@ const toolboxtalkActions = {
     fetchCurrentVersionOfAllToolboxTalk,
     getCurrentToolboxTalk,
     getAllVersionsOfToolboxTalk,
-    getNextToolboxtalkVersion,
+    getNextToolboxTalkVersion,
   },
   DELETE: {},
   UPDATE: {},
 };
 
-export default toolboxtalkActions;
+export default toolboxTalkActions;
