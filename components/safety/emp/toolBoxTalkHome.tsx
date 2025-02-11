@@ -4,7 +4,7 @@ import AddToolBoxTalk from './addToolBoxTalk';
 import ViewToolBoxTalk from './viewToolBoxTalk';
 import AttendanceUploads from './attendance';
 import StripUploads from './strip';
-import SiteUploads from './site';
+import SiteUploads, { TSiteFileUrl } from './site';
 import Feedback from './feedBack';
 import { DividerVerticalIcon } from '@radix-ui/react-icons';
 import mongoose from 'mongoose';
@@ -13,6 +13,8 @@ import { IWorkOrderHr } from '@/lib/models/HR/workOrderHr.model';
 import WorkOrderHrAction from '@/lib/actions/HR/workOrderHr/workOrderAction';
 import toast from 'react-hot-toast';
 import { IAttendance } from '../../../lib/models/Safety/toolboxtalk.model';
+import { FormState } from 'react-hook-form';
+import { useSession } from 'next-auth/react';
 
 const toolboxTalkExample: IToolboxTalk = {
   documentNo: 'TBT-2024-001',
@@ -28,7 +30,8 @@ const toolboxTalkExample: IToolboxTalk = {
       workOrderNo: new mongoose.Types.ObjectId('64f8c3e5d52a9b1c72a0b123'),
       totalManPower: 25,
       totalWorkers: 20,
-      totalEmployees: 23,
+      totalEngineers: 23,
+      totalSupervisors: 12,
       totalSafety: 2,
       supervisor: 'Company Supervisor',
       questions: [
@@ -121,6 +124,7 @@ const toolboxTalkExample: IToolboxTalk = {
   ],
 };
 const ToolBoxTalkHome = () => {
+  const session = useSession();
   const [activeTab, setActiveTab] = useState('add');
   const [fetchedToolBoxData, setFetchedToolBoxData] =
     useState<IToolboxTalk>(toolboxTalkExample);
@@ -131,9 +135,25 @@ const ToolBoxTalkHome = () => {
     (IWorkOrderHr & { _id: mongoose.Types.ObjectId }) | null
   >(null);
 
+  const mainToolBoxTalkRef = useRef(null);
   const feedbackRef = useRef(null);
   const attendanceRef = useRef(null);
+  const siteUrlRef = useRef(null);
 
+  useEffect(() => {
+    if (session && session?.data?.user._id) {
+      console.log(session);
+      setFetchedToolBoxData((prev) => ({
+        ...prev,
+        versions: [
+          {
+            ...prev.versions[0],
+            uploadedBy: new mongoose.Types.ObjectId(session.data.user._id),
+          },
+        ],
+      }));
+    }
+  }, [session]);
   const fetchWorkOrderHr = async () => {
     try {
       const { data, error, message, status, success } =
@@ -168,6 +188,13 @@ const ToolBoxTalkHome = () => {
   };
 
   // Callback to update attendance data
+  const updatedMainToolBoxTalk = () => {
+    const data: IToolboxTalk = mainToolBoxTalkRef.current?.getFeedbackData();
+    console.log('UPDATED MAIN DATA', data);
+    // setFetchedToolBoxData(() => data);
+  };
+
+  // Callback to update attendance data
   const updateAttendance = async () => {
     // Get the updated feedback data from the child component
     const updatedAttendance: IAttendance =
@@ -192,7 +219,7 @@ const ToolBoxTalkHome = () => {
 
   //Callback to update feedback
   const updateFeedback = () => {
-    const updatedFeedback = feedbackRef.current?.getFeedbackData();
+    const updatedFeedback: IQA[] = feedbackRef.current?.getFeedbackData();
     console.log('UPDATED FEEDBACK', updatedFeedback);
 
     if (updatedFeedback) {
@@ -210,11 +237,30 @@ const ToolBoxTalkHome = () => {
   };
 
   // Callback to update site data
-  const updateSiteData = (updatedSiteData: any) => {};
+  const updateSiteURL = () => {
+    const updatedSiteUrl: TSiteFileUrl = siteUrlRef.current?.getFeedbackData();
+    console.log('UPDATED SITEFILEURL', updatedSiteUrl);
+
+    if (updatedSiteUrl) {
+      // Update the parent state with the new siteurl data
+      setFetchedToolBoxData((prevData) => ({
+        ...prevData,
+        versions: [
+          {
+            ...prevData.versions[0],
+            siteFileURL: updatedSiteUrl.siteFileURL,
+          },
+        ],
+      }));
+    }
+  };
 
   // Save all changes to the server
   const handleSave = async () => {
     try {
+      if (!fetchedToolBoxData.versions[0].attendance.attendanceFileURL) {
+        return toast.error('Please upload attendance image first to save data');
+      }
       console.log('SUBMITTED DATA', fetchedToolBoxData);
     } catch (error) {
       console.error('Error saving data:', error);
@@ -223,8 +269,10 @@ const ToolBoxTalkHome = () => {
 
   return (
     <>
-      <div>{JSON.stringify(fetchedToolBoxData.versions[0].feedback)}</div>
+      {/* <div>{JSON.stringify(fetchedToolBoxData.versions[0].feedback)}</div>
       <div>{JSON.stringify(fetchedToolBoxData.versions[0].attendance)}</div>
+      <div>{JSON.stringify(fetchedToolBoxData.versions[0].siteFileURL)}</div> */}
+      <div>{JSON.stringify(fetchedToolBoxData)}</div>
       <div className='mt-2'>
         <ul className='flex flex-wrap text-sm font-medium text-center text-gray-500 border-b border-gray-200 dark:border-gray-700 dark:text-gray-400'>
           <li className='me-2'>
@@ -308,7 +356,11 @@ const ToolBoxTalkHome = () => {
 
         <div className='tab-content'>
           {activeTab === 'add' && (
-            <AddToolBoxTalk toolBoxTalkData={fetchedToolBoxData} />
+            <AddToolBoxTalk
+              ref={mainToolBoxTalkRef}
+              toolBoxTalkData={fetchedToolBoxData}
+              updatedMainToolBoxTalk={updatedMainToolBoxTalk}
+            />
           )}
           {activeTab === 'view' && (
             <ViewToolBoxTalk toolBoxTalkData={fetchedToolBoxData} />
@@ -337,9 +389,18 @@ const ToolBoxTalkHome = () => {
           {activeTab === 'strip' && <StripUploads />}
           {activeTab === 'site' && (
             <SiteUploads
-              toolBoxTalkDataSite={fetchedToolBoxData.versions[0].siteFileURL}
-              updateSiteData={updateSiteData}
+              updateSiteURL={updateSiteURL}
+              effectiveDate={fetchedToolBoxData.effectiveDate}
               documentNo={fetchedToolBoxData.documentNo}
+              revNo={fetchedToolBoxData.versions[0].revNo}
+              workOrderNumber={selectedWorkOrderHr?.workOrderNumber}
+              programName={fetchedToolBoxData.programName}
+              uploadDate={fetchedToolBoxData.versions[0].uploadDate}
+              contractorRepresentative={
+                fetchedToolBoxData.contractorRepresentative
+              }
+              vendorCode={fetchedToolBoxData.vendorCode}
+              ref={siteUrlRef}
             />
           )}
           {activeTab === 'feedback' && (
@@ -354,7 +415,14 @@ const ToolBoxTalkHome = () => {
             />
           )}
         </div>
-        <button onClick={handleSave}>save</button>
+        <div className='w-full flex justify-center items-center'>
+          <button
+            onClick={handleSave}
+            className='bg-green-500 rounded px-4 py-1 mb-10 text-white font-semibold shadow hover:scale-[101%]'
+          >
+            Save Data
+          </button>
+        </div>
       </div>
     </>
   );
