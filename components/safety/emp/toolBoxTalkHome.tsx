@@ -142,7 +142,7 @@ const ToolBoxTalkHome = () => {
 
   useEffect(() => {
     if (session && session?.data?.user._id) {
-      console.log(session);
+      console.log('LAWDA', session, session.data.user._id);
       setFetchedToolBoxData((prev) => ({
         ...prev,
         versions: [
@@ -196,6 +196,9 @@ const ToolBoxTalkHome = () => {
   //   }
   // };
   const updateMainToolBoxTalk = useCallback((updatedData: IToolboxTalk) => {
+    updatedData.versions[0].uploadedBy = new mongoose.Types.ObjectId(
+      session.data.user._id
+    );
     setFetchedToolBoxData((prev) => ({ ...prev, ...updatedData }));
   }, []);
 
