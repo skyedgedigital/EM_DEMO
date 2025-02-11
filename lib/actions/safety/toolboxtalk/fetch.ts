@@ -61,7 +61,7 @@ export const fetchCurrentVersionOfAllToolboxTalk = async (): Promise<
 
 export const getCurrentToolboxTalk = async (
   documentNo: string
-): Promise<ApiResponse<CurrentVersionToolboxTalk & IToolboxTalkVersion>> => {
+): Promise<ApiResponse<IToolboxTalk>> => {
   try {
     const dbConnection = await handleDBConnection();
     if (!dbConnection.success) return dbConnection;
@@ -83,29 +83,40 @@ export const getCurrentToolboxTalk = async (
       throw new Error('No versions of this document exist');
     }
 
-    const data: CurrentVersionToolboxTalk & IToolboxTalkVersion = {
+    // const data: CurrentVersionToolboxTalk & IToolboxTalkVersion = {
+    //   documentNo: currentDocument.documentNo,
+    //   currentVersion: currentDocument.currentVersion,
+    //   effectiveDate: currentDocument.effectiveDate,
+    //   programName: currentDocument.programName,
+    //   vendorCode: currentDocument.vendorCode,
+    //   safetyRepresentative: currentDocument.safetyRepresentative,
+    //   contractorRepresentative: currentDocument.contractorRepresentative,
+    //   attendance: currentVersion.attendance,
+    //   feedback: currentVersion.feedback,
+    //   questions: currentVersion.questions,
+    //   points: currentVersion.points,
+    //   records: currentVersion.records,
+    //   supervisor: currentVersion.supervisor,
+    //   uploadDate: currentVersion.uploadDate,
+    //   workOrderNo: currentVersion.workOrderNo,
+    //   siteFileURL: currentVersion.siteFileURL,
+    //   uploadedBy: currentVersion.uploadedBy,
+    //   suggestion: currentVersion.suggestion,
+    //   totalEmployees: currentVersion.totalEmployees,
+    //   totalManPower: currentVersion.totalManPower,
+    //   totalSafety: currentVersion.totalSafety,
+    //   totalWorkers: currentVersion.totalWorkers,
+    // };
+
+    const data: IToolboxTalk = {
       documentNo: currentDocument.documentNo,
       currentVersion: currentDocument.currentVersion,
       effectiveDate: currentDocument.effectiveDate,
       programName: currentDocument.programName,
       vendorCode: currentDocument.vendorCode,
-      safetyRepresentative: currentDocument.safetyRepresentative,
       contractorRepresentative: currentDocument.contractorRepresentative,
-      attendance: currentVersion.attendance,
-      feedback: currentVersion.feedback,
-      questions: currentVersion.questions,
-      points: currentVersion.points,
-      records: currentVersion.records,
-      supervisor: currentVersion.supervisor,
-      uploadDate: currentVersion.uploadDate,
-      workOrderNo: currentVersion.workOrderNo,
-      siteFileURL: currentVersion.siteFileURL,
-      uploadedBy: currentVersion.uploadedBy,
-      suggestion: currentVersion.suggestion,
-      totalEmployees: currentVersion.totalEmployees,
-      totalManPower: currentVersion.totalManPower,
-      totalSafety: currentVersion.totalSafety,
-      totalWorkers: currentVersion.totalWorkers,
+      safetyRepresentative: currentDocument.safetyRepresentative,
+      versions: [currentVersion],
     };
 
     return {
