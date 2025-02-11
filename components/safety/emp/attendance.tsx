@@ -10,7 +10,6 @@ import {
   uploadBytesResumable,
   getDownloadURL,
 } from 'firebase/storage';
-import toolBoxTalkAction from '@/lib/actions/SafetyEmp/daily/toolBoxTalk/toolBoxTalkAction';
 import toast from 'react-hot-toast';
 import Image from 'next/image';
 import {
@@ -188,20 +187,10 @@ const AttendanceUploads = forwardRef(
       }
     };
 
-    const handleDelete = async (id: any) => {
-      const resp = await toolBoxTalkAction.DELETE.deleteAttendanceUpload(id);
-      if (resp.success) {
-        toast.success('Deleted,Refresh to view Changes');
-        //   setResults(prev => prev.filter(item => item.id !== id));
-      } else {
-        toast.error('Failed');
-      }
-    };
-
     return (
-      <form className='border-2 border-black flex flex-col gap-2'>
+      <form className='border-2 border-black flex flex-col gap-2 m-8'>
         {/* log0 & all top */}
-        <div>{JSON.stringify(attendanceData)}</div>
+        {/* <div>{JSON.stringify(attendanceData)}</div> */}
         <div className='grid grid-cols-3'>
           {/* two section */}
           <div className=' col-span-2'>

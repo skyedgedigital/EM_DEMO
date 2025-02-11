@@ -37,7 +37,8 @@ export interface IToolboxTalkVersion {
   workOrderNo: mongoose.Types.ObjectId;
   totalManPower?: number;
   totalWorkers?: number;
-  totalEmployees?: number;
+  totalEngineers?: number;
+  totalSupervisors?: number;
   totalSafety?: number;
   records: IRecord[];
   uploadDate?: Date;
@@ -139,7 +140,11 @@ const ToolboxTalkVersionSchema: mongoose.Schema<IToolboxTalkVersionWithRevNo> =
       required: true,
       ref: 'WorkOrderHr',
     },
-    totalEmployees: {
+    totalEngineers: {
+      type: Number,
+      default: 0,
+    },
+    totalSupervisors: {
       type: Number,
       default: 0,
     },
