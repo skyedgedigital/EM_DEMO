@@ -73,7 +73,7 @@ const AddToolBoxTalk = forwardRef(
 
     useEffect(() => {
       updatedMainToolBoxTalk();
-    }, [formState]);
+    }, [formState.defaultValues]);
 
     const addNewRow = () => {
       append({
