@@ -1,101 +1,103 @@
 import PpeAction from '@/lib/actions/ppe/ppeAction';
 import toolBoxTalkAction from '@/lib/actions/SafetyEmp/daily/toolBoxTalk/toolBoxTalkAction';
 import SafetyToolsAction from '@/lib/actions/safetyTools/safetyToolsAction';
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState } from 'react';
 import toast from 'react-hot-toast';
+import { IToolboxTalk } from '../../../lib/models/Safety/toolboxtalk.model';
 
-const ViewToolBoxTalk = () => {
-    const [result, setResult] = useState([]);
-    useEffect(() => {
-        const fn = async () => {
-          const resp = await toolBoxTalkAction.FETCH.fetchAllToolBoxTalk();
-          console.warn(resp);
-          if (resp.data) {
-            setResult(JSON.parse(resp.data));
-          }
-        };
-        fn();
-      }, []);
-    const handleDelete = async(id:any) => {
-        const resp = await toolBoxTalkAction.DELETE.deleteToolBoxTalk(id)
-        if(resp.success){
-            toast.success("Deleted");
-        }
-        else{
-            toast.error("Error while Deleting")
-        }
+const ViewToolBoxTalk = ({
+  toolBoxTalkData,
+}: {
+  toolBoxTalkData: IToolboxTalk;
+}) => {
+  const [result, setResult] = useState([]);
+  useEffect(() => {
+    const fn = async () => {
+      const resp = await toolBoxTalkAction.FETCH.fetchAllToolBoxTalk();
+      console.warn(resp);
+      if (resp.data) {
+        setResult(JSON.parse(resp.data));
+      }
+    };
+    fn();
+  }, []);
+  
+  const handleDelete = async (id: any) => {
+    const resp = await toolBoxTalkAction.DELETE.deleteToolBoxTalk(id);
+    if (resp.success) {
+      toast.success('Deleted');
+    } else {
+      toast.error('Error while Deleting');
     }
+  };
   return (
     <>
-    
-    {result && (
+      {result && (
         <>
-          <div className="flex flex-col items-center justify-center mt-6">
-            <h2 className="text-3xl">List Of Tool Box Forms</h2>
+          <div className='flex flex-col items-center justify-center mt-6'>
+            <h2 className='text-3xl'>List Of Tool Box Forms</h2>
             {result.length === 0 && (
-              <span className="mt-4">No Audit Present</span>
+              <span className='mt-4'>No Audit Present</span>
             )}
-            <table className="min-w-full divide-y divide-gray-200">
-              <thead className="bg-gray-50">
+            <table className='min-w-full divide-y divide-gray-200'>
+              <thead className='bg-gray-50'>
                 <tr>
                   <th
-                    scope="col"
-                    className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                    scope='col'
+                    className='px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider'
                   >
                     sheet NO:
                   </th>
                   <th
-                    scope="col"
-                    className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                    scope='col'
+                    className='px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider'
                   >
                     rev No:
                   </th>
                   <th
-                    scope="col"
-                    className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                    scope='col'
+                    className='px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider'
                   >
                     Date
                   </th>
                   <th
-                    scope="col"
-                    className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                    scope='col'
+                    className='px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider'
                   >
                     Link
                   </th>
                   <th
-                    scope="col"
-                    className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                    scope='col'
+                    className='px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider'
                   >
                     Action
                   </th>
                 </tr>
               </thead>
-              <tbody className="bg-white divide-y divide-gray-200">
+              <tbody className='bg-white divide-y divide-gray-200'>
                 {result.map((ele) => (
-                  <tr key={ele._id} className="hover:bg-gray-100">
-                    <td className="px-6 py-4 whitespace-nowrap">
-                        {
-                            ele.sheetNo
-                        }
+                  <tr key={ele._id} className='hover:bg-gray-100'>
+                    <td className='px-6 py-4 whitespace-nowrap'>
+                      {ele.sheetNo}
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      {ele.revNo}
-                    </td>
+                    <td className='px-6 py-4 whitespace-nowrap'>{ele.revNo}</td>
 
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      {ele.date}
-                    </td>
+                    <td className='px-6 py-4 whitespace-nowrap'>{ele.date}</td>
 
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <a href={ele.link} target='__blank' className='text-blue-500' >
+                    <td className='px-6 py-4 whitespace-nowrap'>
+                      <a
+                        href={ele.link}
+                        target='__blank'
+                        className='text-blue-500'
+                      >
                         Link
                       </a>
                     </td>
 
-                    <td className="px-6 py-4 whitespace-nowrap">
+                    <td className='px-6 py-4 whitespace-nowrap'>
                       <button
                         onClick={() => handleDelete(ele._id)}
-                        className="text-red-600 hover:text-red-900"
+                        className='text-red-600 hover:text-red-900'
                       >
                         Delete
                       </button>
@@ -107,9 +109,8 @@ const ViewToolBoxTalk = () => {
           </div>
         </>
       )}
-    
     </>
-  )
-}
+  );
+};
 
-export default ViewToolBoxTalk
+export default ViewToolBoxTalk;

@@ -1,111 +1,149 @@
+'use client';
+import React, {
+  useState,
+  useImperativeHandle,
+  forwardRef,
+  useEffect,
+  useCallback,
+} from 'react';
+import {
+  IQA,
+  IToolboxTalk,
+  IToolboxTalkVersion,
+  IToolboxTalkVersionWithRevNo,
+} from '@/lib/models/Safety/toolboxtalk.model';
 import Image from 'next/image';
-import React from 'react';
+import toast from 'react-hot-toast';
+import { debounce } from 'lodash';
 
-// TEMPORARY FEEDBACK MODAL
-const feedbackData = [
-  {
-    q: 'QNA: Feedback /Suggestion With Date and Signature ',
-    a: 'ANS Feedback /Suggestion With Date and Signature ',
-  },
-  {
-    q: 'QNA: Action/Compliance With Date and Signture ',
-    a: 'ANS Action/Compliance With Date and Signture ',
-  },
-  {
-    q: 'QNA: Informed To the Suggest or /Concerned Persons ',
-    a: 'ANS Informed To the Suggest or /Concerned Persons ',
-  },
-  {
-    q: 'QNA: PDCA Staus.(PLAN - DO - CHECK-ACT) ',
-    a: 'ANS PDCA Staus.(PLAN - DO - CHECK-ACT) ',
-  },
-];
-const Feedback = () => {
-  return (
-    <section className='mt-6'>
-      {/* border */}
-      <form className='border-2 border-gray-500'>
-        <div className='flex border-b-2 border-gray-500 gap-2'>
-          {/* two section */}
-          <div className='flex flex-grow p-2'>
-            <Image
-              src='/public/assets/dark-logo.png'
-              alt='logo'
-              width={100}
-              height={100}
-            />
-            <h1>Enterprise management demo</h1>
-          </div>
-          <div className='border-x-2 border-gray-700  flex-grow flex justify-center items-center font-bold'>
-            Form & Formats <br />
-            Site Safety <br />
-            Feedback of Tool Box Talk
-          </div>
+type IFromIToolBoxTalk = Pick<IToolboxTalk, 'documentNo' | 'effectiveDate'>;
+type IFromIToolboxTalkVersion = Pick<
+  IToolboxTalkVersion,
+  'feedback' | 'uploadDate'
+>;
+type IFromIToolboxTalkVersionWithRevNo = Pick<
+  IToolboxTalkVersionWithRevNo,
+  'revNo'
+>;
 
-          <div className='flex-grow flex-col flex justify-around p-2 gap-2 '>
-            <div className='w-full flex justify-start items-center gap-3  flex-grow px-1'>
-              <p>Sheet No.:</p>
-              <p>XX PROGRAM</p>
-            </div>
-            <div className='w-full flex justify-start items-center gap-3  flex-grow px-1'>
-              <p>Revision No:</p>
-              <p>1</p>
-            </div>
-            <div className='w-full flex justify-start items-center gap-3  flex-grow px-1'>
-              <p>Effective Date:</p>
-              <p>XX PROGRAM</p>
-            </div>
-            <div className='w-full flex justify-start items-center gap-3  flex-grow px-1'>
-              <label htmlFor='documentNo'>Document No.:</label>
-              <input
-                id='documentNo'
-                type='text'
-                // {...register('documentNo')}
-                className='border-[1px] border-gray-400 text-gray-600 bg-gray-50 p-1 rounded'
+interface IFeedbackForm
+  extends IFromIToolBoxTalk,
+    IFromIToolboxTalkVersion,
+    IFromIToolboxTalkVersionWithRevNo {
+  updateFeedback: () => void;
+}
+
+const Feedback = forwardRef(
+  (
+    {
+      feedback = [{ answer: 'N/A', question: 'N/A' }],
+      documentNo = 'N/A',
+      revNo = -1,
+      effectiveDate,
+      uploadDate,
+      updateFeedback = async () => {
+        console.error(
+          'FRONTEND LOAD ERROR : running default update feedback function'
+        );
+        toast.error(
+          'FRONTEND LOAD ERROR : running default update feedback function'
+        );
+      },
+    }: IFeedbackForm,
+    ref
+  ) => {
+    const [feedbackData, setFeedbackData] = useState<IQA[]>(feedback); // Local state for feedback data
+
+    // Expose the local state to the parent component
+    useImperativeHandle(ref, () => ({
+      getFeedbackData: () => feedbackData, // Function to return the current feedback data
+    }));
+
+    // Stabilize the debounced function with useCallback
+    const debounceFeedbackUpdate = useCallback(
+      debounce(() => {
+        updateFeedback();
+      }, 400), // calling updateFeedback only after 0.4 sec user stops writing
+      []
+    );
+
+    // Call the debounced function whenever feedbackData changes
+    useEffect(() => {
+      debounceFeedbackUpdate();
+      return () => debounceFeedbackUpdate.cancel();
+    }, [feedbackData]);
+
+    // Handle input changes
+    const handleInputChange = (index, value) => {
+      const updatedFeedback = [...feedbackData];
+      updatedFeedback[index].answer = value;
+      setFeedbackData(updatedFeedback);
+    };
+
+    return (
+      <section className='mt-6'>
+        <form className='border-2 border-gray-500'>
+          <div className='flex border-b-2 border-gray-500 gap-2'>
+            {/* Form header */}
+            <div className='flex flex-grow p-2'>
+              <Image
+                src='/public/assets/dark-logo.png'
+                alt='logo'
+                width={100}
+                height={100}
               />
+              <h1>Enterprise management demo</h1>
             </div>
-            <div className='w-full flex justify-start items-center gap-3  flex-grow px-1'>
-              <p>Date:</p>
-              <p>XX PROGRAM</p>
+            <div className='border-x-2 border-gray-700 flex-grow flex justify-center items-center font-bold'>
+              Form & Formats <br />
+              Site Safety <br />
+              Feedback of Tool Box Talk
+            </div>
+            <div className='flex-grow flex-col flex justify-around p-2 gap-2'>
+              <div className='w-full flex justify-start items-center gap-3 flex-grow px-1'>
+                <p>Sheet No.:</p>
+                <p>XX PROGRAM</p>
+              </div>
+              <div className='w-full flex justify-start items-center gap-3 flex-grow px-1'>
+                <p>Revision No:</p>
+                <p>{revNo}</p>
+              </div>
+              <div className='w-full flex justify-start items-center gap-3 flex-grow px-1'>
+                <p>Effective Date:</p>
+                <p>{effectiveDate?.toLocaleDateString()}</p>
+              </div>
+              <div className='w-full flex justify-start items-center gap-3 flex-grow px-1'>
+                <p>Document No.:</p>
+                <p>{documentNo}</p>
+              </div>
+              <div className='w-full flex justify-start items-center gap-3 flex-grow px-1'>
+                <p>Date:</p>
+                <p>{uploadDate?.toLocaleDateString()}</p>
+              </div>
             </div>
           </div>
-        </div>
 
-        <div className='flex flex-col gap-4 mt-4 p-3'>
-          {feedbackData.map((qna, i) => (
-            <div key={qna.q} className='flex flex-col gap-1'>
-              <span className='flex gap-2'>
-                <p>{i + 1}</p>
-                <label>{qna.q}</label>
-              </span>
-              <textarea
-                value={qna.a}
-                className='border-[1px] border-gray-400 text-gray-600 bg-gray-50 p-1 rounded w-full'
-              />
-            </div>
-          ))}
-        </div>
-        <div className=' flex gap-8 mt-6 p-3'>
-          <div>
-            <label>Signature of Supervisor/Line Manager </label>
-            <p>______________________________</p>
+          <div className='flex flex-col gap-4 mt-4 p-3'>
+            {feedbackData.map((qna, i) => (
+              <div key={qna.question} className='flex flex-col gap-1'>
+                <span className='flex gap-2'>
+                  <p>{i + 1}</p>
+                  <label htmlFor={qna.question}>{qna.question}</label>
+                </span>
+                <textarea
+                  id={qna.question}
+                  defaultValue={qna.answer}
+                  onChange={(e) => handleInputChange(i, e.target.value)} // Update local state
+                  className='border-[1px] border-gray-400 text-gray-600 bg-gray-50 p-1 rounded w-full'
+                />
+              </div>
+            ))}
           </div>
-          <div>
-            <label>Dated </label>
-            <p>______________________________</p>
-          </div>
-        </div>
-      </form>
-      <div className='w-full justify-center items-center flex'>
-        <button
-          type='button'
-          className='bg-green-500 text-white px-4 py-2 rounded mt-2'
-        >
-          save{' '}
-        </button>
-      </div>
-    </section>
-  );
-};
+        </form>
+      </section>
+    );
+  }
+);
 
+Feedback.displayName = 'Feedback'; // Required for forwardRef
 export default Feedback;

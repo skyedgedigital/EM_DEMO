@@ -14,98 +14,12 @@ import {
   SupervisorNames,
 } from '@/lib/models/Safety/toolboxtalk.model';
 import { useForm, useFieldArray } from 'react-hook-form';
-// import { SupervisorNames } from '../../../lib/models/Safety/toolboxtalk.model';
 
-const superVisors: typeof SupervisorNames = [
-  'Company Supervisor',
-  'Line Manager',
-];
-const toolboxTalkExample: IToolboxTalk = {
-  documentNo: 'TBT-2024-001',
-  programName: 'Working at Heights Safety Program',
-  effectiveDate: new Date('2024-03-20'),
-  vendorCode: 'VENDOR123',
-  safetyRepresentative: 'John Smith',
-  contractorRepresentative: 'Mike Johnson',
-  currentVersion: 1,
-  versions: [
-    {
-      revNo: 1,
-      workOrderNo: new mongoose.Types.ObjectId('64f8c3e5d52a9b1c72a0b123'),
-      totalManPower: 25,
-      totalWorkers: 20,
-      totalEmployees: 23,
-      totalSafety: 2,
-      supervisor: 'Company Supervisor',
-      questions: [
-        {
-          question:
-            'Safety contact and review of action items from last meeting?',
-          answer:
-            'Falls, falling objects, weather conditions, unstable surfaces',
-        },
-        {
-          question: `Items of General Safety Importance to the Total Work Site:
-                (ask employees to mention any incidents/nearmiss during the past
-                day which may have resulted in damage to property or injury to
-                Company or Contractor personnel)?`,
-          answer:
-            'Safety harness, hard hat, safety shoes, high-visibility vest',
-        },
-        {
-          question: `Items of Safety Interest to this Group: (e.g. Red Stripes,
-                Orange stripes, Green stripe, safety alert tips safety
-                communications, hazards or safety conditions applicable to this
-                group's work area)?`,
-          answer:
-            'Safety harness, hard hat, safety shoes, high-visibility vest',
-        },
-        {
-          question: `Safety Message Hand Outs/circulars to be shared with contract employee?`,
-          answer:
-            'Safety harness, hard hat, safety shoes, high-visibility vest',
-        },
-      ],
-      records: [
-        {
-          actionBy: 'Inspect all safety harnesses',
-          when: 'Before each shift',
-          targetDate: new Date('2024-03-20'),
-          status: 'Completed',
-          item: 'Newly added item',
-        },
-        {
-          actionBy: 'Check weather conditions',
-          when: 'Every 2 hours',
-          targetDate: new Date('2024-03-20'),
-          status: 'In Progress',
-          item: 'Newly added item two',
-        },
-      ],
-      points: [
-        {
-          point: 'Always maintain three points of contact on ladders',
-          color: 'red',
-        },
-        {
-          point: 'Inspect all equipment before use',
-          color: 'yellow',
-        },
-        {
-          point: 'Report any safety concerns immediately',
-          color: 'green',
-        },
-      ],
-      uploadDate: new Date('2024-03-20'),
-      suggestion: 'Consider implementing a buddy system for height work',
-      feedback: 'Good participation from all attendees',
-      attendanceFileURL:
-        'https://storage.firebase.com/attendance-sheet-001.pdf',
-      siteFileURL: 'https://storage.firebase.com/site-photos-001.pdf',
-    },
-  ],
-};
-const AddToolBoxTalk = () => {
+const AddToolBoxTalk = ({
+  toolBoxTalkData,
+}: {
+  toolBoxTalkData: IToolboxTalk;
+}) => {
   // const [selectedDate, setSelectedDate] = useState('');
 
   // const [formData, setFormData] = useState({
@@ -304,7 +218,7 @@ const AddToolBoxTalk = () => {
 
   const { control, formState, register, reset, watch, handleSubmit } =
     useForm<IToolboxTalk>({
-      defaultValues: toolboxTalkExample,
+      defaultValues: toolBoxTalkData,
     });
 
   const { fields, append, remove } = useFieldArray({
@@ -442,7 +356,7 @@ const AddToolBoxTalk = () => {
                 className='border-[1px] border-gray-400 text-gray-600 bg-gray-50 p-1 rounded'
               >
                 {/* <option value='#'>select supervisor type</option> */}
-                {superVisors.map((sn) => (
+                {SupervisorNames.map((sn) => (
                   <option value={sn} key={sn}>
                     {sn}
                   </option>
@@ -480,7 +394,7 @@ const AddToolBoxTalk = () => {
           </p>
 
           <div className='flex flex-col gap-3'>
-            {toolboxTalkExample?.versions[0].questions.map((qna, index) => (
+            {toolBoxTalkData?.versions[0].questions.map((qna, index) => (
               <div key={qna.question} className='flex flex-col gap-2'>
                 <label className='font-semibold' htmlFor={qna.question}>
                   {qna.question}
@@ -600,16 +514,28 @@ const AddToolBoxTalk = () => {
             className='border-[1px] border-gray-500 bg-gray-50 p-1 rounded w-full'
           />
         </div>
-        <div className='flex justify-start  gap-1 px-3 items-start'>
+        {/* FEEDBACK HAS SEPERATE FORM */}
+        {/* <div className='flex justify-start  gap-1 px-3 items-start'>
           <label htmlFor='feedback' className='font-semibold'>
             Feedback:
           </label>
-          <textarea
-            id='feedback'
-            {...register('versions.0.feedback')}
-            className='border-[1px] border-gray-500 bg-gray-50 p-1 rounded w-full'
-          />
-        </div>
+          {toolboxTalkExample.versions[0].feedback.map((fedbk, qno) => (
+            <div key={fedbk.question}>
+              <label htmlFor={fedbk.question}>{fedbk.question} </label>
+              {fedbk.answer.map((ans, ano) => (
+                <>
+                  <p key={ans}>{ans}</p>
+                  <textarea
+                    id='feedback'
+                    {...register(`versions.${qno}.feedback.${ano}`)}
+                    className='border-[1px] border-gray-500 bg-gray-50 p-1 rounded w-full'
+                  />
+                </>
+              ))}
+              <p>{fedbk.answer}</p>
+            </div>
+          ))}
+        </div> */}
       </div>
     </section>
   );

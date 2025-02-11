@@ -1,7 +1,7 @@
 import mongoose, { Schema } from 'mongoose';
 export const SupervisorNames = ['Company Supervisor', 'Line Manager'] as const;
 export type SupervisorNamesTypes = (typeof SupervisorNames)[number];
-interface IQA {
+export interface IQA {
   question: string;
   answer?: string;
 }
@@ -26,7 +26,7 @@ interface IPoint {
   color?: string;
 }
 
-interface IAttendance {
+export interface IAttendance {
   permitNo: string;
   remarks?: string;
   attendanceFileURL: string;

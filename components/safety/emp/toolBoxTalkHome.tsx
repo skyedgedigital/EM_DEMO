@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+'use client';
+import React, { useEffect, useRef, useState } from 'react';
 import AddToolBoxTalk from './addToolBoxTalk';
 import ViewToolBoxTalk from './viewToolBoxTalk';
 import AttendanceUploads from './attendance';
@@ -6,15 +7,224 @@ import StripUploads from './strip';
 import SiteUploads from './site';
 import Feedback from './feedBack';
 import { DividerVerticalIcon } from '@radix-ui/react-icons';
+import mongoose from 'mongoose';
+import { IQA, IToolboxTalk } from '@/lib/models/Safety/toolboxtalk.model';
+import { IWorkOrderHr } from '@/lib/models/HR/workOrderHr.model';
+import WorkOrderHrAction from '@/lib/actions/HR/workOrderHr/workOrderAction';
+import toast from 'react-hot-toast';
+import { IAttendance } from '../../../lib/models/Safety/toolboxtalk.model';
 
+const toolboxTalkExample: IToolboxTalk = {
+  documentNo: 'TBT-2024-001',
+  programName: 'Working at Heights Safety Program',
+  effectiveDate: new Date('2024-03-20'),
+  vendorCode: 'VENDOR123',
+  safetyRepresentative: 'John Smith',
+  contractorRepresentative: 'Mike Johnson',
+  currentVersion: 1,
+  versions: [
+    {
+      revNo: 1,
+      workOrderNo: new mongoose.Types.ObjectId('64f8c3e5d52a9b1c72a0b123'),
+      totalManPower: 25,
+      totalWorkers: 20,
+      totalEmployees: 23,
+      totalSafety: 2,
+      supervisor: 'Company Supervisor',
+      questions: [
+        {
+          question:
+            'Safety contact and review of action items from last meeting?',
+          answer:
+            'Falls, falling objects, weather conditions, unstable surfaces',
+        },
+        {
+          question: `Items of General Safety Importance to the Total Work Site:
+                (ask employees to mention any incidents/nearmiss during the past
+                day which may have resulted in damage to property or injury to
+                Company or Contractor personnel)?`,
+          answer:
+            'Safety harness, hard hat, safety shoes, high-visibility vest',
+        },
+        {
+          question: `Items of Safety Interest to this Group: (e.g. Red Stripes,
+                Orange stripes, Green stripe, safety alert tips safety
+                communications, hazards or safety conditions applicable to this
+                group's work area)?`,
+          answer:
+            'Safety harness, hard hat, safety shoes, high-visibility vest',
+        },
+        {
+          question: `Safety Message Hand Outs/circulars to be shared with contract employee?`,
+          answer:
+            'Safety harness, hard hat, safety shoes, high-visibility vest',
+        },
+      ],
+      records: [
+        {
+          actionBy: 'Inspect all safety harnesses',
+          when: 'Before each shift',
+          targetDate: new Date('2024-03-20'),
+          status: 'Completed',
+          item: 'Newly added item',
+        },
+        {
+          actionBy: 'Check weather conditions',
+          when: 'Every 2 hours',
+          targetDate: new Date('2024-03-20'),
+          status: 'In Progress',
+          item: 'Newly added item two',
+        },
+      ],
+      points: [
+        {
+          point: 'Always maintain three points of contact on ladders',
+          color: 'red',
+        },
+        {
+          point: 'Inspect all equipment before use',
+          color: 'yellow',
+        },
+        {
+          point: 'Report any safety concerns immediately',
+          color: 'green',
+        },
+      ],
+      uploadDate: new Date('2024-03-20'),
+      suggestion: 'Consider implementing a buddy system for height work',
+      feedback: [
+        {
+          question: 'Feedback /Suggestion With Date and Signature',
+          answer: 'N/A',
+        },
+        {
+          question: 'Action/Compliance With Date and Signture ',
+          answer: 'N/A',
+        },
+        {
+          question: 'Informed To the Suggest or /Concerned Persons  ',
+          answer: 'N/A',
+        },
+        {
+          question: 'PDCA Staus.(PLAN - DO - CHECK-ACT)',
+          answer: 'N/A',
+        },
+      ],
+      siteFileURL: 'https://storage.firebase.com/site-photos-001.pdf',
+      uploadedBy: new mongoose.Types.ObjectId('64f8c3e5d52a9b1c72a0b123'),
+      attendance: {
+        permitNo: '2',
+        remarks: 'abc',
+        attendanceFileURL: 'uuyeg',
+      },
+    },
+  ],
+};
 const ToolBoxTalkHome = () => {
   const [activeTab, setActiveTab] = useState('add');
+  const [fetchedToolBoxData, setFetchedToolBoxData] =
+    useState<IToolboxTalk>(toolboxTalkExample);
+  const [allWorkOrderHr, setAllWorkOrderHr] = useState<
+    (IWorkOrderHr & { _id: mongoose.Types.ObjectId })[]
+  >([]);
+  const [selectedWorkOrderHr, setSelectedWorkOrderHr] = useState<
+    (IWorkOrderHr & { _id: mongoose.Types.ObjectId }) | null
+  >(null);
+
+  const feedbackRef = useRef(null);
+  const attendanceRef = useRef(null);
+
+  const fetchWorkOrderHr = async () => {
+    try {
+      const { data, error, message, status, success } =
+        await WorkOrderHrAction.FETCH.fetchAllValidWorkOrderHr();
+      if (success) {
+        const parsedWorkOrderHr = await JSON.parse(data);
+        setAllWorkOrderHr(parsedWorkOrderHr);
+      }
+      if (!success) {
+        toast.error(error);
+      }
+    } catch (error) {
+      toast.error(
+        error || 'Failed to fetch work order from HR, Please try later'
+      );
+    }
+  };
+  useEffect(() => {
+    fetchWorkOrderHr();
+  }, []);
+  useEffect(() => {
+    if (allWorkOrderHr.length > 0) {
+      const selectedWO = allWorkOrderHr.find(
+        (wo) => wo?._id === fetchedToolBoxData.versions[0].workOrderNo
+      );
+      if (selectedWO) setSelectedWorkOrderHr(selectedWO);
+    }
+  }, [allWorkOrderHr, fetchedToolBoxData]);
 
   const handleTabClick = (tab) => {
     setActiveTab(tab);
   };
+
+  // Callback to update attendance data
+  const updateAttendance = async () => {
+    // Get the updated feedback data from the child component
+    const updatedAttendance: IAttendance =
+      attendanceRef.current?.getFeedbackData();
+
+    console.log('UPDATED ATTENDANCE', updatedAttendance);
+    if (updatedAttendance) {
+      if (!updatedAttendance.attendanceFileURL) {
+        return toast.error('Attendance file is necessary');
+      }
+      setFetchedToolBoxData((prev) => ({
+        ...prev,
+        versions: [
+          {
+            ...prev.versions[0],
+            attendance: updatedAttendance,
+          },
+        ],
+      }));
+    }
+  };
+
+  //Callback to update feedback
+  const updateFeedback = () => {
+    const updatedFeedback = feedbackRef.current?.getFeedbackData();
+    console.log('UPDATED FEEDBACK', updatedFeedback);
+
+    if (updatedFeedback) {
+      // Update the parent state with the new feedback data
+      setFetchedToolBoxData((prevData) => ({
+        ...prevData,
+        versions: [
+          {
+            ...prevData.versions[0],
+            feedback: updatedFeedback,
+          },
+        ],
+      }));
+    }
+  };
+
+  // Callback to update site data
+  const updateSiteData = (updatedSiteData: any) => {};
+
+  // Save all changes to the server
+  const handleSave = async () => {
+    try {
+      console.log('SUBMITTED DATA', fetchedToolBoxData);
+    } catch (error) {
+      console.error('Error saving data:', error);
+    }
+  };
+
   return (
     <>
+      <div>{JSON.stringify(fetchedToolBoxData.versions[0].feedback)}</div>
+      <div>{JSON.stringify(fetchedToolBoxData.versions[0].attendance)}</div>
       <div className='mt-2'>
         <ul className='flex flex-wrap text-sm font-medium text-center text-gray-500 border-b border-gray-200 dark:border-gray-700 dark:text-gray-400'>
           <li className='me-2'>
@@ -97,13 +307,54 @@ const ToolBoxTalkHome = () => {
         </ul>
 
         <div className='tab-content'>
-          {activeTab === 'add' && <AddToolBoxTalk />}
-          {activeTab === 'view' && <ViewToolBoxTalk />}
-          {activeTab === 'att' && <AttendanceUploads />}
+          {activeTab === 'add' && (
+            <AddToolBoxTalk toolBoxTalkData={fetchedToolBoxData} />
+          )}
+          {activeTab === 'view' && (
+            <ViewToolBoxTalk toolBoxTalkData={fetchedToolBoxData} />
+          )}
+          {activeTab === 'att' && (
+            <AttendanceUploads
+              updateAttendance={updateAttendance}
+              effectiveDate={fetchedToolBoxData.effectiveDate}
+              documentNo={fetchedToolBoxData.documentNo}
+              revNo={fetchedToolBoxData.versions[0].revNo}
+              workOrderNumber={selectedWorkOrderHr?.workOrderNumber}
+              programName={fetchedToolBoxData.programName}
+              uploadDate={fetchedToolBoxData.versions[0].uploadDate}
+              permitNo={fetchedToolBoxData.versions[0].attendance.permitNo}
+              remarks={fetchedToolBoxData.versions[0].attendance.remarks}
+              contractorRepresentative={
+                fetchedToolBoxData.contractorRepresentative
+              }
+              vendorCode={fetchedToolBoxData.vendorCode}
+              attendanceFileURL={
+                fetchedToolBoxData.versions[0].attendance.attendanceFileURL
+              }
+              ref={attendanceRef}
+            />
+          )}
           {activeTab === 'strip' && <StripUploads />}
-          {activeTab === 'site' && <SiteUploads />}
-          {activeTab === 'feedback' && <Feedback />}
+          {activeTab === 'site' && (
+            <SiteUploads
+              toolBoxTalkDataSite={fetchedToolBoxData.versions[0].siteFileURL}
+              updateSiteData={updateSiteData}
+              documentNo={fetchedToolBoxData.documentNo}
+            />
+          )}
+          {activeTab === 'feedback' && (
+            <Feedback
+              feedback={fetchedToolBoxData.versions[0].feedback}
+              documentNo={fetchedToolBoxData.documentNo}
+              effectiveDate={fetchedToolBoxData.effectiveDate}
+              revNo={fetchedToolBoxData.versions[0].revNo}
+              uploadDate={fetchedToolBoxData.versions[0].uploadDate}
+              ref={feedbackRef}
+              updateFeedback={updateFeedback}
+            />
+          )}
         </div>
+        <button onClick={handleSave}>save</button>
       </div>
     </>
   );

@@ -177,7 +177,7 @@ export const getAllVersionsOfToolboxTalk = async (
   }
 };
 
-export const getNextToolboxtalkVersion = async (
+export const getNextToolboxTalkVersion = async (
   documentNo: string
 ): Promise<
   ApiResponse<{
