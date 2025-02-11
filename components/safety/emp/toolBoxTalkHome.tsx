@@ -1,5 +1,5 @@
 'use client';
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import AddToolBoxTalk from './addToolBoxTalk';
 import ViewToolBoxTalk from './viewToolBoxTalk';
 import AttendanceUploads from './attendance';
@@ -188,11 +188,16 @@ const ToolBoxTalkHome = () => {
   };
 
   // Callback to update attendance data
-  const updatedMainToolBoxTalk = () => {
-    const data: IToolboxTalk = mainToolBoxTalkRef.current?.getFeedbackData();
-    console.log('UPDATED MAIN DATA', data);
-    // setFetchedToolBoxData(() => data);
-  };
+  // const updateMainToolBoxTalk = () => {
+  //   const data: IToolboxTalk = mainToolBoxTalkRef.current?.getFeedbackData();
+  //   console.log('UPDATED MAIN DATA', data);
+  //   if (data) {
+  //     // setFetchedToolBoxData((prev) => ({ ...prev, ...data }));
+  //   }
+  // };
+  const updateMainToolBoxTalk = useCallback((updatedData: IToolboxTalk) => {
+    setFetchedToolBoxData((prev) => ({ ...prev, ...updatedData }));
+  }, []);
 
   // Callback to update attendance data
   const updateAttendance = async () => {
@@ -359,7 +364,7 @@ const ToolBoxTalkHome = () => {
             <AddToolBoxTalk
               ref={mainToolBoxTalkRef}
               toolBoxTalkData={fetchedToolBoxData}
-              updatedMainToolBoxTalk={updatedMainToolBoxTalk}
+              updateMainToolBoxTalk={updateMainToolBoxTalk}
             />
           )}
           {activeTab === 'view' && (

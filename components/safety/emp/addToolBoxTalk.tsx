@@ -35,13 +35,13 @@ type IFromIToolBoxTalk = Pick<
 
 interface IMainToolBoxTalk {
   toolBoxTalkData: IToolboxTalk;
-  updatedMainToolBoxTalk: () => void;
+  updateMainToolBoxTalk: (data: IToolboxTalk) => void;
 }
 const AddToolBoxTalk = forwardRef(
   (
     {
       toolBoxTalkData,
-      updatedMainToolBoxTalk = () => {
+      updateMainToolBoxTalk = () => {
         console.error(
           'FRONTEND LOAD ERROR : running default update tool box talk main form function'
         );
@@ -64,16 +64,30 @@ const AddToolBoxTalk = forwardRef(
 
     const formData = watch(); // Get current form values
     // Expose the form state to the parent component
-    useImperativeHandle(ref, () => ({
-      getFeedbackData: () => {
-        console.log('from imperative', formData);
-        return formData;
-      }, // Function to return the current form data
-    }));
+    // useImperativeHandle(ref, () => ({
+    //   getFeedbackData: () => {
+    //     console.log('from imperative', formData);
+    //     return formData;
+    //   }, // Function to return the current form data
+    // }));
+    // Debounced function to update parent state
+    const debouncedUpdate =
+      // useCallback(
+      debounce((data: IToolboxTalk) => {
+        updateMainToolBoxTalk(data);
+      }, 500); // 500ms delay
+    // [updateMainToolBoxTalk]
+    // );
 
+    // Update parent state whenever form data changes
     useEffect(() => {
-      updatedMainToolBoxTalk();
-    }, [formState.defaultValues]);
+      debouncedUpdate(formData);
+      return () => debouncedUpdate.cancel(); // Cleanup debounce on unmount
+    }, [formData]);
+
+    // useEffect(() => {
+    //   updatedMainToolBoxTalk();
+    // }, [formData]);
 
     const addNewRow = () => {
       append({
@@ -91,7 +105,7 @@ const AddToolBoxTalk = forwardRef(
     return (
       <section className='m-8 rounded'>
         {/* boundary */}
-        {/* <div>{JSON.stringify(formData)}</div> */}
+        <div>{JSON.stringify(formData)}</div>
         <form
           onSubmit={handleSubmit(onSubmit)}
           className='border-2 border-black py-1 flex flex-col gap-2'
