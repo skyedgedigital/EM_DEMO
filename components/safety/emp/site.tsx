@@ -23,7 +23,6 @@ import { FaSpinner } from 'react-icons/fa6';
 import { IEnterpriseBase } from '@/interfaces/enterprise.interface';
 import logo from '@/public/assets/dark-logo.png';
 
-
 type IFromIToolboxTalkFields = Pick<
   IToolboxTalk,
   | 'programName'
@@ -71,6 +70,8 @@ const SiteUploads = forwardRef(
     }: IAttendanceForm,
     ref
   ) => {
+    console.log('SiteUploads');
+
     const [file, setFile] = useState(null);
     const [uploading, setUploading] = useState<boolean>(false);
     const [siteFileUrl, setSitFileUrl] = useState<TSiteFileUrl>({

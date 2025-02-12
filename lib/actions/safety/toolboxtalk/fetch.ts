@@ -7,7 +7,7 @@ import ToolboxTalkModel, {
   IToolboxTalkVersion,
 } from '@/lib/models/Safety/toolboxtalk.model';
 
-interface CurrentVersionToolboxTalk {
+export interface ICurrentVersionToolboxTalk {
   documentNo: string;
   programName?: string;
   effectiveDate: Date;
@@ -18,7 +18,7 @@ interface CurrentVersionToolboxTalk {
 }
 
 export const fetchCurrentVersionOfAllToolboxTalk = async (): Promise<
-  ApiResponse<CurrentVersionToolboxTalk[]>
+  ApiResponse<ICurrentVersionToolboxTalk[]>
 > => {
   try {
     const dbConnection = await handleDBConnection();
@@ -83,7 +83,7 @@ export const getCurrentToolboxTalk = async (
       throw new Error('No versions of this document exist');
     }
 
-    // const data: CurrentVersionToolboxTalk & IToolboxTalkVersion = {
+    // const data: ICurrentVersionToolboxTalk & IToolboxTalkVersion = {
     //   documentNo: currentDocument.documentNo,
     //   currentVersion: currentDocument.currentVersion,
     //   effectiveDate: currentDocument.effectiveDate,
@@ -149,20 +149,16 @@ export const getAllVersionsOfToolboxTalk = async (
       throw new Error(`provide valid document no`);
     }
 
-    const document = await ToolboxTalkModel.findOne({ documentNo });
+    const document = await ToolboxTalkModel.findOne({ documentNo }).lean();
     if (!document) {
       throw new Error(`No document exist for documentNumber: ${documentNo}`);
     }
-
-    const data = { ...document };
-    delete data.__v;
-    delete data._id;
-
+    
     return {
       success: true,
       status: 200,
       message: 'data fetched successfully',
-      data,
+      data: document,
       error: null,
     };
   } catch (error) {

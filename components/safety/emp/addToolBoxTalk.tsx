@@ -3,15 +3,10 @@ import React, {
   useCallback,
   useEffect,
   useImperativeHandle,
-  useState,
+  useRef,
 } from 'react';
-import jsPDF from 'jspdf';
 import 'jspdf-autotable';
-import * as XLSX from 'xlsx';
-import { storage } from '@/utils/fireBase/config';
-import { getDownloadURL, ref, uploadBytesResumable } from 'firebase/storage';
 import toast from 'react-hot-toast';
-import toolBoxTalkAction from '@/lib/actions/SafetyEmp/daily/toolBoxTalk/toolBoxTalkAction';
 import Image from 'next/image';
 import mongoose from 'mongoose';
 import {
@@ -19,7 +14,7 @@ import {
   RecordStatusNames,
   SupervisorNames,
 } from '@/lib/models/Safety/toolboxtalk.model';
-import { useForm, useFieldArray, FormState } from 'react-hook-form';
+import { useForm, useFieldArray } from 'react-hook-form';
 import { debounce } from 'lodash';
 import { IWorkOrderHr } from '@/lib/models/HR/workOrderHr.model';
 import { IEnterpriseBase } from '@/interfaces/enterprise.interface';
@@ -27,9 +22,11 @@ import logo from '@/public/assets/dark-logo.png';
 
 interface IMainToolBoxTalk {
   toolBoxTalkData: IToolboxTalk;
-  updateMainToolBoxTalk: (data: IToolboxTalk) => void;
+  updateMainToolBoxTalk: () => void;
+  // updateMainToolBoxTalk: (data: IToolboxTalk) => void;
   workOrderHr: (IWorkOrderHr & { _id: mongoose.Types.ObjectId })[];
   enterPriseInfo: IEnterpriseBase;
+  canEditImportantDetails?: boolean;
 }
 const AddToolBoxTalk = forwardRef(
   (
@@ -45,9 +42,12 @@ const AddToolBoxTalk = forwardRef(
       },
       workOrderHr,
       enterPriseInfo,
+      canEditImportantDetails = true,
     }: IMainToolBoxTalk,
     ref
   ) => {
+    console.log('AddToolBoxTalk');
+
     const { control, formState, register, reset, watch, handleSubmit } =
       useForm<IToolboxTalk>({
         defaultValues: toolBoxTalkData,
@@ -60,30 +60,18 @@ const AddToolBoxTalk = forwardRef(
 
     const formData = watch(); // Get current form values
     // Expose the form state to the parent component
-    // useImperativeHandle(ref, () => ({
-    //   getFeedbackData: () => {
-    //     console.log('from imperative', formData);
-    //     return formData;
-    //   }, // Function to return the current form data
-    // }));
-    // Debounced function to update parent state
-    const debouncedUpdate =
-      // useCallback(
-      debounce((data: IToolboxTalk) => {
-        updateMainToolBoxTalk(data);
-      }, 500); // 500ms delay
-    // [updateMainToolBoxTalk]
-    // );
+    useImperativeHandle(ref, () => ({
+      getFeedbackData: () => {
+        console.log('from imperative', formData);
+        return formData;
+      }, // Function to return the current form data
+    }));
 
-    // Update parent state whenever form data changes
-    useEffect(() => {
-      debouncedUpdate(formData);
-      return () => debouncedUpdate.cancel(); // Cleanup debounce on unmount
-    }, [formData]);
-
-    // useEffect(() => {
-    //   updatedMainToolBoxTalk();
-    // }, [formData]);
+    const debouncedUpdate = debounce(() => {
+      updateMainToolBoxTalk();
+      cancelDebounce();
+    }, 300); // 300ms delay
+    const cancelDebounce = () => debouncedUpdate.cancel();
 
     const addNewRow = () => {
       append({
@@ -93,19 +81,19 @@ const AddToolBoxTalk = forwardRef(
         targetDate: new Date(),
         status: 'Issued',
       });
-    };
-    const onSubmit = (data) => {
-      console.log('MAIN DATA', data);
+      debouncedUpdate();
     };
 
     return (
       <section className='m-8 rounded'>
         {/* boundary */}
         {/* <div>{JSON.stringify(formData)}</div> */}
-        <form
-          onSubmit={handleSubmit(onSubmit)}
-          className='border-2 border-black py-1 flex flex-col gap-2'
-        >
+        <div>
+          {' '}
+          canEditImportantDetails: {JSON.stringify(canEditImportantDetails)}
+        </div>
+
+        <form className='border-2 border-black py-1 flex flex-col gap-2'>
           {/* log0 & all top */}
           <div className='grid grid-cols-3'>
             {/* two section */}
@@ -129,7 +117,10 @@ const AddToolBoxTalk = forwardRef(
                   <input
                     id='programName'
                     type='text'
-                    {...register('programName', { required: true })}
+                    {...register('programName', {
+                      required: true,
+                      onChange: debouncedUpdate,
+                    })}
                     className='border-[1px] border-gray-400 text-gray-600 bg-gray-50 p-1 rounded'
                   />{' '}
                 </div>
@@ -139,7 +130,10 @@ const AddToolBoxTalk = forwardRef(
                   </label>
                   <select
                     id='workOrder'
-                    {...register('versions.0.workOrderNo', { required: true })}
+                    {...register('versions.0.workOrderNo', {
+                      required: true,
+                      onChange: debouncedUpdate,
+                    })}
                     className='border-[1px] border-gray-400 text-gray-600 bg-gray-50 p-1 rounded'
                   >
                     <option value={null}>select work order</option>
@@ -161,7 +155,9 @@ const AddToolBoxTalk = forwardRef(
                   <input
                     id='safetyRepresentative'
                     type='text'
-                    {...register('safetyRepresentative')}
+                    {...register('safetyRepresentative', {
+                      onChange: debouncedUpdate,
+                    })}
                     className='border-[1px] border-gray-400 text-gray-600 bg-gray-50 p-1 rounded'
                   />
                 </div>
@@ -172,7 +168,9 @@ const AddToolBoxTalk = forwardRef(
                   <input
                     id='contractorRepresentative'
                     type='text'
-                    {...register('contractorRepresentative')}
+                    {...register('contractorRepresentative', {
+                      onChange: debouncedUpdate,
+                    })}
                     className='border-[1px] border-gray-400 text-gray-600 bg-gray-50 p-1 rounded'
                   />
                 </div>
@@ -196,7 +194,10 @@ const AddToolBoxTalk = forwardRef(
                 <input
                   id='documentNo'
                   type='text'
-                  {...register('documentNo')}
+                  {...register('documentNo', {
+                    onChange: debouncedUpdate,
+                    disabled: !canEditImportantDetails,
+                  })}
                   className='border-[1px] border-gray-400 text-gray-600 bg-gray-50 p-1 rounded'
                 />
               </div>
@@ -211,18 +212,14 @@ const AddToolBoxTalk = forwardRef(
               <div className='w-full flex justify-start items-center gap-3  flex-grow px-1'>
                 <p>Vendor Code:</p>
                 <p>{toolBoxTalkData.vendorCode}</p>
-                {/* <input
-                id='vendorCode'
-                type='text'
-                {...register('vendorCode')}
-                className='border-[1px] border-gray-400 text-gray-600 bg-gray-50 p-1 rounded'
-              /> */}
               </div>
               <div className='w-full flex justify-start items-center gap-3  flex-grow px-1'>
                 <p>Company Supervisor /Line Manager:</p>
                 <select
-                  defaultValue={formData.versions[0].supervisor}
-                  {...register('versions.0.supervisor')}
+                  // defaultValue={formData.versions[0].supervisor}
+                  {...register('versions.0.supervisor', {
+                    onChange: debouncedUpdate,
+                  })}
                   className='border-[1px] border-gray-400 text-gray-600 bg-gray-50 p-1 rounded'
                 >
                   {/* <option value='#'>select supervisor type</option> */}
@@ -244,6 +241,7 @@ const AddToolBoxTalk = forwardRef(
                 type='text'
                 {...register('versions.0.totalManPower', {
                   valueAsNumber: true,
+                  onChange: debouncedUpdate,
                 })}
                 className='border-[1px] border-gray-400 text-gray-600 bg-gray-50 p-1 rounded'
               />
@@ -256,6 +254,7 @@ const AddToolBoxTalk = forwardRef(
                 type='number'
                 {...register('versions.0.totalWorkers', {
                   valueAsNumber: true,
+                  onChange: debouncedUpdate,
                 })}
                 className='border-[1px] border-gray-400 text-gray-600 bg-gray-50 p-1 rounded'
               />
@@ -268,6 +267,7 @@ const AddToolBoxTalk = forwardRef(
                 type='number'
                 {...register('versions.0.totalSupervisors', {
                   valueAsNumber: true,
+                  onChange: debouncedUpdate,
                 })}
                 className='border-[1px] border-gray-400 text-gray-600 bg-gray-50 p-1 rounded'
               />
@@ -280,6 +280,7 @@ const AddToolBoxTalk = forwardRef(
                 type='number'
                 {...register('versions.0.totalEngineers', {
                   valueAsNumber: true,
+                  onChange: debouncedUpdate,
                 })}
                 className='border-[1px] border-gray-400 text-gray-600 bg-gray-50 p-1 rounded'
               />
@@ -290,7 +291,10 @@ const AddToolBoxTalk = forwardRef(
               <input
                 id='totalSafety'
                 type='number'
-                {...register('versions.0.totalSafety', { valueAsNumber: true })}
+                {...register('versions.0.totalSafety', {
+                  valueAsNumber: true,
+                  onChange: debouncedUpdate,
+                })}
                 className='border-[1px] border-gray-400 text-gray-600 bg-gray-50 p-1 rounded'
               />
             </span>
@@ -309,7 +313,9 @@ const AddToolBoxTalk = forwardRef(
                   </label>
                   <textarea
                     id={qna.question}
-                    {...register(`versions.0.questions.${index}.answer`)}
+                    {...register(`versions.0.questions.${index}.answer`, {
+                      onChange: debouncedUpdate,
+                    })}
                     className='border-[1px] border-gray-400 text-gray-600 bg-gray-50 p-1 rounded h-fit'
                   />
                 </div>
@@ -350,21 +356,27 @@ const AddToolBoxTalk = forwardRef(
                       <td className='border-[1px] border-gray-500 py-1 px-2'>
                         <input
                           type='text'
-                          {...register(`versions.0.records.${index}.item`)}
+                          {...register(`versions.0.records.${index}.item`, {
+                            onChange: debouncedUpdate,
+                          })}
                           className='border-[1px] border-gray-400 text-gray-600 bg-gray-50 p-1 rounded w-full'
                         />
                       </td>
                       <td className='border-[1px] border-gray-500 py-1 px-2'>
                         <input
                           type='text'
-                          {...register(`versions.0.records.${index}.actionBy`)}
+                          {...register(`versions.0.records.${index}.actionBy`, {
+                            onChange: debouncedUpdate,
+                          })}
                           className='border-[1px] border-gray-400 text-gray-600 bg-gray-50 p-1 rounded w-full'
                         />
                       </td>
                       <td className='border-[1px] border-gray-500 py-1 px-2'>
                         <input
                           type='text'
-                          {...register(`versions.0.records.${index}.when`)}
+                          {...register(`versions.0.records.${index}.when`, {
+                            onChange: debouncedUpdate,
+                          })}
                           className='border-[1px] border-gray-400 text-gray-600 bg-gray-50 p-1 rounded w-full'
                         />
                       </td>
@@ -372,14 +384,17 @@ const AddToolBoxTalk = forwardRef(
                         <input
                           type='text'
                           {...register(
-                            `versions.0.records.${index}.targetDate`
+                            `versions.0.records.${index}.targetDate`,
+                            { onChange: debouncedUpdate }
                           )}
                           className='border-[1px] border-gray-400 text-gray-600 bg-gray-50 p-1 rounded w-full'
                         />
                       </td>
                       <td className='border-[1px] border-gray-500 py-1 px-2'>
                         <select
-                          {...register(`versions.0.records.${index}.status`)}
+                          {...register(`versions.0.records.${index}.status`, {
+                            onChange: debouncedUpdate,
+                          })}
                           className='border-[1px] border-gray-400 text-gray-600 bg-gray-50 p-1 rounded'
                         >
                           {/* <option value='#'>select supervisor type</option> */}
@@ -420,7 +435,9 @@ const AddToolBoxTalk = forwardRef(
             </label>
             <textarea
               id='suggestion'
-              {...register('versions.0.suggestion')}
+              {...register('versions.0.suggestion', {
+                onChange: debouncedUpdate,
+              })}
               className='border-[1px] border-gray-500 bg-gray-50 p-1 rounded w-full'
             />
           </div>

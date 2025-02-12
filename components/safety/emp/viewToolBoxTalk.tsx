@@ -1,27 +1,34 @@
-import PpeAction from '@/lib/actions/ppe/ppeAction';
+'use client';
 import toolBoxTalkAction from '@/lib/actions/SafetyEmp/daily/toolBoxTalk/toolBoxTalkAction';
-import SafetyToolsAction from '@/lib/actions/safetyTools/safetyToolsAction';
 import React, { useEffect, useState } from 'react';
 import toast from 'react-hot-toast';
-import { IToolboxTalk } from '../../../lib/models/Safety/toolboxtalk.model';
+import { ICurrentVersionToolboxTalk } from '@/lib/actions/safety/toolboxtalk/fetch';
+import toolboxTalkActions from '@/lib/actions/safety/toolboxtalk/toolboxtalkActions';
+import Link from 'next/link';
 
-const ViewToolBoxTalk = ({
-  toolBoxTalkData,
-}: {
-  toolBoxTalkData: IToolboxTalk;
-}) => {
-  const [result, setResult] = useState([]);
+const ViewToolBoxTalk = () => {
+  console.log('ViewToolBox');
+
+  const [allToolBoxTalkDocs, setAllToolBoxTalkDocs] =
+    useState<ICurrentVersionToolboxTalk[]>();
+
+  const fetchDocs = async () => {
+    const { data, error, message, status, success } =
+      await toolboxTalkActions.FETCH.fetchCurrentVersionOfAllToolboxTalk();
+    if (success) {
+      toast.success(message);
+      console.log(data);
+      setAllToolBoxTalkDocs(data);
+    }
+    if (!success) {
+      console.log(error);
+      toast.error(message);
+    }
+  };
   useEffect(() => {
-    const fn = async () => {
-      const resp = await toolBoxTalkAction.FETCH.fetchAllToolBoxTalk();
-      console.warn(resp);
-      if (resp.data) {
-        setResult(JSON.parse(resp.data));
-      }
-    };
-    fn();
+    fetchDocs();
   }, []);
-  
+
   const handleDelete = async (id: any) => {
     const resp = await toolBoxTalkAction.DELETE.deleteToolBoxTalk(id);
     if (resp.success) {
@@ -32,11 +39,11 @@ const ViewToolBoxTalk = ({
   };
   return (
     <>
-      {result && (
+      {allToolBoxTalkDocs && (
         <>
-          <div className='flex flex-col items-center justify-center mt-6'>
-            <h2 className='text-3xl'>List Of Tool Box Forms</h2>
-            {result.length === 0 && (
+          <div className='flex flex-col items-center justify-center'>
+            <h2 className='text-2xl my-4'>List Of Tool Box Forms</h2>
+            {allToolBoxTalkDocs.length === 0 && (
               <span className='mt-4'>No Audit Present</span>
             )}
             <table className='min-w-full divide-y divide-gray-200'>
@@ -52,7 +59,13 @@ const ViewToolBoxTalk = ({
                     scope='col'
                     className='px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider'
                   >
-                    rev No:
+                    Program Name
+                  </th>
+                  <th
+                    scope='col'
+                    className='px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider'
+                  >
+                    Rev No:
                   </th>
                   <th
                     scope='col'
@@ -60,12 +73,7 @@ const ViewToolBoxTalk = ({
                   >
                     Date
                   </th>
-                  <th
-                    scope='col'
-                    className='px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider'
-                  >
-                    Link
-                  </th>
+
                   <th
                     scope='col'
                     className='px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider'
@@ -75,32 +83,30 @@ const ViewToolBoxTalk = ({
                 </tr>
               </thead>
               <tbody className='bg-white divide-y divide-gray-200'>
-                {result.map((ele) => (
-                  <tr key={ele._id} className='hover:bg-gray-100'>
+                {allToolBoxTalkDocs.map((ele) => (
+                  <tr key={ele.documentNo} className='hover:bg-gray-100'>
                     <td className='px-6 py-4 whitespace-nowrap'>
-                      {ele.sheetNo}
+                      {ele.documentNo}
                     </td>
-                    <td className='px-6 py-4 whitespace-nowrap'>{ele.revNo}</td>
-
-                    <td className='px-6 py-4 whitespace-nowrap'>{ele.date}</td>
-
                     <td className='px-6 py-4 whitespace-nowrap'>
-                      <a
-                        href={ele.link}
-                        target='__blank'
-                        className='text-blue-500'
-                      >
-                        Link
-                      </a>
+                      {ele.programName}
                     </td>
-
                     <td className='px-6 py-4 whitespace-nowrap'>
-                      <button
-                        onClick={() => handleDelete(ele._id)}
-                        className='text-red-600 hover:text-red-900'
+                      {ele.currentVersion}
+                    </td>
+                    <td className='px-6 py-4 whitespace-nowrap'>
+                      {ele.effectiveDate.toLocaleDateString()}
+                    </td>
+                    <td className='px-6 py-4 whitespace-nowrap'>
+                      <Link
+                        target='_blank'
+                        href={`/safety/emp/toolbaxtalk?${new URLSearchParams({
+                          documentNo: ele.documentNo,
+                        }).toString()}`}
+                        className='text-blue-500 p-1'
                       >
-                        Delete
-                      </button>
+                        View
+                      </Link>
                     </td>
                   </tr>
                 ))}

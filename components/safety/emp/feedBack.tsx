@@ -16,7 +16,7 @@ import Image from 'next/image';
 import toast from 'react-hot-toast';
 import { debounce } from 'lodash';
 import { IEnterpriseBase } from '@/interfaces/enterprise.interface';
-import logo from '@/public/assets/dark-logo.png'
+import logo from '@/public/assets/dark-logo.png';
 
 type IFromIToolBoxTalk = Pick<IToolboxTalk, 'documentNo' | 'effectiveDate'>;
 type IFromIToolboxTalkVersion = Pick<
@@ -56,6 +56,7 @@ const Feedback = forwardRef(
     }: IFeedbackForm,
     ref
   ) => {
+    console.log('feedback');
     const [feedbackData, setFeedbackData] = useState<IQA[]>(feedback); // Local state for feedback data
 
     // Expose the local state to the parent component

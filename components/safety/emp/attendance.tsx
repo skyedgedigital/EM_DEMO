@@ -74,6 +74,8 @@ const AttendanceUploads = forwardRef(
     }: IAttendanceForm,
     ref
   ) => {
+    console.log('AttendanceUpload');
+
     const [file, setFile] = useState(null);
     const [uploading, setUploading] = useState<boolean>(false);
     const [attendanceData, setAttendanceData] = useState<IAttendance>({

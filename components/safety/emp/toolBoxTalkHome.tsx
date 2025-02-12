@@ -13,7 +13,6 @@ import { IWorkOrderHr } from '@/lib/models/HR/workOrderHr.model';
 import WorkOrderHrAction from '@/lib/actions/HR/workOrderHr/workOrderAction';
 import toast from 'react-hot-toast';
 import { IAttendance } from '../../../lib/models/Safety/toolboxtalk.model';
-import { FormState } from 'react-hook-form';
 import { useSession } from 'next-auth/react';
 import { createToolboxTalk } from '@/lib/actions/safety/toolboxtalk/create';
 import { IEnterpriseBase } from '@/interfaces/enterprise.interface';
@@ -126,11 +125,21 @@ const toolboxTalkExample: IToolboxTalk = {
     },
   ],
 };
-const ToolBoxTalkHome = () => {
+
+interface IToolBoxTalkHome {
+  receivedToolBoxTalk?: IToolboxTalk | null;
+  canEditImportantDetails?: boolean;
+}
+const ToolBoxTalkHome = ({
+  receivedToolBoxTalk = null,
+  canEditImportantDetails = true,
+}: IToolBoxTalkHome) => {
+  console.log('ToolBoxTalkHome');
   const session = useSession();
   const [activeTab, setActiveTab] = useState('add');
-  const [fetchedToolBoxData, setFetchedToolBoxData] =
-    useState<IToolboxTalk>(toolboxTalkExample);
+  const [fetchedToolBoxData, setFetchedToolBoxData] = useState<IToolboxTalk>(
+    receivedToolBoxTalk || toolboxTalkExample
+  );
   const [allWorkOrderHr, setAllWorkOrderHr] = useState<
     (IWorkOrderHr & { _id: mongoose.Types.ObjectId })[]
   >([]);
@@ -168,7 +177,7 @@ const ToolBoxTalkHome = () => {
   useEffect(() => {
     const fn = async () => {
       const resp = await fetchEnterpriseInfo();
-      console.log('response we got ', resp);
+      // console.log('response we got ', resp);
       if (resp.data) {
         const inf = await JSON.parse(resp.data);
         setEnterpriseInfo(inf);
@@ -188,6 +197,10 @@ const ToolBoxTalkHome = () => {
       if (success) {
         const parsedWorkOrderHr = await JSON.parse(data);
         setAllWorkOrderHr(parsedWorkOrderHr);
+        const selectedWO = parsedWorkOrderHr.find(
+          (wo) => wo?._id === fetchedToolBoxData.versions[0].workOrderNo
+        );
+        if (selectedWO) setSelectedWorkOrderHr(selectedWO);
       }
       if (!success) {
         toast.error(error);
@@ -201,33 +214,20 @@ const ToolBoxTalkHome = () => {
   useEffect(() => {
     fetchWorkOrderHr();
   }, []);
-  useEffect(() => {
-    if (allWorkOrderHr.length > 0) {
-      const selectedWO = allWorkOrderHr.find(
-        (wo) => wo?._id === fetchedToolBoxData.versions[0].workOrderNo
-      );
-      if (selectedWO) setSelectedWorkOrderHr(selectedWO);
-    }
-  }, [allWorkOrderHr, fetchedToolBoxData]);
 
   const handleTabClick = (tab) => {
     setActiveTab(tab);
   };
 
-  // Callback to update attendance data
-  // const updateMainToolBoxTalk = () => {
-  //   const data: IToolboxTalk = mainToolBoxTalkRef.current?.getFeedbackData();
-  //   console.log('UPDATED MAIN DATA', data);
-  //   if (data) {
-  //     // setFetchedToolBoxData((prev) => ({ ...prev, ...data }));
-  //   }
-  // };
-  const updateMainToolBoxTalk = useCallback((updatedData: IToolboxTalk) => {
-    if (session && session?.data?.user._id)
-      updatedData.versions[0].uploadedBy = new mongoose.Types.ObjectId(
-        session.data.user._id
-      );
-    setFetchedToolBoxData((prev) => ({ ...prev, ...updatedData }));
+  const updateMainToolBoxTalk = useCallback(() => {
+    const data: IToolboxTalk = mainToolBoxTalkRef.current?.getFeedbackData();
+    console.log('UPDATED MAIN TOOL BOX TALK', data);
+    if (data) {
+      setFetchedToolBoxData((prev) => ({
+        ...prev,
+        ...data,
+      }));
+    }
   }, []);
 
   // Callback to update attendance data
@@ -324,11 +324,12 @@ const ToolBoxTalkHome = () => {
         suggestion,
       } = versions[0];
       if (
-        !attendance.attendanceFileURL ||
-        !workOrderNo ||
-        !programName ||
-        !documentNo ||
-        !vendorCode
+        canEditImportantDetails &&
+        (!attendance.attendanceFileURL ||
+          !workOrderNo ||
+          !programName ||
+          !documentNo ||
+          !vendorCode)
       ) {
         return toast.error('Please fill all required(*) fields');
       }
@@ -384,7 +385,10 @@ const ToolBoxTalkHome = () => {
       {/* <div>{JSON.stringify(fetchedToolBoxData.versions[0].feedback)}</div>
       <div>{JSON.stringify(fetchedToolBoxData.versions[0].attendance)}</div>
       <div>{JSON.stringify(fetchedToolBoxData.versions[0].siteFileURL)}</div> */}
-      {/* <div>{JSON.stringify(fetchedToolBoxData)}</div> */}
+      <div>{JSON.stringify(fetchedToolBoxData)}</div>
+      <div>
+        canEditImportantDetails:{JSON.stringify(canEditImportantDetails)}
+      </div>
       <div className='mt-2'>
         <ul className='flex flex-wrap text-sm font-medium text-center text-gray-500 border-b border-gray-200 dark:border-gray-700 dark:text-gray-400'>
           <li className='me-2'>
@@ -467,10 +471,13 @@ const ToolBoxTalkHome = () => {
         </ul>
 
         <div className='tab-content'>
-          <p className='w-full text-center my-2 text-gray-500'>
-            Note: Attendances photo, Program Name, Work Order Number & Document
-            Number are Required fields
-          </p>
+          {' '}
+          {activeTab !== 'view' && (
+            <p className='w-full text-center my-2 text-gray-500'>
+              Note: Attendances photo, Program Name, Work Order Number &
+              Document Number are Required fields
+            </p>
+          )}
           {activeTab === 'add' && (
             <AddToolBoxTalk
               ref={mainToolBoxTalkRef}
@@ -478,11 +485,11 @@ const ToolBoxTalkHome = () => {
               updateMainToolBoxTalk={updateMainToolBoxTalk}
               workOrderHr={allWorkOrderHr}
               enterPriseInfo={enterPriseInfo}
+              canEditImportantDetails={canEditImportantDetails}
+              // {...fetchedToolBoxData}
             />
           )}
-          {activeTab === 'view' && (
-            <ViewToolBoxTalk toolBoxTalkData={fetchedToolBoxData} />
-          )}
+          {activeTab === 'view' && <ViewToolBoxTalk />}
           {activeTab === 'att' && (
             <AttendanceUploads
               updateAttendance={updateAttendance}
@@ -537,12 +544,14 @@ const ToolBoxTalkHome = () => {
           )}
         </div>
         <div className='w-full flex flex-col justify-center items-center'>
-          <button
-            onClick={handleSave}
-            className='bg-green-500 rounded px-4 py-1 mb-10 text-white font-semibold shadow hover:scale-[101%]'
-          >
-            Save Data
-          </button>
+          {activeTab !== 'view' && (
+            <button
+              onClick={handleSave}
+              className='bg-green-500 rounded px-4 py-1 mb-10 text-white font-semibold shadow hover:scale-[101%]'
+            >
+              Save Data
+            </button>
+          )}
         </div>
       </div>
     </>
