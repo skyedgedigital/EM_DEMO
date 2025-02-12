@@ -1,10 +1,4 @@
-import React, {
-  forwardRef,
-  useCallback,
-  useEffect,
-  useImperativeHandle,
-  useRef,
-} from 'react';
+import React, { forwardRef, useImperativeHandle } from 'react';
 import 'jspdf-autotable';
 import toast from 'react-hot-toast';
 import Image from 'next/image';
@@ -23,10 +17,10 @@ import logo from '@/public/assets/dark-logo.png';
 interface IMainToolBoxTalk {
   toolBoxTalkData: IToolboxTalk;
   updateMainToolBoxTalk: () => void;
-  // updateMainToolBoxTalk: (data: IToolboxTalk) => void;
   workOrderHr: (IWorkOrderHr & { _id: mongoose.Types.ObjectId })[];
   enterPriseInfo: IEnterpriseBase;
   canEditImportantDetails?: boolean;
+  canEditAllDetails?: boolean;
 }
 const AddToolBoxTalk = forwardRef(
   (
@@ -43,6 +37,7 @@ const AddToolBoxTalk = forwardRef(
       workOrderHr,
       enterPriseInfo,
       canEditImportantDetails = true,
+      canEditAllDetails = true,
     }: IMainToolBoxTalk,
     ref
   ) => {
@@ -89,8 +84,8 @@ const AddToolBoxTalk = forwardRef(
         {/* boundary */}
         {/* <div>{JSON.stringify(formData)}</div> */}
         <div>
-          {' '}
-          canEditImportantDetails: {JSON.stringify(canEditImportantDetails)}
+          canEditImportantDetails:{JSON.stringify(canEditImportantDetails)}
+          canEditAllDetails:{JSON.stringify(canEditAllDetails)}
         </div>
 
         <form className='border-2 border-black py-1 flex flex-col gap-2'>
@@ -120,6 +115,7 @@ const AddToolBoxTalk = forwardRef(
                     {...register('programName', {
                       required: true,
                       onChange: debouncedUpdate,
+                      disabled: !canEditImportantDetails,
                     })}
                     className='border-[1px] border-gray-400 text-gray-600 bg-gray-50 p-1 rounded'
                   />{' '}
@@ -133,6 +129,7 @@ const AddToolBoxTalk = forwardRef(
                     {...register('versions.0.workOrderNo', {
                       required: true,
                       onChange: debouncedUpdate,
+                      disabled: !canEditAllDetails,
                     })}
                     className='border-[1px] border-gray-400 text-gray-600 bg-gray-50 p-1 rounded'
                   >
@@ -157,6 +154,7 @@ const AddToolBoxTalk = forwardRef(
                     type='text'
                     {...register('safetyRepresentative', {
                       onChange: debouncedUpdate,
+                      disabled: !canEditImportantDetails,
                     })}
                     className='border-[1px] border-gray-400 text-gray-600 bg-gray-50 p-1 rounded'
                   />
@@ -170,6 +168,7 @@ const AddToolBoxTalk = forwardRef(
                     type='text'
                     {...register('contractorRepresentative', {
                       onChange: debouncedUpdate,
+                      disabled: !canEditImportantDetails,
                     })}
                     className='border-[1px] border-gray-400 text-gray-600 bg-gray-50 p-1 rounded'
                   />
@@ -183,11 +182,11 @@ const AddToolBoxTalk = forwardRef(
               </div>
               <div className='w-full flex justify-start items-center gap-3  flex-grow px-1'>
                 <p>Revision No:</p>
-                <p>1</p>
+                <p>{toolBoxTalkData.versions[0].revNo}</p>
               </div>
               <div className='w-full flex justify-start items-center gap-3  flex-grow px-1'>
                 <p>Effective Date:</p>
-                <p>XX PROGRAM</p>
+                <p>{toolBoxTalkData.effectiveDate.toLocaleDateString()}</p>
               </div>
               <div className='w-full flex justify-start items-center gap-3  flex-grow px-1'>
                 <label htmlFor='documentNo'>Document No.(required):</label>
@@ -219,6 +218,7 @@ const AddToolBoxTalk = forwardRef(
                   // defaultValue={formData.versions[0].supervisor}
                   {...register('versions.0.supervisor', {
                     onChange: debouncedUpdate,
+                    disabled: !canEditAllDetails,
                   })}
                   className='border-[1px] border-gray-400 text-gray-600 bg-gray-50 p-1 rounded'
                 >
@@ -242,6 +242,7 @@ const AddToolBoxTalk = forwardRef(
                 {...register('versions.0.totalManPower', {
                   valueAsNumber: true,
                   onChange: debouncedUpdate,
+                  disabled: !canEditAllDetails,
                 })}
                 className='border-[1px] border-gray-400 text-gray-600 bg-gray-50 p-1 rounded'
               />
@@ -255,6 +256,7 @@ const AddToolBoxTalk = forwardRef(
                 {...register('versions.0.totalWorkers', {
                   valueAsNumber: true,
                   onChange: debouncedUpdate,
+                  disabled: !canEditAllDetails,
                 })}
                 className='border-[1px] border-gray-400 text-gray-600 bg-gray-50 p-1 rounded'
               />
@@ -268,6 +270,7 @@ const AddToolBoxTalk = forwardRef(
                 {...register('versions.0.totalSupervisors', {
                   valueAsNumber: true,
                   onChange: debouncedUpdate,
+                  disabled: !canEditAllDetails,
                 })}
                 className='border-[1px] border-gray-400 text-gray-600 bg-gray-50 p-1 rounded'
               />
@@ -281,6 +284,7 @@ const AddToolBoxTalk = forwardRef(
                 {...register('versions.0.totalEngineers', {
                   valueAsNumber: true,
                   onChange: debouncedUpdate,
+                  disabled: !canEditAllDetails,
                 })}
                 className='border-[1px] border-gray-400 text-gray-600 bg-gray-50 p-1 rounded'
               />
@@ -294,6 +298,7 @@ const AddToolBoxTalk = forwardRef(
                 {...register('versions.0.totalSafety', {
                   valueAsNumber: true,
                   onChange: debouncedUpdate,
+                  disabled: !canEditAllDetails,
                 })}
                 className='border-[1px] border-gray-400 text-gray-600 bg-gray-50 p-1 rounded'
               />
@@ -315,6 +320,7 @@ const AddToolBoxTalk = forwardRef(
                     id={qna.question}
                     {...register(`versions.0.questions.${index}.answer`, {
                       onChange: debouncedUpdate,
+                      disabled: !canEditAllDetails,
                     })}
                     className='border-[1px] border-gray-400 text-gray-600 bg-gray-50 p-1 rounded h-fit'
                   />
@@ -358,6 +364,7 @@ const AddToolBoxTalk = forwardRef(
                           type='text'
                           {...register(`versions.0.records.${index}.item`, {
                             onChange: debouncedUpdate,
+                            disabled: !canEditAllDetails,
                           })}
                           className='border-[1px] border-gray-400 text-gray-600 bg-gray-50 p-1 rounded w-full'
                         />
@@ -367,6 +374,7 @@ const AddToolBoxTalk = forwardRef(
                           type='text'
                           {...register(`versions.0.records.${index}.actionBy`, {
                             onChange: debouncedUpdate,
+                            disabled: !canEditAllDetails,
                           })}
                           className='border-[1px] border-gray-400 text-gray-600 bg-gray-50 p-1 rounded w-full'
                         />
@@ -376,6 +384,7 @@ const AddToolBoxTalk = forwardRef(
                           type='text'
                           {...register(`versions.0.records.${index}.when`, {
                             onChange: debouncedUpdate,
+                            disabled: !canEditAllDetails,
                           })}
                           className='border-[1px] border-gray-400 text-gray-600 bg-gray-50 p-1 rounded w-full'
                         />
@@ -385,7 +394,10 @@ const AddToolBoxTalk = forwardRef(
                           type='text'
                           {...register(
                             `versions.0.records.${index}.targetDate`,
-                            { onChange: debouncedUpdate }
+                            {
+                              onChange: debouncedUpdate,
+                              disabled: !canEditAllDetails,
+                            }
                           )}
                           className='border-[1px] border-gray-400 text-gray-600 bg-gray-50 p-1 rounded w-full'
                         />
@@ -394,6 +406,7 @@ const AddToolBoxTalk = forwardRef(
                         <select
                           {...register(`versions.0.records.${index}.status`, {
                             onChange: debouncedUpdate,
+                            disabled: !canEditAllDetails,
                           })}
                           className='border-[1px] border-gray-400 text-gray-600 bg-gray-50 p-1 rounded'
                         >
@@ -407,12 +420,13 @@ const AddToolBoxTalk = forwardRef(
                       </td>
                       <td className='border-[1px] border-gray-500 py-1 px-2'>
                         <button
+                          disabled={!canEditAllDetails}
                           type='button'
                           onClick={() => {
                             remove(index);
                             debouncedUpdate();
                           }}
-                          className='text-red-500 hover:text-red-700'
+                          className='text-red-500 hover:text-red-700 disabled:text-red-300'
                         >
                           Remove
                         </button>
@@ -423,9 +437,10 @@ const AddToolBoxTalk = forwardRef(
               </table>
               <div className='flex justify-end items-center  w-full col-span-6'>
                 <button
+                  disabled={!canEditAllDetails}
                   type='button'
                   onClick={addNewRow}
-                  className='bg-blue-500 text-white px-4 py-2 rounded mt-2'
+                  className='bg-blue-500 text-white px-4 py-2 rounded mt-2 disabled:bg-blue-300'
                 >
                   Add Row
                 </button>
@@ -440,6 +455,7 @@ const AddToolBoxTalk = forwardRef(
               id='suggestion'
               {...register('versions.0.suggestion', {
                 onChange: debouncedUpdate,
+                disabled: !canEditAllDetails,
               })}
               className='border-[1px] border-gray-500 bg-gray-50 p-1 rounded w-full'
             />

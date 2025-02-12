@@ -45,6 +45,8 @@ interface IAttendanceForm
     IFromIWorkOrderHr {
   updateSiteURL: () => void;
   enterPriseInfo: IEnterpriseBase;
+  canEditImportantDetails?: boolean;
+  canEditAllDetails?: boolean;
 }
 
 const SiteUploads = forwardRef(
@@ -67,6 +69,8 @@ const SiteUploads = forwardRef(
         );
       },
       enterPriseInfo,
+      canEditAllDetails,
+      canEditImportantDetails,
     }: IAttendanceForm,
     ref
   ) => {
@@ -255,6 +259,7 @@ const SiteUploads = forwardRef(
         <div className='w-full flex items-center justify-center gap-2 p-2'>
           <div className='flex gap-2 w-1/2'>
             <input
+              disabled={!canEditAllDetails}
               type='file'
               onChange={handleFileChange}
               className='border border-gray-300 rounded p-2 mb-4 w-full'

@@ -1,7 +1,7 @@
 'use client';
 import toolboxTalkActions from '@/lib/actions/safety/toolboxtalk/toolboxtalkActions';
 import { IToolboxTalk } from '@/lib/models/Safety/toolboxtalk.model';
-import { LoaderIcon } from 'lucide-react';
+import { LoaderIcon, PlusCircle } from 'lucide-react';
 import Link from 'next/link';
 import React, { useEffect, useState } from 'react';
 import toast from 'react-hot-toast';
@@ -76,7 +76,9 @@ const ToolBoxTalk = ({
                 <p>{allDocVersions?.currentVersion}</p>
               </span>
               <span className='flex gap-2 justify-start border-[1px] border-gray-200 px-2 py-1 rounded items-center'>
-                <p className='text-gray-600 text-sm'>Contractor Representative:</p>
+                <p className='text-gray-600 text-sm'>
+                  Contractor Representative:
+                </p>
                 <p>{allDocVersions?.contractorRepresentative}</p>
               </span>
               <span className='flex gap-2 justify-start border-[1px] border-gray-200 px-2 py-1 rounded items-center'>
@@ -98,9 +100,22 @@ const ToolBoxTalk = ({
             </div>
           </div>
           <div className='w-full flex flex-col gap-2 '>
-            <h2 className='text-blue-500 font-semibold text-lg'>
-              All {allDocVersions?.versions.length} updated versions:
-            </h2>
+            <div className='flex justify-between items-center'>
+              <h2 className='text-blue-500 font-semibold text-lg'>
+                All {allDocVersions?.versions.length} updated versions:
+              </h2>
+              <Link
+                href={`/safety/emp/toolbaxtalk/document/add-new-version?${new URLSearchParams(
+                  {
+                    documentNo: allDocVersions.documentNo,
+                  }
+                ).toString()}`}
+                className='flex gap-2 justify-center items-center bg-blue-500 hover:bg-blue-600 text-white rounded py-2 px-3'
+              >
+                <PlusCircle />
+                <>Add New Version</>
+              </Link>
+            </div>
             <div className='flex flex-col gap-2'>
               <table>
                 <thead>
@@ -137,13 +152,13 @@ const ToolBoxTalk = ({
                           href={vs.attendance.attendanceFileURL}
                           className='py-2 px-2 rounded hover:underline text-blue-500'
                         >
-                          See Att.
+                          See Image
                         </Link>
                       </td>
                       <td className='text-center'>
                         <Link
                           target='_blank'
-                          className='py-2 px-4 rounded bg-blue-500 hover:bg-blue-700 text-white'
+                          className='py-2 px-2 rounded hover:underline text-blue-500'
                           href={`/safety/emp/toolbaxtalk/document?${new URLSearchParams(
                             {
                               documentNo: allDocVersions.documentNo,
@@ -151,7 +166,7 @@ const ToolBoxTalk = ({
                             }
                           ).toString()}`}
                         >
-                          Edit
+                          Version Details
                         </Link>
                       </td>
                     </tr>

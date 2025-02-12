@@ -59,7 +59,7 @@ export const fetchCurrentVersionOfAllToolboxTalk = async (): Promise<
   }
 };
 
-export const getCurrentToolboxTalk = async (
+export const getLatestVersionOfToolboxTalk = async (
   documentNo: string
 ): Promise<ApiResponse<IToolboxTalk>> => {
   try {
@@ -70,7 +70,9 @@ export const getCurrentToolboxTalk = async (
       throw new Error(`provide valid document no`);
     }
 
-    const currentDocument = await ToolboxTalkModel.findOne({ documentNo });
+    const currentDocument = await ToolboxTalkModel.findOne({
+      documentNo,
+    }).lean();
     if (!currentDocument) {
       throw new Error(`No document exist for documentNumber: ${documentNo}`);
     }
@@ -225,7 +227,9 @@ export const getToolboxTalkByVersionAndDoc = async (
       throw new Error(`provide valid document and version no`);
     }
 
-    const currentDocument = await ToolboxTalkModel.findOne({ documentNo });
+    const currentDocument = await ToolboxTalkModel.findOne({
+      documentNo,
+    }).lean();
     if (!currentDocument) {
       throw new Error(`No document exist for documentNumber: ${documentNo}`);
     }

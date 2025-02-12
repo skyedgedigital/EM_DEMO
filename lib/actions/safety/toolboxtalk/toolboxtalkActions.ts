@@ -2,8 +2,9 @@ import { createToolboxTalk } from './create';
 import {
   fetchCurrentVersionOfAllToolboxTalk,
   getAllVersionsOfToolboxTalk,
-  getCurrentToolboxTalk,
+  getLatestVersionOfToolboxTalk,
   getNextToolboxTalkVersion,
+  getToolboxTalkByVersionAndDoc,
 } from './fetch';
 
 const toolboxTalkActions = {
@@ -12,9 +13,10 @@ const toolboxTalkActions = {
   },
   FETCH: {
     fetchCurrentVersionOfAllToolboxTalk,
-    getCurrentToolboxTalk,
+    getLatestVersionOfToolboxTalk,
     getAllVersionsOfToolboxTalk,
     getNextToolboxTalkVersion,
+    getToolboxTalkByVersionAndDoc,
   },
   DELETE: {},
   UPDATE: {},

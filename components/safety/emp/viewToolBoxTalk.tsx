@@ -1,7 +1,7 @@
 'use client';
 import toolBoxTalkAction from '@/lib/actions/SafetyEmp/daily/toolBoxTalk/toolBoxTalkAction';
 import React, { useEffect, useState } from 'react';
-import toast from 'react-hot-toast';
+import toast, { LoaderIcon } from 'react-hot-toast';
 import { ICurrentVersionToolboxTalk } from '@/lib/actions/safety/toolboxtalk/fetch';
 import toolboxTalkActions from '@/lib/actions/safety/toolboxtalk/toolboxtalkActions';
 import Link from 'next/link';
@@ -11,18 +11,27 @@ const ViewToolBoxTalk = () => {
 
   const [allToolBoxTalkDocs, setAllToolBoxTalkDocs] =
     useState<ICurrentVersionToolboxTalk[]>();
+  const [loading, setLoading] = useState<boolean>(true);
 
   const fetchDocs = async () => {
-    const { data, error, message, status, success } =
-      await toolboxTalkActions.FETCH.fetchCurrentVersionOfAllToolboxTalk();
-    if (success) {
-      toast.success(message);
-      console.log(data);
-      setAllToolBoxTalkDocs(data);
-    }
-    if (!success) {
-      console.log(error);
-      toast.error(message);
+    try {
+      const { data, error, message, status, success } =
+        await toolboxTalkActions.FETCH.fetchCurrentVersionOfAllToolboxTalk();
+      if (success) {
+        toast.success(message);
+        console.log(data);
+        setAllToolBoxTalkDocs(data);
+      }
+      if (!success) {
+        console.log(error);
+        toast.error(message);
+      }
+    } catch (error) {
+      toast.error(
+        JSON.stringify(error) || 'Failed to fetch All Tool box talk documents'
+      );
+    } finally {
+      setLoading(false);
     }
   };
   useEffect(() => {
@@ -39,13 +48,23 @@ const ViewToolBoxTalk = () => {
   };
   return (
     <>
-      {allToolBoxTalkDocs && (
-        <>
-          <div className='flex flex-col items-center justify-center'>
-            <h2 className='text-2xl my-4'>List Of Tool Box Forms</h2>
-            {allToolBoxTalkDocs.length === 0 && (
-              <span className='mt-4'>No Audit Present</span>
-            )}
+      {/* {allToolBoxTalkDocs && ( */}
+      <>
+        <div className='flex flex-col items-center justify-center'>
+          <h2 className='text-2xl my-4'>List Of Tool Box Forms</h2>
+          {allToolBoxTalkDocs?.length === 0 && (
+            <span className='mt-4'>No Audit Present</span>
+          )}
+          {JSON.stringify(loading)}
+          {loading && (
+            <div className='flex justify-center items-center'>
+              <div className='flex justify-center items-center flex-col'>
+                <LoaderIcon />
+                <p>Loading Data...</p>
+              </div>
+            </div>
+          )}
+          {!loading && (
             <table className='min-w-full divide-y divide-gray-200'>
               <thead className='bg-gray-50'>
                 <tr>
@@ -112,9 +131,10 @@ const ViewToolBoxTalk = () => {
                 ))}
               </tbody>
             </table>
-          </div>
-        </>
-      )}
+          )}
+        </div>
+      </>
+      {/* )} */}
     </>
   );
 };

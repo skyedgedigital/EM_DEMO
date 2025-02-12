@@ -46,6 +46,8 @@ interface IAttendanceForm
     IAttendance {
   updateAttendance: () => void;
   enterPriseInfo: IEnterpriseBase;
+  canEditImportantDetails?: boolean;
+  canEditAllDetails?: boolean;
 }
 
 const AttendanceUploads = forwardRef(
@@ -71,6 +73,8 @@ const AttendanceUploads = forwardRef(
         );
       },
       enterPriseInfo,
+      canEditAllDetails,
+      canEditImportantDetails,
     }: IAttendanceForm,
     ref
   ) => {
@@ -197,6 +201,10 @@ const AttendanceUploads = forwardRef(
       <form className='border-2 border-black flex flex-col gap-2 m-8'>
         {/* log0 & all top */}
         {/* <div>{JSON.stringify(attendanceData)}</div> */}
+        <div>
+          canEditImportantDetails:{JSON.stringify(canEditImportantDetails)}
+          canEditAllDetails:{JSON.stringify(canEditAllDetails)}
+        </div>
         <div className='grid grid-cols-3'>
           {/* two section */}
           <div className=' col-span-2'>
@@ -267,6 +275,7 @@ const AttendanceUploads = forwardRef(
               Permit no
             </label>
             <input
+              disabled={!canEditAllDetails}
               defaultValue={permitNo}
               onChange={(e) =>
                 setAttendanceData((prev) => ({
@@ -282,6 +291,7 @@ const AttendanceUploads = forwardRef(
           <div className='w-full flex justify-start items-center gap-3  flex-grow p-1'>
             <label htmlFor='remarks'>Remarks</label>
             <textarea
+              disabled={!canEditAllDetails}
               defaultValue={remarks}
               onChange={(e) => {
                 setAttendanceData((prev) => ({
@@ -296,6 +306,7 @@ const AttendanceUploads = forwardRef(
           <div className='flex gap-2 w-full flex-col'>
             <label htmlFor='attendance'>Attendances Photo:(required)</label>
             <input
+              disabled={!canEditAllDetails}
               id='attendance'
               type='file'
               onChange={handleFileChange}

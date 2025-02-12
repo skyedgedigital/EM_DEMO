@@ -34,6 +34,8 @@ interface IFeedbackForm
     IFromIToolboxTalkVersionWithRevNo {
   updateFeedback: () => void;
   enterPriseInfo: IEnterpriseBase;
+  canEditImportantDetails?: boolean;
+  canEditAllDetails?: boolean;
 }
 
 const Feedback = forwardRef(
@@ -53,6 +55,8 @@ const Feedback = forwardRef(
         );
       },
       enterPriseInfo,
+      canEditAllDetails,
+      canEditImportantDetails,
     }: IFeedbackForm,
     ref
   ) => {
@@ -87,6 +91,10 @@ const Feedback = forwardRef(
 
     return (
       <section className='m-8'>
+        <div>
+          canEditImportantDetails:{JSON.stringify(canEditImportantDetails)}
+          canEditAllDetails:{JSON.stringify(canEditAllDetails)}
+        </div>
         <form className='border-2 border-gray-500'>
           <div className='flex border-b-2 border-gray-500 gap-2'>
             {/* Form header */}
@@ -131,6 +139,7 @@ const Feedback = forwardRef(
                   <label htmlFor={qna.question}>{qna.question}</label>
                 </span>
                 <textarea
+                  disabled={!canEditAllDetails}
                   id={qna.question}
                   defaultValue={qna.answer}
                   onChange={(e) => handleInputChange(i, e.target.value)} // Update local state

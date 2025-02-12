@@ -6,7 +6,7 @@ import { LoaderIcon } from 'lucide-react';
 import React, { useEffect, useState } from 'react';
 import toast from 'react-hot-toast';
 
-const ToolBoxTalkDocument = ({
+const AddNewToolBoxTalkDocumentVersion = ({
   searchParams,
 }: {
   searchParams: { [key: string]: string | undefined };
@@ -19,9 +19,8 @@ const ToolBoxTalkDocument = ({
   const fnLoadDocs = async () => {
     try {
       const { data, error, message, status, success } =
-        await toolboxTalkActions.FETCH.getToolboxTalkByVersionAndDoc(
-          documentNo,
-          Number(version)
+        await toolboxTalkActions.FETCH.getLatestVersionOfToolboxTalk(
+          documentNo
         );
       if (success) {
         console.log(data);
@@ -61,7 +60,7 @@ const ToolBoxTalkDocument = ({
       {!loading && (
         <ToolBoxTalkHome
           canEditImportantDetails={false}
-          canEditAllDetails={false}
+          canEditAllDetails={true}
           receivedToolBoxTalk={latestTBTVersion}
         />
       )}
@@ -69,4 +68,4 @@ const ToolBoxTalkDocument = ({
   );
 };
 
-export default ToolBoxTalkDocument;
+export default AddNewToolBoxTalkDocumentVersion;

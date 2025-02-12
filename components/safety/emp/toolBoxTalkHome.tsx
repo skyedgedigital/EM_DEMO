@@ -21,64 +21,53 @@ import { fetchEnterpriseInfo } from '@/lib/actions/enterprise';
 const toolboxTalkExample: IToolboxTalk = {
   documentNo: '',
   programName: '',
-  effectiveDate: new Date('2024-03-20'),
-  vendorCode: 'VENDOR123',
-  safetyRepresentative: 'John Smith',
-  contractorRepresentative: 'Mike Johnson',
+  effectiveDate: new Date(),
+  vendorCode: '',
+  safetyRepresentative: '',
+  contractorRepresentative: '',
   currentVersion: 1,
   versions: [
     {
       revNo: 1,
       workOrderNo: new mongoose.Types.ObjectId('64f8c3e5d52a9b1c72a0b123'),
-      totalManPower: 25,
-      totalWorkers: 20,
-      totalEngineers: 23,
-      totalSupervisors: 12,
-      totalSafety: 2,
+      totalManPower: 1,
+      totalWorkers: 1,
+      totalEngineers: 1,
+      totalSupervisors: 1,
+      totalSafety: 1,
       supervisor: 'Company Supervisor',
       questions: [
         {
           question:
             'Safety contact and review of action items from last meeting?',
-          answer:
-            'Falls, falling objects, weather conditions, unstable surfaces',
+          answer: '',
         },
         {
           question: `Items of General Safety Importance to the Total Work Site:
                 (ask employees to mention any incidents/nearmiss during the past
                 day which may have resulted in damage to property or injury to
                 Company or Contractor personnel)?`,
-          answer:
-            'Safety harness, hard hat, safety shoes, high-visibility vest',
+          answer: '',
         },
         {
           question: `Items of Safety Interest to this Group: (e.g. Red Stripes,
                 Orange stripes, Green stripe, safety alert tips safety
                 communications, hazards or safety conditions applicable to this
                 group's work area)?`,
-          answer:
-            'Safety harness, hard hat, safety shoes, high-visibility vest',
+          answer: '',
         },
         {
           question: `Safety Message Hand Outs/circulars to be shared with contract employee?`,
-          answer:
-            'Safety harness, hard hat, safety shoes, high-visibility vest',
+          answer: '',
         },
       ],
       records: [
         {
-          actionBy: 'Inspect all safety harnesses',
-          when: 'Before each shift',
-          targetDate: new Date('2024-03-20'),
-          status: 'Completed',
-          item: 'Newly added item',
-        },
-        {
-          actionBy: 'Check weather conditions',
-          when: 'Every 2 hours',
-          targetDate: new Date('2024-03-20'),
-          status: 'In Progress',
-          item: 'Newly added item two',
+          actionBy: '',
+          when: '',
+          targetDate: new Date(),
+          status: 'Issued',
+          item: '',
         },
       ],
       points: [
@@ -95,8 +84,8 @@ const toolboxTalkExample: IToolboxTalk = {
           color: 'green',
         },
       ],
-      uploadDate: new Date('2024-03-20'),
-      suggestion: 'Consider implementing a buddy system for height work',
+      uploadDate: new Date(''),
+      suggestion: '',
       feedback: [
         {
           question: 'Feedback /Suggestion With Date and Signature',
@@ -118,8 +107,8 @@ const toolboxTalkExample: IToolboxTalk = {
       siteFileURL: 'https://storage.firebase.com/site-photos-001.pdf',
       uploadedBy: new mongoose.Types.ObjectId('64f8c3e5d52a9b1c72a0b123'),
       attendance: {
-        permitNo: '2',
-        remarks: 'abc',
+        permitNo: '',
+        remarks: '',
         attendanceFileURL: '',
       },
     },
@@ -129,10 +118,12 @@ const toolboxTalkExample: IToolboxTalk = {
 interface IToolBoxTalkHome {
   receivedToolBoxTalk?: IToolboxTalk | null;
   canEditImportantDetails?: boolean;
+  canEditAllDetails?: boolean;
 }
 const ToolBoxTalkHome = ({
   receivedToolBoxTalk = null,
   canEditImportantDetails = true,
+  canEditAllDetails = true,
 }: IToolBoxTalkHome) => {
   console.log('ToolBoxTalkHome');
   const session = useSession();
@@ -385,9 +376,10 @@ const ToolBoxTalkHome = ({
       {/* <div>{JSON.stringify(fetchedToolBoxData.versions[0].feedback)}</div>
       <div>{JSON.stringify(fetchedToolBoxData.versions[0].attendance)}</div>
       <div>{JSON.stringify(fetchedToolBoxData.versions[0].siteFileURL)}</div> */}
-      <div>{JSON.stringify(fetchedToolBoxData)}</div>
+      {/* <div>{JSON.stringify(fetchedToolBoxData)}</div> */}
       <div>
         canEditImportantDetails:{JSON.stringify(canEditImportantDetails)}
+        canEditAllDetails:{JSON.stringify(canEditAllDetails)}
       </div>
       <div className='mt-2'>
         <ul className='flex flex-wrap text-sm font-medium text-center text-gray-500 border-b border-gray-200 dark:border-gray-700 dark:text-gray-400'>
@@ -486,7 +478,7 @@ const ToolBoxTalkHome = ({
               workOrderHr={allWorkOrderHr}
               enterPriseInfo={enterPriseInfo}
               canEditImportantDetails={canEditImportantDetails}
-              // {...fetchedToolBoxData}
+              canEditAllDetails={canEditAllDetails}
             />
           )}
           {activeTab === 'view' && <ViewToolBoxTalk />}
@@ -510,6 +502,8 @@ const ToolBoxTalkHome = ({
               }
               ref={attendanceRef}
               enterPriseInfo={enterPriseInfo}
+              canEditImportantDetails={canEditImportantDetails}
+              canEditAllDetails={canEditAllDetails}
             />
           )}
           {activeTab === 'strip' && <StripUploads />}
@@ -528,6 +522,8 @@ const ToolBoxTalkHome = ({
               vendorCode={fetchedToolBoxData.vendorCode}
               ref={siteUrlRef}
               enterPriseInfo={enterPriseInfo}
+              canEditImportantDetails={canEditImportantDetails}
+              canEditAllDetails={canEditAllDetails}
             />
           )}
           {activeTab === 'feedback' && (
@@ -540,18 +536,21 @@ const ToolBoxTalkHome = ({
               ref={feedbackRef}
               updateFeedback={updateFeedback}
               enterPriseInfo={enterPriseInfo}
+              canEditImportantDetails={canEditImportantDetails}
+              canEditAllDetails={canEditAllDetails}
             />
           )}
         </div>
         <div className='w-full flex flex-col justify-center items-center'>
-          {activeTab !== 'view' && (
-            <button
-              onClick={handleSave}
-              className='bg-green-500 rounded px-4 py-1 mb-10 text-white font-semibold shadow hover:scale-[101%]'
-            >
-              Save Data
-            </button>
-          )}
+          {activeTab !== 'view' &&
+            (canEditAllDetails || canEditImportantDetails) && (
+              <button
+                onClick={handleSave}
+                className='bg-green-500 rounded px-4 py-1 mb-10 text-white font-semibold shadow hover:scale-[101%]'
+              >
+                Save Data
+              </button>
+            )}
         </div>
       </div>
     </>
