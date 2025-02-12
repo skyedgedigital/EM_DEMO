@@ -22,11 +22,14 @@ import {
 import { useForm, useFieldArray, FormState } from 'react-hook-form';
 import { debounce } from 'lodash';
 import { IWorkOrderHr } from '@/lib/models/HR/workOrderHr.model';
+import { IEnterpriseBase } from '@/interfaces/enterprise.interface';
+import logo from '@/public/assets/dark-logo.png';
 
 interface IMainToolBoxTalk {
   toolBoxTalkData: IToolboxTalk;
   updateMainToolBoxTalk: (data: IToolboxTalk) => void;
   workOrderHr: (IWorkOrderHr & { _id: mongoose.Types.ObjectId })[];
+  enterPriseInfo: IEnterpriseBase;
 }
 const AddToolBoxTalk = forwardRef(
   (
@@ -41,6 +44,7 @@ const AddToolBoxTalk = forwardRef(
         );
       },
       workOrderHr,
+      enterPriseInfo,
     }: IMainToolBoxTalk,
     ref
   ) => {
@@ -107,14 +111,9 @@ const AddToolBoxTalk = forwardRef(
             {/* two section */}
             <div className=' col-span-2'>
               <div className='flex'>
-                <div className='flex w-1/2'>
-                  <Image
-                    src='/public/assets/dark-logo.png'
-                    alt='logo'
-                    width={100}
-                    height={100}
-                  />
-                  <h1>Enterprise management demo</h1>
+                <div className='flex w-1/2 p-2 justify-start gap-2 items-center'>
+                  <Image src={logo} alt='logo' width={50} />
+                  <h1>{enterPriseInfo.name}</h1>
                 </div>
                 <p className=' border-l-2 border-gray-700 w-1/2 flex justify-center items-center font-bold'>
                   Form & Formats <br />

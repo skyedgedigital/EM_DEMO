@@ -20,6 +20,9 @@ import { IToolboxTalk } from '@/lib/models/Safety/toolboxtalk.model';
 import { IWorkOrderHr } from '@/lib/models/HR/workOrderHr.model';
 import toolboxTalkActions from '@/lib/actions/safety/toolboxtalk/toolboxtalkActions';
 import { FaSpinner } from 'react-icons/fa6';
+import { IEnterpriseBase } from '@/interfaces/enterprise.interface';
+import logo from '@/public/assets/dark-logo.png';
+
 
 type IFromIToolboxTalkFields = Pick<
   IToolboxTalk,
@@ -42,6 +45,7 @@ interface IAttendanceForm
     IFromIToolboxTalkVersionWithRevNo,
     IFromIWorkOrderHr {
   updateSiteURL: () => void;
+  enterPriseInfo: IEnterpriseBase;
 }
 
 const SiteUploads = forwardRef(
@@ -63,6 +67,7 @@ const SiteUploads = forwardRef(
           'FRONTEND LOAD ERROR : running default update attendance function'
         );
       },
+      enterPriseInfo,
     }: IAttendanceForm,
     ref
   ) => {
@@ -186,14 +191,9 @@ const SiteUploads = forwardRef(
           {/* two section */}
           <div className=' col-span-2'>
             <div className='flex'>
-              <div className='flex w-1/2'>
-                <Image
-                  src='/public/assets/dark-logo.png'
-                  alt='logo'
-                  width={100}
-                  height={100}
-                />
-                <h1>Enterprise management demo</h1>
+              <div className='flex w-1/2 p-2 justify-start gap-2 items-center'>
+                <Image src={logo} alt='logo' width={50} />
+                <h1>{enterPriseInfo.name}</h1>
               </div>
               <p className=' border-l-2 border-gray-700 w-1/2 flex justify-center items-center font-bold'>
                 Form & Formats <br />

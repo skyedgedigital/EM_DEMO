@@ -56,6 +56,8 @@ export const createToolboxTalk = async (
       totalWorkers: params?.totalWorkers || 0,
       uploadDate: params?.uploadDate || new Date(),
       uploadedBy: new mongoose.Types.ObjectId(params.uploadedBy),
+      totalEngineers: params?.totalEngineers,
+      totalSupervisors: params?.totalSupervisors,
     };
 
     // let result;

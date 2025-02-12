@@ -15,6 +15,8 @@ import {
 import Image from 'next/image';
 import toast from 'react-hot-toast';
 import { debounce } from 'lodash';
+import { IEnterpriseBase } from '@/interfaces/enterprise.interface';
+import logo from '@/public/assets/dark-logo.png'
 
 type IFromIToolBoxTalk = Pick<IToolboxTalk, 'documentNo' | 'effectiveDate'>;
 type IFromIToolboxTalkVersion = Pick<
@@ -31,6 +33,7 @@ interface IFeedbackForm
     IFromIToolboxTalkVersion,
     IFromIToolboxTalkVersionWithRevNo {
   updateFeedback: () => void;
+  enterPriseInfo: IEnterpriseBase;
 }
 
 const Feedback = forwardRef(
@@ -49,6 +52,7 @@ const Feedback = forwardRef(
           'FRONTEND LOAD ERROR : running default update feedback function'
         );
       },
+      enterPriseInfo,
     }: IFeedbackForm,
     ref
   ) => {
@@ -85,14 +89,9 @@ const Feedback = forwardRef(
         <form className='border-2 border-gray-500'>
           <div className='flex border-b-2 border-gray-500 gap-2'>
             {/* Form header */}
-            <div className='flex flex-grow p-2'>
-              <Image
-                src='/public/assets/dark-logo.png'
-                alt='logo'
-                width={100}
-                height={100}
-              />
-              <h1>Enterprise management demo</h1>
+            <div className='flex w-1/2 p-2 justify-start gap-2 items-center'>
+              <Image src={logo} alt='logo' width={50} />
+              <h1>{enterPriseInfo.name}</h1>
             </div>
             <div className='border-x-2 border-gray-700 flex-grow flex justify-center items-center font-bold'>
               Form & Formats <br />

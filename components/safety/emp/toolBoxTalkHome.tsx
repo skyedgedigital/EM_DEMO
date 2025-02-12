@@ -16,6 +16,8 @@ import { IAttendance } from '../../../lib/models/Safety/toolboxtalk.model';
 import { FormState } from 'react-hook-form';
 import { useSession } from 'next-auth/react';
 import { createToolboxTalk } from '@/lib/actions/safety/toolboxtalk/create';
+import { IEnterpriseBase } from '@/interfaces/enterprise.interface';
+import { fetchEnterpriseInfo } from '@/lib/actions/enterprise';
 
 const toolboxTalkExample: IToolboxTalk = {
   documentNo: '',
@@ -135,7 +137,14 @@ const ToolBoxTalkHome = () => {
   const [selectedWorkOrderHr, setSelectedWorkOrderHr] = useState<
     (IWorkOrderHr & { _id: mongoose.Types.ObjectId }) | null
   >(null);
-
+  const [enterPriseInfo, setEnterpriseInfo] = useState<IEnterpriseBase>({
+    name: 'N/A',
+    pan: 'N/A',
+    gstin: 'N/A',
+    vendorCode: 'N/A',
+    address: 'N/A',
+    email: 'N/A',
+  });
   const mainToolBoxTalkRef = useRef(null);
   const feedbackRef = useRef(null);
   const attendanceRef = useRef(null);
@@ -155,6 +164,23 @@ const ToolBoxTalkHome = () => {
       }));
     }
   }, [session]);
+
+  useEffect(() => {
+    const fn = async () => {
+      const resp = await fetchEnterpriseInfo();
+      console.log('response we got ', resp);
+      if (resp.data) {
+        const inf = await JSON.parse(resp.data);
+        setEnterpriseInfo(inf);
+      }
+      if (!resp.success) {
+        toast.error(
+          `Failed to load enterprise details, Please Reload or try later. ERROR : ${resp.error}`
+        );
+      }
+    };
+    fn();
+  }, []);
   const fetchWorkOrderHr = async () => {
     try {
       const { data, error, message, status, success } =
@@ -451,6 +477,7 @@ const ToolBoxTalkHome = () => {
               toolBoxTalkData={fetchedToolBoxData}
               updateMainToolBoxTalk={updateMainToolBoxTalk}
               workOrderHr={allWorkOrderHr}
+              enterPriseInfo={enterPriseInfo}
             />
           )}
           {activeTab === 'view' && (
@@ -475,6 +502,7 @@ const ToolBoxTalkHome = () => {
                 fetchedToolBoxData.versions[0].attendance.attendanceFileURL
               }
               ref={attendanceRef}
+              enterPriseInfo={enterPriseInfo}
             />
           )}
           {activeTab === 'strip' && <StripUploads />}
@@ -492,6 +520,7 @@ const ToolBoxTalkHome = () => {
               }
               vendorCode={fetchedToolBoxData.vendorCode}
               ref={siteUrlRef}
+              enterPriseInfo={enterPriseInfo}
             />
           )}
           {activeTab === 'feedback' && (
@@ -503,6 +532,7 @@ const ToolBoxTalkHome = () => {
               uploadDate={fetchedToolBoxData.versions[0].uploadDate}
               ref={feedbackRef}
               updateFeedback={updateFeedback}
+              enterPriseInfo={enterPriseInfo}
             />
           )}
         </div>
