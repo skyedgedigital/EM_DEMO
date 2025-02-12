@@ -292,8 +292,10 @@ const AttendanceUploads = forwardRef(
               className='border-[1px] border-gray-400 text-gray-600 bg-gray-50 p-1 rounded'
             />
           </div>
-          <div className='flex gap-2 w-full'>
+          <div className='flex gap-2 w-full flex-col'>
+            <label htmlFor='attendance'>Attendances Photo:(required)</label>
             <input
+              id='attendance'
               type='file'
               onChange={handleFileChange}
               className='border border-gray-300 rounded p-2 mb-4 w-full'
@@ -318,7 +320,7 @@ const AttendanceUploads = forwardRef(
               e.preventDefault();
               handleUpload();
             }}
-            className='bg-blue-500 text-white p-2 rounded hover:bg-blue-700'
+            className='bg-blue-500 text-white p-2 rounded hover:bg-blue-700 flex justify-center items-center gap-2'
           >
             {uploading ? (
               <>

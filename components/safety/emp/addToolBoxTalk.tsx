@@ -21,21 +21,12 @@ import {
 } from '@/lib/models/Safety/toolboxtalk.model';
 import { useForm, useFieldArray, FormState } from 'react-hook-form';
 import { debounce } from 'lodash';
-type IFromIToolBoxTalk = Pick<
-  IToolboxTalk,
-  | 'documentNo'
-  | 'effectiveDate'
-  | 'programName'
-  | 'contractorRepresentative'
-  | 'safetyRepresentative'
-  | 'vendorCode'
-  | 'versions'
-  | 'currentVersion'
->;
+import { IWorkOrderHr } from '@/lib/models/HR/workOrderHr.model';
 
 interface IMainToolBoxTalk {
   toolBoxTalkData: IToolboxTalk;
   updateMainToolBoxTalk: (data: IToolboxTalk) => void;
+  workOrderHr: (IWorkOrderHr & { _id: mongoose.Types.ObjectId })[];
 }
 const AddToolBoxTalk = forwardRef(
   (
@@ -49,6 +40,7 @@ const AddToolBoxTalk = forwardRef(
           'FRONTEND LOAD ERROR : running default update tool box talk main form function'
         );
       },
+      workOrderHr,
     }: IMainToolBoxTalk,
     ref
   ) => {
@@ -105,7 +97,7 @@ const AddToolBoxTalk = forwardRef(
     return (
       <section className='m-8 rounded'>
         {/* boundary */}
-        <div>{JSON.stringify(formData)}</div>
+        {/* <div>{JSON.stringify(formData)}</div> */}
         <form
           onSubmit={handleSubmit(onSubmit)}
           className='border-2 border-black py-1 flex flex-col gap-2'
@@ -132,22 +124,32 @@ const AddToolBoxTalk = forwardRef(
               </div>
               <div className=' flex flex-col'>
                 <div className='w-full flex justify-start items-center gap-3 border-[1px] border-gray-800 flex-grow p-1'>
-                  <label htmlFor='programName'>Name of the program:</label>
+                  <label htmlFor='programName'>
+                    Name of the program:(required)
+                  </label>
                   <input
                     id='programName'
                     type='text'
-                    {...register('programName')}
+                    {...register('programName', { required: true })}
                     className='border-[1px] border-gray-400 text-gray-600 bg-gray-50 p-1 rounded'
                   />{' '}
                 </div>
                 <div className='w-full flex justify-start items-center gap-3 border-[1px] border-gray-800 flex-grow p-1'>
-                  <label htmlFor='workOrder'>Work Order Number:</label>
-                  <input
+                  <label htmlFor='workOrder'>
+                    Work Order Number:(required)
+                  </label>
+                  <select
                     id='workOrder'
-                    type='text'
-                    {...register('versions.0.workOrderNo')}
+                    {...register('versions.0.workOrderNo', { required: true })}
                     className='border-[1px] border-gray-400 text-gray-600 bg-gray-50 p-1 rounded'
-                  />
+                  >
+                    <option value={null}>select work order</option>
+                    {workOrderHr.map((wo) => (
+                      <option key={wo._id.toString()} value={wo._id.toString()}>
+                        {wo.workOrderNumber}
+                      </option>
+                    ))}
+                  </select>
                 </div>
                 <div className='w-full flex justify-start items-center gap-3 border-[1px] border-gray-800 flex-grow p-1'>
                   <label htmlFor='location'>Location:</label>
@@ -191,7 +193,7 @@ const AddToolBoxTalk = forwardRef(
                 <p>XX PROGRAM</p>
               </div>
               <div className='w-full flex justify-start items-center gap-3  flex-grow px-1'>
-                <label htmlFor='documentNo'>Document No.:</label>
+                <label htmlFor='documentNo'>Document No.(required):</label>
                 <input
                   id='documentNo'
                   type='text'
@@ -423,7 +425,7 @@ const AddToolBoxTalk = forwardRef(
               className='border-[1px] border-gray-500 bg-gray-50 p-1 rounded w-full'
             />
           </div>
-          <button type='submit'> submit</button>
+          {/* <button type='submit'> submit</button> */}
         </form>
       </section>
     );

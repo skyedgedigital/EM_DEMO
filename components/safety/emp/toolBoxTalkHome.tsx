@@ -17,8 +17,8 @@ import { FormState } from 'react-hook-form';
 import { useSession } from 'next-auth/react';
 
 const toolboxTalkExample: IToolboxTalk = {
-  documentNo: 'TBT-2024-001',
-  programName: 'Working at Heights Safety Program',
+  documentNo: '',
+  programName: '',
   effectiveDate: new Date('2024-03-20'),
   vendorCode: 'VENDOR123',
   safetyRepresentative: 'John Smith',
@@ -118,7 +118,7 @@ const toolboxTalkExample: IToolboxTalk = {
       attendance: {
         permitNo: '2',
         remarks: 'abc',
-        attendanceFileURL: 'uuyeg',
+        attendanceFileURL: '',
       },
     },
   ],
@@ -142,7 +142,7 @@ const ToolBoxTalkHome = () => {
 
   useEffect(() => {
     if (session && session?.data?.user._id) {
-      console.log('LAWDA', session, session.data.user._id);
+      // console.log('LAWDA', session, session.data.user._id);
       setFetchedToolBoxData((prev) => ({
         ...prev,
         versions: [
@@ -196,9 +196,10 @@ const ToolBoxTalkHome = () => {
   //   }
   // };
   const updateMainToolBoxTalk = useCallback((updatedData: IToolboxTalk) => {
-    updatedData.versions[0].uploadedBy = new mongoose.Types.ObjectId(
-      session.data.user._id
-    );
+    if (session && session?.data?.user._id)
+      updatedData.versions[0].uploadedBy = new mongoose.Types.ObjectId(
+        session.data.user._id
+      );
     setFetchedToolBoxData((prev) => ({ ...prev, ...updatedData }));
   }, []);
 
@@ -211,7 +212,8 @@ const ToolBoxTalkHome = () => {
     console.log('UPDATED ATTENDANCE', updatedAttendance);
     if (updatedAttendance) {
       if (!updatedAttendance.attendanceFileURL) {
-        return toast.error('Attendance file is necessary');
+        return;
+        // return toast.error('Attendance file is necessary');
       }
       setFetchedToolBoxData((prev) => ({
         ...prev,
@@ -266,7 +268,17 @@ const ToolBoxTalkHome = () => {
   // Save all changes to the server
   const handleSave = async () => {
     try {
-      if (!fetchedToolBoxData.versions[0].attendance.attendanceFileURL) {
+      const { programName, documentNo, versions } = fetchedToolBoxData;
+      const { workOrderNo, attendance } = versions[0];
+      if (
+        !attendance.attendanceFileURL ||
+        !workOrderNo ||
+        !programName ||
+        !documentNo
+      ) {
+        return toast.error('Please fill all required(*) fields');
+      }
+      if (!fetchedToolBoxData.programName || !fetchedToolBoxData) {
         return toast.error('Please upload attendance image first to save data');
       }
       console.log('SUBMITTED DATA', fetchedToolBoxData);
@@ -280,7 +292,7 @@ const ToolBoxTalkHome = () => {
       {/* <div>{JSON.stringify(fetchedToolBoxData.versions[0].feedback)}</div>
       <div>{JSON.stringify(fetchedToolBoxData.versions[0].attendance)}</div>
       <div>{JSON.stringify(fetchedToolBoxData.versions[0].siteFileURL)}</div> */}
-      <div>{JSON.stringify(fetchedToolBoxData)}</div>
+      {/* <div>{JSON.stringify(fetchedToolBoxData)}</div> */}
       <div className='mt-2'>
         <ul className='flex flex-wrap text-sm font-medium text-center text-gray-500 border-b border-gray-200 dark:border-gray-700 dark:text-gray-400'>
           <li className='me-2'>
@@ -363,11 +375,16 @@ const ToolBoxTalkHome = () => {
         </ul>
 
         <div className='tab-content'>
+          <p className='w-full text-center my-2 text-gray-500'>
+            Note: Attendances photo, Program Name, Work Order Number & Document
+            Number are Required fields
+          </p>
           {activeTab === 'add' && (
             <AddToolBoxTalk
               ref={mainToolBoxTalkRef}
               toolBoxTalkData={fetchedToolBoxData}
               updateMainToolBoxTalk={updateMainToolBoxTalk}
+              workOrderHr={allWorkOrderHr}
             />
           )}
           {activeTab === 'view' && (
@@ -423,7 +440,7 @@ const ToolBoxTalkHome = () => {
             />
           )}
         </div>
-        <div className='w-full flex justify-center items-center'>
+        <div className='w-full flex flex-col justify-center items-center'>
           <button
             onClick={handleSave}
             className='bg-green-500 rounded px-4 py-1 mb-10 text-white font-semibold shadow hover:scale-[101%]'
