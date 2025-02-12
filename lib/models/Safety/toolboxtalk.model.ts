@@ -40,6 +40,7 @@ export interface IToolboxTalkVersion {
   totalEngineers?: number;
   totalSupervisors?: number;
   totalSafety?: number;
+  totalEmployees?: number;
   records: IRecord[];
   uploadDate?: Date;
   suggestion?: string;

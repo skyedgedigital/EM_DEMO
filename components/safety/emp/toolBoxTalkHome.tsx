@@ -15,6 +15,7 @@ import toast from 'react-hot-toast';
 import { IAttendance } from '../../../lib/models/Safety/toolboxtalk.model';
 import { FormState } from 'react-hook-form';
 import { useSession } from 'next-auth/react';
+import { createToolboxTalk } from '@/lib/actions/safety/toolboxtalk/create';
 
 const toolboxTalkExample: IToolboxTalk = {
   documentNo: '',
@@ -268,21 +269,86 @@ const ToolBoxTalkHome = () => {
   // Save all changes to the server
   const handleSave = async () => {
     try {
-      const { programName, documentNo, versions } = fetchedToolBoxData;
-      const { workOrderNo, attendance } = versions[0];
+      const {
+        programName,
+        documentNo,
+        versions,
+        vendorCode,
+        contractorRepresentative,
+        safetyRepresentative,
+        effectiveDate,
+        currentVersion,
+      } = fetchedToolBoxData;
+      const {
+        workOrderNo,
+        attendance,
+        totalEngineers,
+        totalManPower,
+        totalSafety,
+        totalSupervisors,
+        totalWorkers,
+        uploadDate,
+        uploadedBy,
+        siteFileURL,
+        feedback,
+        points,
+        questions,
+        records,
+        supervisor,
+        suggestion,
+      } = versions[0];
       if (
         !attendance.attendanceFileURL ||
         !workOrderNo ||
         !programName ||
-        !documentNo
+        !documentNo ||
+        !vendorCode
       ) {
         return toast.error('Please fill all required(*) fields');
       }
-      if (!fetchedToolBoxData.programName || !fetchedToolBoxData) {
-        return toast.error('Please upload attendance image first to save data');
-      }
+
       console.log('SUBMITTED DATA', fetchedToolBoxData);
+
+      const response = await createToolboxTalk({
+        programName,
+        documentNo,
+        vendorCode,
+        contractorRepresentative,
+        safetyRepresentative,
+        attendance: {
+          attendanceFileURL: attendance.attendanceFileURL,
+          permitNo: attendance.permitNo,
+          remarks: attendance.remarks,
+        },
+        workOrderNo,
+        totalWorkers,
+        totalEngineers,
+        totalManPower,
+        totalSafety,
+        totalSupervisors,
+        uploadDate,
+        uploadedBy,
+        siteFileURL,
+        supervisor,
+        questions,
+        feedback,
+        points,
+        records,
+        suggestion,
+        currentVersion,
+        effectiveDate,
+        versions,
+      });
+
+      if (response.success && response.data.documentNo) {
+        toast.success(`${response.data.documentNo} created successfully!`);
+      }
+
+      // if (!fetchedToolBoxData.programName || !fetchedToolBoxData) {
+      //   return toast.error('Please upload attendance image first to save data');
+      // }
     } catch (error) {
+      toast.error(`${error.message || 'something went wrong!'}`);
       console.error('Error saving data:', error);
     }
   };
