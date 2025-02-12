@@ -81,7 +81,7 @@ const AddToolBoxTalk = forwardRef(
         targetDate: new Date(),
         status: 'Issued',
       });
-      debouncedUpdate();
+      // debouncedUpdate();
     };
 
     return (
@@ -408,7 +408,10 @@ const AddToolBoxTalk = forwardRef(
                       <td className='border-[1px] border-gray-500 py-1 px-2'>
                         <button
                           type='button'
-                          onClick={() => remove(index)}
+                          onClick={() => {
+                            remove(index);
+                            debouncedUpdate();
+                          }}
                           className='text-red-500 hover:text-red-700'
                         >
                           Remove
