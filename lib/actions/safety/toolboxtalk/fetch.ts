@@ -153,7 +153,7 @@ export const getAllVersionsOfToolboxTalk = async (
     if (!document) {
       throw new Error(`No document exist for documentNumber: ${documentNo}`);
     }
-    
+
     return {
       success: true,
       status: 200,
@@ -209,6 +209,61 @@ export const getNextToolboxTalkVersion = async (
       message: error instanceof Error ? error.message : 'Something went wrong',
       data: null,
       error: error,
+    };
+  }
+};
+
+export const getToolboxTalkByVersionAndDoc = async (
+  documentNo: string,
+  versionNo: number
+): Promise<ApiResponse<IToolboxTalk>> => {
+  try {
+    const dbConnection = await handleDBConnection();
+    if (!dbConnection.success) return dbConnection;
+
+    if (!documentNo.trim() || isNaN(versionNo)) {
+      throw new Error(`provide valid document and version no`);
+    }
+
+    const currentDocument = await ToolboxTalkModel.findOne({ documentNo });
+    if (!currentDocument) {
+      throw new Error(`No document exist for documentNumber: ${documentNo}`);
+    }
+
+    const currentVersion = currentDocument.versions.find(
+      (version) => version.revNo === versionNo
+    );
+
+    if (!currentVersion) {
+      throw new Error('No versions of this document exist');
+    }
+
+    const data: IToolboxTalk = {
+      documentNo: currentDocument.documentNo,
+      currentVersion: currentDocument.currentVersion,
+      effectiveDate: currentDocument.effectiveDate,
+      programName: currentDocument.programName,
+      vendorCode: currentDocument.vendorCode,
+      contractorRepresentative: currentDocument.contractorRepresentative,
+      safetyRepresentative: currentDocument.safetyRepresentative,
+      versions: [currentVersion],
+    };
+
+    return {
+      success: true,
+      status: 200,
+      message: 'data fetched successfully',
+      data,
+      error: null,
+    };
+  } catch (error) {
+    console.error('Error fetching document', error);
+    return {
+      success: false,
+      status: 404,
+      message: error instanceof Error ? error.message : 'Something went wrong',
+      data: null,
+      error,
     };
   }
 };
