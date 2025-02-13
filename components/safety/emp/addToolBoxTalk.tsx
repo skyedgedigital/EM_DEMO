@@ -391,7 +391,7 @@ const AddToolBoxTalk = forwardRef(
                       </td>
                       <td className='border-[1px] border-gray-500 py-1 px-2'>
                         <input
-                          type='text'
+                          type='date'
                           {...register(
                             `versions.0.records.${index}.targetDate`,
                             {

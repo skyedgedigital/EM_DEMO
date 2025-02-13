@@ -186,7 +186,16 @@ export const getNextToolboxTalkVersion = async (
     const dbConnection = await handleDBConnection();
     if (!dbConnection.success) return dbConnection;
 
-    if (!documentNo) throw new Error(`provide valid document no`);
+    if (!documentNo) {
+      return {
+        status: 400,
+        success: false,
+        message: 'Please Provide Valid document No',
+        error: null,
+        data: null,
+      };
+    }
+    // if (!documentNo) throw new Error(`provide valid document no`);
 
     const existingDocument = await ToolboxTalkModel.findOne({
       documentNo,

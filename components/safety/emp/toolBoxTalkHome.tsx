@@ -81,7 +81,7 @@ const toolboxTalkExample: IToolboxTalk = {
         },
         {
           point: 'Report any safety concerns immediately',
-          color: 'green',
+          color: 'blue',
         },
       ],
       uploadDate: new Date(''),

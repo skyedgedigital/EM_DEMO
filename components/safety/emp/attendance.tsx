@@ -160,20 +160,16 @@ const AttendanceUploads = forwardRef(
       }
       try {
         setUploading(true);
-        const {
-          data: { nextVersion },
-          error,
-        } = await toolboxTalkActions.FETCH.getNextToolboxTalkVersion(
-          documentNo
-        );
-
-        if (!nextVersion) {
+        const { data, error, success, status, message } =
+          await toolboxTalkActions.FETCH.getNextToolboxTalkVersion(documentNo);
+        if (!success) {
           return toast.error(
-            JSON.stringify(error) ||
+            message ||
+              JSON.stringify(error) ||
               'Filed to generate next version for new upload. Please try later'
           );
         }
-
+        const { nextVersion } = data;
         console.log('next version', nextVersion);
         const downloadURL: string = await handlePDFUpload(
           file,
@@ -191,7 +187,11 @@ const AttendanceUploads = forwardRef(
         }
         // console.log(data, Error, Message, Status, Success);
       } catch (error) {
-        toast.error(`Failed to upload attendance ${documentNo} image`);
+        console.log(error);
+        toast.error(
+          JSON.stringify(error) ||
+            `Failed to upload attendance ${documentNo} image`
+        );
       } finally {
         setUploading(false);
       }
