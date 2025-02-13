@@ -13,6 +13,9 @@ export const RecordStatusNames = [
   'Rejected',
 ] as const;
 export type RecordStatusNamesTypes = (typeof RecordStatusNames)[number];
+
+export const StripColorsNames = ['red', 'orange', 'yellow', 'blue'] as const;
+export type StripColorNameTypes = (typeof StripColorsNames)[number];
 interface IRecord {
   actionBy: string;
   when?: string;
@@ -23,7 +26,7 @@ interface IRecord {
 
 interface IPoint {
   point: string;
-  color?: string;
+  color?: StripColorNameTypes;
 }
 
 export interface IAttendance {
@@ -106,7 +109,8 @@ const RecordSchema: mongoose.Schema<IRecord> = new mongoose.Schema({
 const PointSchema: mongoose.Schema<IPoint> = new mongoose.Schema({
   color: {
     type: String,
-    default: '',
+    enum: StripColorsNames,
+    default: 'blue',
   },
   point: {
     type: String,

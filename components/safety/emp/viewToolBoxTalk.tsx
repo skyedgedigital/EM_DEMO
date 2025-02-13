@@ -55,9 +55,9 @@ const ViewToolBoxTalk = () => {
           {allToolBoxTalkDocs?.length === 0 && (
             <span className='mt-4'>No Audit Present</span>
           )}
-          {JSON.stringify(loading)}
+          {/* {JSON.stringify(loading)} */}
           {loading && (
-            <div className='flex justify-center items-center'>
+            <div className='flex justify-center min-h-[50vh] items-center'>
               <div className='flex justify-center items-center flex-col'>
                 <LoaderIcon />
                 <p>Loading Data...</p>
