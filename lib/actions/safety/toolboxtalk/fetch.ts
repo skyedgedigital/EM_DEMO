@@ -187,13 +187,7 @@ export const getNextToolboxTalkVersion = async (
     if (!dbConnection.success) return dbConnection;
 
     if (!documentNo) {
-      return {
-        status: 400,
-        success: false,
-        message: 'Please Provide Valid document No',
-        error: null,
-        data: null,
-      };
+      throw new Error('Please Provide Valid document No');
     }
     // if (!documentNo) throw new Error(`provide valid document no`);
 
@@ -205,22 +199,27 @@ export const getNextToolboxTalkVersion = async (
       ? existingDocument.currentVersion + 1
       : 1;
 
-    return {
-      success: true,
-      status: 200,
-      message: 'Next version calculated successfully',
-      data: { nextVersion },
-      error: null,
-    };
+    return JSON.parse(
+      JSON.stringify({
+        success: true,
+        status: 200,
+        message: 'Next version calculated successfully',
+        data: { nextVersion },
+        error: null,
+      })
+    );
   } catch (error) {
     console.error('Error getting next version:', error);
-    return {
-      success: false,
-      status: 404,
-      message: error instanceof Error ? error.message : 'Something went wrong',
-      data: null,
-      error: error,
-    };
+    return JSON.parse(
+      JSON.stringify({
+        success: false,
+        status: 404,
+        message:
+          error instanceof Error ? error.message : 'Something went wrong',
+        data: null,
+        error: error,
+      })
+    );
   }
 };
 
