@@ -29,7 +29,7 @@ const toolboxTalkExample: IToolboxTalk = {
   versions: [
     {
       revNo: 1,
-      workOrderNo: new mongoose.Types.ObjectId('64f8c3e5d52a9b1c72a0b123'),
+      workOrderNo: null,
       totalManPower: 1,
       totalWorkers: 1,
       totalEngineers: 1,
@@ -84,7 +84,7 @@ const toolboxTalkExample: IToolboxTalk = {
           color: 'blue',
         },
       ],
-      uploadDate: new Date(''),
+      uploadDate: new Date(),
       suggestion: '',
       feedback: [
         {
@@ -170,8 +170,12 @@ const ToolBoxTalkHome = ({
       const resp = await fetchEnterpriseInfo();
       // console.log('response we got ', resp);
       if (resp.data) {
-        const inf = await JSON.parse(resp.data);
+        const inf: IEnterpriseBase = await JSON.parse(resp.data);
         setEnterpriseInfo(inf);
+        setFetchedToolBoxData((prev) => ({
+          ...prev,
+          vendorCode: inf.vendorCode,
+        }));
       }
       if (!resp.success) {
         toast.error(
@@ -319,44 +323,47 @@ const ToolBoxTalkHome = ({
         (!attendance.attendanceFileURL ||
           !workOrderNo ||
           !programName ||
-          !documentNo ||
-          !vendorCode)
+          !documentNo)
       ) {
         return toast.error('Please fill all required(*) fields');
       }
 
       console.log('SUBMITTED DATA', fetchedToolBoxData);
 
-      const response = await createToolboxTalk({
-        programName,
-        documentNo,
-        vendorCode,
-        contractorRepresentative,
-        safetyRepresentative,
-        attendance: {
-          attendanceFileURL: attendance.attendanceFileURL,
-          permitNo: attendance.permitNo,
-          remarks: attendance.remarks,
-        },
-        workOrderNo,
-        totalWorkers,
-        totalEngineers,
-        totalManPower,
-        totalSafety,
-        totalSupervisors,
-        uploadDate,
-        uploadedBy,
-        siteFileURL,
-        supervisor,
-        questions,
-        feedback,
-        points,
-        records,
-        suggestion,
-        currentVersion,
-        effectiveDate,
-        versions,
-      });
+      const response = await createToolboxTalk(
+        await JSON.parse(
+          JSON.stringify({
+            programName,
+            documentNo,
+            vendorCode,
+            contractorRepresentative,
+            safetyRepresentative,
+            attendance: {
+              attendanceFileURL: attendance.attendanceFileURL,
+              permitNo: attendance.permitNo,
+              remarks: attendance.remarks,
+            },
+            workOrderNo,
+            totalWorkers,
+            totalEngineers,
+            totalManPower,
+            totalSafety,
+            totalSupervisors,
+            uploadDate,
+            uploadedBy,
+            siteFileURL,
+            supervisor,
+            questions,
+            feedback,
+            points,
+            records,
+            suggestion,
+            currentVersion,
+            effectiveDate,
+            versions,
+          })
+        )
+      );
 
       if (response.success && response.data.documentNo) {
         toast.success(`${response.data.documentNo} created successfully!`);
@@ -376,7 +383,7 @@ const ToolBoxTalkHome = ({
       {/* <div>{JSON.stringify(fetchedToolBoxData.versions[0].feedback)}</div>
       <div>{JSON.stringify(fetchedToolBoxData.versions[0].attendance)}</div>
       <div>{JSON.stringify(fetchedToolBoxData.versions[0].siteFileURL)}</div> */}
-      {/* <div>{JSON.stringify(fetchedToolBoxData)}</div> */}
+      <div>{JSON.stringify(fetchedToolBoxData)}</div>
       <div>
         canEditImportantDetails:{JSON.stringify(canEditImportantDetails)}
         canEditAllDetails:{JSON.stringify(canEditAllDetails)}

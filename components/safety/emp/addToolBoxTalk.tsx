@@ -115,8 +115,8 @@ const AddToolBoxTalk = forwardRef(
                     {...register('programName', {
                       required: true,
                       onChange: debouncedUpdate,
-                      disabled: !canEditImportantDetails,
                     })}
+                    disabled={!canEditImportantDetails}
                     className='border-[1px] border-gray-400 text-gray-600 bg-gray-50 p-1 rounded'
                   />{' '}
                 </div>
@@ -129,8 +129,8 @@ const AddToolBoxTalk = forwardRef(
                     {...register('versions.0.workOrderNo', {
                       required: true,
                       onChange: debouncedUpdate,
-                      disabled: !canEditAllDetails,
                     })}
+                    disabled={!canEditAllDetails}
                     className='border-[1px] border-gray-400 text-gray-600 bg-gray-50 p-1 rounded'
                   >
                     <option value={null}>select work order</option>
@@ -154,8 +154,8 @@ const AddToolBoxTalk = forwardRef(
                     type='text'
                     {...register('safetyRepresentative', {
                       onChange: debouncedUpdate,
-                      disabled: !canEditImportantDetails,
                     })}
+                    disabled={!canEditImportantDetails}
                     className='border-[1px] border-gray-400 text-gray-600 bg-gray-50 p-1 rounded'
                   />
                 </div>
@@ -168,8 +168,8 @@ const AddToolBoxTalk = forwardRef(
                     type='text'
                     {...register('contractorRepresentative', {
                       onChange: debouncedUpdate,
-                      disabled: !canEditImportantDetails,
                     })}
+                    disabled={!canEditImportantDetails}
                     className='border-[1px] border-gray-400 text-gray-600 bg-gray-50 p-1 rounded'
                   />
                 </div>
@@ -193,9 +193,9 @@ const AddToolBoxTalk = forwardRef(
                 <input
                   id='documentNo'
                   type='text'
+                  disabled={!canEditImportantDetails}
                   {...register('documentNo', {
                     onChange: debouncedUpdate,
-                    disabled: !canEditImportantDetails,
                   })}
                   className='border-[1px] border-gray-400 text-gray-600 bg-gray-50 p-1 rounded'
                 />
@@ -218,8 +218,8 @@ const AddToolBoxTalk = forwardRef(
                   // defaultValue={formData.versions[0].supervisor}
                   {...register('versions.0.supervisor', {
                     onChange: debouncedUpdate,
-                    disabled: !canEditAllDetails,
                   })}
+                  disabled={!canEditAllDetails}
                   className='border-[1px] border-gray-400 text-gray-600 bg-gray-50 p-1 rounded'
                 >
                   {/* <option value='#'>select supervisor type</option> */}
@@ -242,8 +242,8 @@ const AddToolBoxTalk = forwardRef(
                 {...register('versions.0.totalManPower', {
                   valueAsNumber: true,
                   onChange: debouncedUpdate,
-                  disabled: !canEditAllDetails,
                 })}
+                disabled={!canEditAllDetails}
                 className='border-[1px] border-gray-400 text-gray-600 bg-gray-50 p-1 rounded'
               />
             </span>
@@ -256,8 +256,8 @@ const AddToolBoxTalk = forwardRef(
                 {...register('versions.0.totalWorkers', {
                   valueAsNumber: true,
                   onChange: debouncedUpdate,
-                  disabled: !canEditAllDetails,
                 })}
+                disabled={!canEditAllDetails}
                 className='border-[1px] border-gray-400 text-gray-600 bg-gray-50 p-1 rounded'
               />
             </span>
@@ -270,8 +270,8 @@ const AddToolBoxTalk = forwardRef(
                 {...register('versions.0.totalSupervisors', {
                   valueAsNumber: true,
                   onChange: debouncedUpdate,
-                  disabled: !canEditAllDetails,
                 })}
+                disabled={!canEditAllDetails}
                 className='border-[1px] border-gray-400 text-gray-600 bg-gray-50 p-1 rounded'
               />
             </span>
@@ -284,8 +284,8 @@ const AddToolBoxTalk = forwardRef(
                 {...register('versions.0.totalEngineers', {
                   valueAsNumber: true,
                   onChange: debouncedUpdate,
-                  disabled: !canEditAllDetails,
                 })}
+                disabled={!canEditAllDetails}
                 className='border-[1px] border-gray-400 text-gray-600 bg-gray-50 p-1 rounded'
               />
             </span>
@@ -298,8 +298,8 @@ const AddToolBoxTalk = forwardRef(
                 {...register('versions.0.totalSafety', {
                   valueAsNumber: true,
                   onChange: debouncedUpdate,
-                  disabled: !canEditAllDetails,
                 })}
+                disabled={!canEditAllDetails}
                 className='border-[1px] border-gray-400 text-gray-600 bg-gray-50 p-1 rounded'
               />
             </span>
@@ -320,8 +320,8 @@ const AddToolBoxTalk = forwardRef(
                     id={qna.question}
                     {...register(`versions.0.questions.${index}.answer`, {
                       onChange: debouncedUpdate,
-                      disabled: !canEditAllDetails,
                     })}
+                    disabled={!canEditAllDetails}
                     className='border-[1px] border-gray-400 text-gray-600 bg-gray-50 p-1 rounded h-fit'
                   />
                 </div>
@@ -364,8 +364,8 @@ const AddToolBoxTalk = forwardRef(
                           type='text'
                           {...register(`versions.0.records.${index}.item`, {
                             onChange: debouncedUpdate,
-                            disabled: !canEditAllDetails,
                           })}
+                          disabled={!canEditAllDetails}
                           className='border-[1px] border-gray-400 text-gray-600 bg-gray-50 p-1 rounded w-full'
                         />
                       </td>
@@ -374,8 +374,8 @@ const AddToolBoxTalk = forwardRef(
                           type='text'
                           {...register(`versions.0.records.${index}.actionBy`, {
                             onChange: debouncedUpdate,
-                            disabled: !canEditAllDetails,
                           })}
+                          disabled={!canEditAllDetails}
                           className='border-[1px] border-gray-400 text-gray-600 bg-gray-50 p-1 rounded w-full'
                         />
                       </td>
@@ -384,21 +384,30 @@ const AddToolBoxTalk = forwardRef(
                           type='text'
                           {...register(`versions.0.records.${index}.when`, {
                             onChange: debouncedUpdate,
-                            disabled: !canEditAllDetails,
                           })}
+                          disabled={!canEditAllDetails}
                           className='border-[1px] border-gray-400 text-gray-600 bg-gray-50 p-1 rounded w-full'
                         />
                       </td>
                       <td className='border-[1px] border-gray-500 py-1 px-2'>
                         <input
                           type='date'
+                          value={
+                            formData.versions[0].records[index].targetDate
+                              ? new Date(
+                                  formData.versions[0].records[index].targetDate
+                                )
+                                  .toISOString()
+                                  .split('T')[0]
+                              : ''
+                          }
                           {...register(
                             `versions.0.records.${index}.targetDate`,
                             {
                               onChange: debouncedUpdate,
-                              disabled: !canEditAllDetails,
                             }
                           )}
+                          disabled={!canEditAllDetails}
                           className='border-[1px] border-gray-400 text-gray-600 bg-gray-50 p-1 rounded w-full'
                         />
                       </td>
@@ -406,8 +415,8 @@ const AddToolBoxTalk = forwardRef(
                         <select
                           {...register(`versions.0.records.${index}.status`, {
                             onChange: debouncedUpdate,
-                            disabled: !canEditAllDetails,
                           })}
+                          disabled={!canEditAllDetails}
                           className='border-[1px] border-gray-400 text-gray-600 bg-gray-50 p-1 rounded'
                         >
                           {/* <option value='#'>select supervisor type</option> */}
@@ -455,8 +464,8 @@ const AddToolBoxTalk = forwardRef(
               id='suggestion'
               {...register('versions.0.suggestion', {
                 onChange: debouncedUpdate,
-                disabled: !canEditAllDetails,
               })}
+              disabled={!canEditAllDetails}
               className='border-[1px] border-gray-500 bg-gray-50 p-1 rounded w-full'
             />
           </div>
