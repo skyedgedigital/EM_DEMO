@@ -67,7 +67,7 @@ const toolboxTalkDefault: IToolboxTalk = {
         },
       ],
       records: [],
-      points: [],
+      points: [{ point: '', color: 'blue' }],
       uploadDate: new Date(),
       suggestion: '',
       feedback: [

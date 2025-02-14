@@ -121,6 +121,7 @@ const ToolBoxTalk = ({
                 <thead>
                   <tr className='border-[1px] border-gray-200 bg-gray-600 text-white py-1'>
                     <th className='text-center py-2'>Rev No</th>
+                    <th className='text-center py-2'>Created On</th>
                     <th className='text-center py-2'>Total Man Power</th>
                     <th className='text-center py-2'>Total Workers</th>
                     <th className='text-center py-2'>Total Supervisors</th>
@@ -139,6 +140,9 @@ const ToolBoxTalk = ({
                       }`}
                     >
                       <td className='text-center py-2'>{vs.revNo}</td>
+                      <td className='text-center py-2'>
+                        {vs.uploadDate.toLocaleDateString()}
+                      </td>
                       <td className='text-center py-2'>{vs.totalManPower}</td>
                       <td className='text-center py-2'>{vs.totalWorkers}</td>
                       <td className='text-center py-2'>

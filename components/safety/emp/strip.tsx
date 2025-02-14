@@ -46,6 +46,7 @@ const StripUploads = forwardRef(
         <h2 className='text-lg font-semibold text-blue-500'>
           All Raised Points
         </h2>
+
         <form className='flex flex-col gap-2' onChange={debouncePointUpdate}>
           {fields.map(({ id, color, point }, index) => (
             <div

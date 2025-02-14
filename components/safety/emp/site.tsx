@@ -200,40 +200,43 @@ const SiteUploads = forwardRef(
     return (
       <form className='border-2 border-black flex flex-col gap-2 m-8'>
         {/* log0 & all top */}
-        <div className='grid grid-cols-3'>
+        <div className='grid grid-cols-3 p-2'>
+          
           {/* two section */}
           <div className=' col-span-2'>
             <div className='flex'>
               <div className='flex w-1/2 p-2 justify-start gap-2 items-center'>
                 <Image src={logo} alt='logo' width={50} />
-                <h1>{enterPriseInfo.name}</h1>
+                <h1 className='text-lg font-bold text-blue-500'>
+                  {enterPriseInfo.name}
+                </h1>{' '}
               </div>
-              <p className=' border-l-2 border-gray-700 w-1/2 flex justify-center items-center font-bold'>
+              <p className='p-1 w-1/2 flex justify-center items-center font-bold text-lg'>
                 Form & Formats <br />
                 Site Safety <br />
                 Site Sheet
               </p>
             </div>
             <div className=' flex flex-col'>
-              <div className='w-full flex justify-start items-center gap-3 border-[1px] border-gray-800 flex-grow p-1'>
+              <div className='w-full flex justify-start items-center gap-3 flex-grow p-1'>
                 <p>Name of the program:</p>
                 <p>{programName}</p>
               </div>
-              <div className='w-full flex justify-start items-center gap-3 border-[1px] border-gray-800 flex-grow p-1'>
+              <div className='w-full flex justify-start items-center gap-3 flex-grow p-1'>
                 <p>Work Order Number:</p>
                 <p>{workOrderNumber}</p>
               </div>
-              <div className='w-full flex justify-start items-center gap-3 border-[1px] border-gray-800 flex-grow p-1'>
+              <div className='w-full flex justify-start items-center gap-3 flex-grow p-1'>
                 <label htmlFor='location'>Location:</label>
                 <p>location</p>
               </div>
-              <div className='w-full flex justify-start items-center gap-3 border-[1px] border-gray-800 flex-grow p-1'>
+              <div className='w-full flex justify-start items-center gap-3 flex-grow p-1'>
                 <p>Contractor Representative</p>
                 <p>{contractorRepresentative}</p>
               </div>
             </div>
           </div>
-          <div className=' flex-col flex justify-around border-[1px] border-gray-700'>
+          <div className=' flex-col flex justify-around gap-2 p-2'>
             <div className='w-full flex justify-start items-center gap-3  flex-grow px-1'>
               <p>Sheet No.:</p>
               <p>XX PROGRAM</p>
@@ -298,7 +301,7 @@ const SiteUploads = forwardRef(
                 e.preventDefault();
                 handleUpload();
               }}
-              className='bg-blue-500 text-white p-2 rounded hover:bg-blue-700 flex justify-center items-center gap-2'
+              className='bg-blue-500 text-white px-2 py-1 rounded hover:bg-blue-700 flex justify-center items-center gap-2'
             >
               {uploading ? (
                 <>
@@ -312,8 +315,9 @@ const SiteUploads = forwardRef(
           )}
           {siteFileURL && (
             <Link
+              target='_blank'
               href={siteFileURL}
-              className='border-[1px] border-blue-500 text-blue-500 p-2 rounded flex justify-center items-center gap-2'
+              className='border-[1px] border-blue-500 text-blue-500 px-2 py-1 rounded flex justify-center items-center gap-2'
             >
               See Uploaded Site File
             </Link>

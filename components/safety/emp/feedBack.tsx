@@ -96,7 +96,9 @@ const Feedback = forwardRef(
             {/* Form header */}
             <div className='flex w-1/2 p-2 justify-start gap-2 items-center'>
               <Image src={logo} alt='logo' width={50} />
-              <h1>{enterPriseInfo.name}</h1>
+              <h1 className='text-lg font-bold text-blue-500'>
+                {enterPriseInfo.name}
+              </h1>{' '}
             </div>
             <div className='border-x-2 border-gray-700 flex-grow flex justify-center items-center font-bold'>
               Form & Formats <br />

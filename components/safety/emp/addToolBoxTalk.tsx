@@ -88,24 +88,26 @@ const AddToolBoxTalk = forwardRef(
     return (
       <section className='m-8 rounded'>
         {/* boundary */}
-        <form className='border-2 border-black py-1 flex flex-col gap-2'>
+        <form className='border-2 border-black flex flex-col gap-2'>
           {/* log0 & all top */}
-          <div className='grid grid-cols-3'>
+          <div className='grid grid-cols-3 border-[1px] border-black p-2'>
             {/* two section */}
             <div className=' col-span-2'>
               <div className='flex'>
                 <div className='flex w-1/2 p-2 justify-start gap-2 items-center'>
                   <Image src={logo} alt='logo' width={50} />
-                  <h1>{enterPriseInfo.name}</h1>
+                  <h1 className='text-lg font-bold text-blue-500'>
+                    {enterPriseInfo.name}
+                  </h1>
                 </div>
-                <p className=' border-l-2 border-gray-700 w-1/2 flex justify-center items-center font-bold'>
+                <p className='p-1 w-1/2 flex justify-center items-center font-bold text-lg'>
                   Form & Formats <br />
                   Site Safety <br />
                   Tool Box Talk (Meeting)
                 </p>
               </div>
-              <div className=' flex flex-col'>
-                <div className='w-full flex justify-start items-center gap-3 border-[1px] border-gray-800 flex-grow p-1'>
+              <div className=' flex flex-col py-3'>
+                <div className='w-full flex justify-start items-center gap-3  flex-grow p-1'>
                   <label htmlFor='programName'>
                     Name of the program:(required)
                   </label>
@@ -120,7 +122,7 @@ const AddToolBoxTalk = forwardRef(
                     className='border-[1px] border-gray-400 text-gray-600 bg-gray-50 p-1 rounded'
                   />{' '}
                 </div>
-                <div className='w-full flex justify-start items-center gap-3 border-[1px] border-gray-800 flex-grow p-1'>
+                <div className='w-full flex justify-start items-center gap-3 flex-grow p-1'>
                   <label htmlFor='workOrder'>
                     Work Order Number:(required)
                   </label>
@@ -141,11 +143,8 @@ const AddToolBoxTalk = forwardRef(
                     ))}
                   </select>
                 </div>
-                <div className='w-full flex justify-start items-center gap-3 border-[1px] border-gray-800 flex-grow p-1'>
-                  <label htmlFor='location'>Location:</label>
-                  <p>location</p>
-                </div>
-                <div className='w-full flex justify-start items-center gap-3 border-[1px] border-gray-800 flex-grow p-1'>
+
+                <div className='w-full flex justify-start items-center gap-3 flex-grow p-1'>
                   <label htmlFor='safetyRepresentative'>
                     Safety Representative:
                   </label>
@@ -159,7 +158,7 @@ const AddToolBoxTalk = forwardRef(
                     className='border-[1px] border-gray-400 text-gray-600 bg-gray-50 p-1 rounded'
                   />
                 </div>
-                <div className='w-full flex justify-start items-center gap-3 border-[1px] border-gray-800 flex-grow p-1'>
+                <div className='w-full flex justify-start items-center gap-3 flex-grow p-1'>
                   <label htmlFor='contractorRepresentative'>
                     Contractor Representative
                   </label>
@@ -173,9 +172,27 @@ const AddToolBoxTalk = forwardRef(
                     className='border-[1px] border-gray-400 text-gray-600 bg-gray-50 p-1 rounded'
                   />
                 </div>
+                <div className='w-full flex justify-start items-center gap-3  flex-grow px-1'>
+                  <p>Company Supervisor /Line Manager:</p>
+                  <select
+                    // defaultValue={formData.versions[0].supervisor}
+                    {...register('versions.0.supervisor', {
+                      onChange: debouncedUpdate,
+                    })}
+                    disabled={!canEditAllDetails}
+                    className='border-[1px] border-gray-400 text-gray-600 bg-gray-50 p-1 rounded'
+                  >
+                    {/* <option value='#'>select supervisor type</option> */}
+                    {SupervisorNames.map((sn) => (
+                      <option value={sn} key={sn}>
+                        {sn}
+                      </option>
+                    ))}
+                  </select>
+                </div>
               </div>
             </div>
-            <div className=' flex-col flex justify-around border-[1px] border-gray-700'>
+            <div className=' flex-col flex gap-3 p-2 justify-around '>
               <div className='w-full flex justify-start items-center gap-3  flex-grow px-1'>
                 <p>Sheet No.:</p>
                 <p>XX PROGRAM</p>
@@ -212,27 +229,13 @@ const AddToolBoxTalk = forwardRef(
                 <p>Vendor Code:</p>
                 <p>{toolBoxTalkData.vendorCode}</p>
               </div>
-              <div className='w-full flex justify-start items-center gap-3  flex-grow px-1'>
-                <p>Company Supervisor /Line Manager:</p>
-                <select
-                  // defaultValue={formData.versions[0].supervisor}
-                  {...register('versions.0.supervisor', {
-                    onChange: debouncedUpdate,
-                  })}
-                  disabled={!canEditAllDetails}
-                  className='border-[1px] border-gray-400 text-gray-600 bg-gray-50 p-1 rounded'
-                >
-                  {/* <option value='#'>select supervisor type</option> */}
-                  {SupervisorNames.map((sn) => (
-                    <option value={sn} key={sn}>
-                      {sn}
-                    </option>
-                  ))}
-                </select>
+              <div className='w-full flex justify-start items-center gap-3 flex-grow p-1'>
+                <label htmlFor='location'>Location:</label>
+                <p>location</p>
               </div>
             </div>
           </div>
-          <div className='flex justify-around items-center p-1 '>
+          <div className='flex justify-around items-center p-1 my-3'>
             <span className='flex-col flex-grow flex justify-center items-start'>
               <label htmlFor='totalManPower'>Total Man Power:</label>
               <p className='border-b-[1px] border-gray-600'></p>
