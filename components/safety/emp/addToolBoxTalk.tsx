@@ -1,4 +1,5 @@
-import React, { forwardRef, useImperativeHandle } from 'react';
+'use client';
+import React, { forwardRef, useEffect, useImperativeHandle } from 'react';
 import 'jspdf-autotable';
 import toast from 'react-hot-toast';
 import Image from 'next/image';
@@ -42,7 +43,7 @@ const AddToolBoxTalk = forwardRef(
     ref
   ) => {
     console.log('AddToolBoxTalk');
-    console.log('recieved data', toolBoxTalkData);
+    // console.log('recieved data', toolBoxTalkData);
 
     const { control, formState, register, reset, watch, handleSubmit } =
       useForm<IToolboxTalk>({
@@ -56,7 +57,10 @@ const AddToolBoxTalk = forwardRef(
 
     const formData = watch(); // Get current form values
     // Expose the form state to the parent component
-    console.log('FORMDATA', formData);
+    // console.log('FORMDATA', formData);
+    useEffect(() => {
+      reset(toolBoxTalkData);
+    }, [toolBoxTalkData, reset]);
     useImperativeHandle(ref, () => ({
       getFeedbackData: () => {
         console.log('from imperative', formData);
@@ -84,12 +88,6 @@ const AddToolBoxTalk = forwardRef(
     return (
       <section className='m-8 rounded'>
         {/* boundary */}
-        {/* <div>{JSON.stringify(formData)}</div> */}
-        <div>
-          canEditImportantDetails:{JSON.stringify(canEditImportantDetails)}
-          canEditAllDetails:{JSON.stringify(canEditAllDetails)}
-        </div>
-
         <form className='border-2 border-black py-1 flex flex-col gap-2'>
           {/* log0 & all top */}
           <div className='grid grid-cols-3'>
@@ -471,7 +469,6 @@ const AddToolBoxTalk = forwardRef(
               className='border-[1px] border-gray-500 bg-gray-50 p-1 rounded w-full'
             />
           </div>
-          {/* <button type='submit'> submit</button> */}
         </form>
       </section>
     );

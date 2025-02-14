@@ -200,11 +200,6 @@ const AttendanceUploads = forwardRef(
     return (
       <form className='border-2 border-black flex flex-col gap-2 m-8'>
         {/* log0 & all top */}
-        {/* <div>{JSON.stringify(attendanceData)}</div> */}
-        <div>
-          canEditImportantDetails:{JSON.stringify(canEditImportantDetails)}
-          canEditAllDetails:{JSON.stringify(canEditAllDetails)}
-        </div>
         <div className='grid grid-cols-3'>
           {/* two section */}
           <div className=' col-span-2'>

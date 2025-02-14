@@ -48,14 +48,12 @@ const ViewToolBoxTalk = () => {
   };
   return (
     <>
-      {/* {allToolBoxTalkDocs && ( */}
       <>
         <div className='flex flex-col items-center justify-center'>
           <h2 className='text-2xl my-4'>List Of Tool Box Forms</h2>
           {allToolBoxTalkDocs?.length === 0 && (
             <span className='mt-4'>No Audit Present</span>
           )}
-          {/* {JSON.stringify(loading)} */}
           {loading && (
             <div className='flex justify-center min-h-[50vh] items-center'>
               <div className='flex justify-center items-center flex-col'>
@@ -134,7 +132,6 @@ const ViewToolBoxTalk = () => {
           )}
         </div>
       </>
-      {/* )} */}
     </>
   );
 };

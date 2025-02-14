@@ -21,6 +21,7 @@ import { useSession } from 'next-auth/react';
 import { createToolboxTalk } from '@/lib/actions/safety/toolboxtalk/create';
 import { IEnterpriseBase } from '@/interfaces/enterprise.interface';
 import { fetchEnterpriseInfo } from '@/lib/actions/enterprise';
+import { FaSpinner } from 'react-icons/fa6';
 
 const toolboxTalkDefault: IToolboxTalk = {
   documentNo: '',
@@ -128,6 +129,7 @@ const ToolBoxTalkHome = ({
     address: 'N/A',
     email: 'N/A',
   });
+  const [saving, setSaving] = useState<boolean>(false);
   const mainToolBoxTalkRef = useRef(null);
   const feedbackRef = useRef(null);
   const attendanceRef = useRef(null);
@@ -337,7 +339,7 @@ const ToolBoxTalkHome = ({
       ) {
         return toast.error('Please fill all required(*) fields');
       }
-
+      setSaving(true);
       const response = await createToolboxTalk(
         await JSON.parse(
           JSON.stringify({
@@ -383,19 +385,13 @@ const ToolBoxTalkHome = ({
     } catch (error) {
       toast.error(`${error.message || 'something went wrong!'}`);
       console.error('Error saving data:', error);
+    } finally {
+      setSaving(false);
     }
   };
 
   return (
     <>
-      {/* <div>{JSON.stringify(fetchedToolBoxData.versions[0].feedback)}</div>
-      <div>{JSON.stringify(fetchedToolBoxData.versions[0].attendance)}</div>
-      <div>{JSON.stringify(fetchedToolBoxData.versions[0].siteFileURL)}</div> */}
-      {/* <div>{JSON.stringify(fetchedToolBoxData)}</div> */}
-      <div>
-        canEditImportantDetails:{JSON.stringify(canEditImportantDetails)}
-        canEditAllDetails:{JSON.stringify(canEditAllDetails)}
-      </div>
       <div className='mt-2'>
         <ul className='flex flex-wrap text-sm font-medium text-center text-gray-500 border-b border-gray-200 dark:border-gray-700 dark:text-gray-400'>
           <li className='me-2'>
@@ -532,6 +528,7 @@ const ToolBoxTalkHome = ({
           )}
           {activeTab === 'site' && (
             <SiteUploads
+              siteFileURL={fetchedToolBoxData.versions[0].siteFileURL}
               updateSiteURL={updateSiteURL}
               effectiveDate={fetchedToolBoxData.effectiveDate}
               documentNo={fetchedToolBoxData.documentNo}
@@ -569,9 +566,16 @@ const ToolBoxTalkHome = ({
             (canEditAllDetails || canEditImportantDetails) && (
               <button
                 onClick={handleSave}
-                className='bg-green-500 rounded px-4 py-1 mb-10 text-white font-semibold shadow hover:scale-[101%]'
+                className='bg-green-500 rounded px-4 py-1 mb-10 text-white font-semibold shadow hover:scale-[101%] flex justify-center items-center gap-2'
               >
-                Save Data
+                {saving ? (
+                  <>
+                    <FaSpinner />
+                    Saving...
+                  </>
+                ) : (
+                  'Save Data'
+                )}
               </button>
             )}
         </div>

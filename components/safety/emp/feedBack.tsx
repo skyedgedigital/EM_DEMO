@@ -91,10 +91,6 @@ const Feedback = forwardRef(
 
     return (
       <section className='m-8'>
-        <div>
-          canEditImportantDetails:{JSON.stringify(canEditImportantDetails)}
-          canEditAllDetails:{JSON.stringify(canEditAllDetails)}
-        </div>
         <form className='border-2 border-gray-500'>
           <div className='flex border-b-2 border-gray-500 gap-2'>
             {/* Form header */}

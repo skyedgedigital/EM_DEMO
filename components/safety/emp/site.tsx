@@ -22,6 +22,8 @@ import toolboxTalkActions from '@/lib/actions/safety/toolboxtalk/toolboxtalkActi
 import { FaSpinner } from 'react-icons/fa6';
 import { IEnterpriseBase } from '@/interfaces/enterprise.interface';
 import logo from '@/public/assets/dark-logo.png';
+import Link from 'next/link';
+import { ExclamationTriangleIcon } from '@radix-ui/react-icons';
 
 type IFromIToolboxTalkFields = Pick<
   IToolboxTalk,
@@ -35,10 +37,10 @@ type IFromIToolboxTalkVersion = Pick<IToolboxTalkVersion, 'uploadDate'>;
 export type TSiteFileUrl = Pick<IToolboxTalkVersion, 'siteFileURL'>;
 type IFromIToolboxTalkVersionWithRevNo = Pick<
   IToolboxTalkVersionWithRevNo,
-  'revNo'
+  'revNo' | 'siteFileURL'
 >;
 type IFromIWorkOrderHr = Pick<IWorkOrderHr, 'workOrderNumber'>;
-interface IAttendanceForm
+interface ISiteForm
   extends IFromIToolboxTalkFields,
     IFromIToolboxTalkVersion,
     IFromIToolboxTalkVersionWithRevNo,
@@ -52,6 +54,7 @@ interface IAttendanceForm
 const SiteUploads = forwardRef(
   (
     {
+      siteFileURL = '',
       documentNo = 'N/A',
       effectiveDate,
       revNo = -1,
@@ -71,7 +74,7 @@ const SiteUploads = forwardRef(
       enterPriseInfo,
       canEditAllDetails,
       canEditImportantDetails,
-    }: IAttendanceForm,
+    }: ISiteForm,
     ref
   ) => {
     console.log('SiteUploads');
@@ -79,7 +82,7 @@ const SiteUploads = forwardRef(
     const [file, setFile] = useState(null);
     const [uploading, setUploading] = useState<boolean>(false);
     const [siteFileUrl, setSitFileUrl] = useState<TSiteFileUrl>({
-      siteFileURL: '',
+      siteFileURL: siteFileURL,
     });
 
     // Expose the local state to the parent component
@@ -154,13 +157,16 @@ const SiteUploads = forwardRef(
       }
       try {
         setUploading(true);
-        const {
-          data: { nextVersion },
-          error,
-        } = await toolboxTalkActions.FETCH.getNextToolboxTalkVersion(
-          documentNo
-        );
-
+        const { data, error, success, message } =
+          await toolboxTalkActions.FETCH.getNextToolboxTalkVersion(documentNo);
+        if (!success) {
+          return toast.error(
+            message ||
+              JSON.stringify(error) ||
+              'Filed to generate next version for new upload. Please try later'
+          );
+        }
+        const { nextVersion } = data;
         if (!nextVersion) {
           return toast.error(
             JSON.stringify(error) ||
@@ -182,7 +188,10 @@ const SiteUploads = forwardRef(
         }
         // console.log(data, Error, Message, Status, Success);
       } catch (error) {
-        toast.error(`Failed to upload attendance ${documentNo} image`);
+        toast.error(
+          JSON.stringify(error) ||
+            `Failed to upload attendance ${documentNo} image`
+        );
       } finally {
         setUploading(false);
       }
@@ -191,7 +200,6 @@ const SiteUploads = forwardRef(
     return (
       <form className='border-2 border-black flex flex-col gap-2 m-8'>
         {/* log0 & all top */}
-        {/* <div>{JSON.stringify(siteFileUrl)}</div> */}
         <div className='grid grid-cols-3'>
           {/* two section */}
           <div className=' col-span-2'>
@@ -277,24 +285,39 @@ const SiteUploads = forwardRef(
             )}
           </div>
         </div>
-        <div className='w-full justify-center items-center flex my-6'>
-          <button
-            type='submit'
-            onClick={(e: React.FormEvent) => {
-              e.preventDefault();
-              handleUpload();
-            }}
-            className='bg-blue-500 text-white p-2 rounded hover:bg-blue-700'
-          >
-            {uploading ? (
-              <>
-                <FaSpinner />
-                Uploading
-              </>
-            ) : (
-              'Upload'
-            )}
-          </button>
+        <div className='w-full justify-center items-center flex my-6 gap-2'>
+          {!canEditAllDetails && !canEditImportantDetails && !siteFileURL && (
+            <span className='text-blue-500 flex justify-center items-center gap-2'>
+              <ExclamationTriangleIcon /> <p>No Site File Were Uploaded</p>
+            </span>
+          )}
+          {canEditAllDetails && (
+            <button
+              type='submit'
+              onClick={(e: React.FormEvent) => {
+                e.preventDefault();
+                handleUpload();
+              }}
+              className='bg-blue-500 text-white p-2 rounded hover:bg-blue-700 flex justify-center items-center gap-2'
+            >
+              {uploading ? (
+                <>
+                  <FaSpinner />
+                  Uploading
+                </>
+              ) : (
+                'Upload'
+              )}
+            </button>
+          )}
+          {siteFileURL && (
+            <Link
+              href={siteFileURL}
+              className='border-[1px] border-blue-500 text-blue-500 p-2 rounded flex justify-center items-center gap-2'
+            >
+              See Uploaded Site File
+            </Link>
+          )}
         </div>
       </form>
     );

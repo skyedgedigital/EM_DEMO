@@ -114,7 +114,7 @@ const PointSchema: mongoose.Schema<IStripPoint> = new mongoose.Schema({
   },
   point: {
     type: String,
-    required: true,
+    default: '',
   },
 });
 
