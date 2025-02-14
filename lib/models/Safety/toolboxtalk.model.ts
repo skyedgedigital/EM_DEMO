@@ -17,10 +17,10 @@ export type RecordStatusNamesTypes = (typeof RecordStatusNames)[number];
 export const StripColorsNames = ['orange', 'blue', 'purple', 'green'] as const;
 export type StripColorNameTypes = (typeof StripColorsNames)[number];
 interface IRecord {
-  actionBy?: string;
+  actionBy: string;
   when?: string;
   targetDate?: Date;
-  status?: RecordStatusNamesTypes;
+  status: RecordStatusNamesTypes;
   item?: string;
 }
 
@@ -30,7 +30,7 @@ export interface IStripPoint {
 }
 
 export interface IAttendance {
-  permitNo: string;
+  permitNo?: string;
   remarks?: string;
   attendanceFileURL: string;
 }
@@ -44,7 +44,7 @@ export interface IToolboxTalkVersion {
   totalSupervisors?: number;
   totalSafety?: number;
   totalEmployees?: number;
-  records?: IRecord[];
+  records: IRecord[];
   uploadDate?: Date;
   suggestion?: string;
   feedback: IQA[];
@@ -57,11 +57,11 @@ export interface IToolboxTalkVersion {
 
 export interface IToolboxTalk {
   documentNo: string;
-  programName?: string;
+  programName: string;
   effectiveDate: Date;
   vendorCode: string;
-  safetyRepresentative?: string;
-  contractorRepresentative?: string;
+  safetyRepresentative: string;
+  contractorRepresentative: string;
   versions: IToolboxTalkVersionWithRevNo[];
   currentVersion: number;
 }
@@ -125,7 +125,7 @@ const AttendanceSchema: mongoose.Schema<IAttendance> = new mongoose.Schema({
   },
   permitNo: {
     type: String,
-    required: true,
+    default: '',
   },
   remarks: {
     type: String,
@@ -197,7 +197,6 @@ const ToolboxTalkSchema: mongoose.Schema<IToolboxTalk> = new mongoose.Schema({
   contractorRepresentative: {
     type: String,
     required: true,
-    default: '',
   },
   documentNo: {
     type: String,
@@ -210,12 +209,10 @@ const ToolboxTalkSchema: mongoose.Schema<IToolboxTalk> = new mongoose.Schema({
   },
   programName: {
     type: String,
-    default: '',
     required: true,
   },
   safetyRepresentative: {
     type: String,
-    default: '',
     required: true,
   },
   vendorCode: {

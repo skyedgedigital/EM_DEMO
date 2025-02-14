@@ -42,6 +42,7 @@ const AddToolBoxTalk = forwardRef(
     ref
   ) => {
     console.log('AddToolBoxTalk');
+    console.log('recieved data', toolBoxTalkData);
 
     const { control, formState, register, reset, watch, handleSubmit } =
       useForm<IToolboxTalk>({
@@ -55,6 +56,7 @@ const AddToolBoxTalk = forwardRef(
 
     const formData = watch(); // Get current form values
     // Expose the form state to the parent component
+    console.log('FORMDATA', formData);
     useImperativeHandle(ref, () => ({
       getFeedbackData: () => {
         console.log('from imperative', formData);

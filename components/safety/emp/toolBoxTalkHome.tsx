@@ -22,7 +22,7 @@ import { createToolboxTalk } from '@/lib/actions/safety/toolboxtalk/create';
 import { IEnterpriseBase } from '@/interfaces/enterprise.interface';
 import { fetchEnterpriseInfo } from '@/lib/actions/enterprise';
 
-const toolboxTalkExample: IToolboxTalk = {
+const toolboxTalkDefault: IToolboxTalk = {
   documentNo: '',
   programName: '',
   effectiveDate: new Date(),
@@ -65,29 +65,8 @@ const toolboxTalkExample: IToolboxTalk = {
           answer: '',
         },
       ],
-      records: [
-        {
-          actionBy: '',
-          when: '',
-          targetDate: new Date(),
-          status: 'Issued',
-          item: '',
-        },
-      ],
-      points: [
-        {
-          point: 'Always maintain three points of contact on ladders',
-          color: 'orange',
-        },
-        {
-          point: 'Inspect all equipment before use',
-          color: 'purple',
-        },
-        {
-          point: 'Report any safety concerns immediately',
-          color: 'blue',
-        },
-      ],
+      records: [],
+      points: [],
       uploadDate: new Date(),
       suggestion: '',
       feedback: [
@@ -108,8 +87,8 @@ const toolboxTalkExample: IToolboxTalk = {
           answer: 'N/A',
         },
       ],
-      siteFileURL: 'https://storage.firebase.com/site-photos-001.pdf',
-      uploadedBy: new mongoose.Types.ObjectId('64f8c3e5d52a9b1c72a0b123'),
+      siteFileURL: '',
+      uploadedBy: null,
       attendance: {
         permitNo: '',
         remarks: '',
@@ -133,7 +112,7 @@ const ToolBoxTalkHome = ({
   const session = useSession();
   const [activeTab, setActiveTab] = useState('add');
   const [fetchedToolBoxData, setFetchedToolBoxData] = useState<IToolboxTalk>(
-    receivedToolBoxTalk || toolboxTalkExample
+    receivedToolBoxTalk || toolboxTalkDefault
   );
   const [allWorkOrderHr, setAllWorkOrderHr] = useState<
     (IWorkOrderHr & { _id: mongoose.Types.ObjectId })[]

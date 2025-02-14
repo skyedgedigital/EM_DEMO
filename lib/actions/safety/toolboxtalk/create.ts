@@ -87,10 +87,10 @@ export const createToolboxTalk = async (
       // Create new document
       const result = await ToolboxTalkModel.create({
         documentNo: params.documentNo,
-        contractorRepresentative: params?.contractorRepresentative || '',
+        contractorRepresentative: params.contractorRepresentative,
         effectiveDate: params.effectiveDate,
-        programName: params?.programName || '',
-        safetyRepresentative: params?.safetyRepresentative || '',
+        programName: params.programName,
+        safetyRepresentative: params.safetyRepresentative,
         vendorCode: params.vendorCode,
         currentVersion: 1,
         versions: [newVersion],
