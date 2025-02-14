@@ -202,6 +202,9 @@ const ToolBoxTalkHome = ({
 
   const updateMainToolBoxTalk = useCallback(() => {
     const data: IToolboxTalk = mainToolBoxTalkRef.current?.getFeedbackData();
+    data.versions[0].uploadedBy = new mongoose.Types.ObjectId(
+      session.data.user._id
+    );
     console.log('UPDATED MAIN TOOL BOX TALK', data);
     if (data) {
       setFetchedToolBoxData((prev) => ({
