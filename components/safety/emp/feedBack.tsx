@@ -91,16 +91,16 @@ const Feedback = forwardRef(
 
     return (
       <section className='m-8'>
-        <form className='border-2 border-gray-500'>
-          <div className='flex border-b-2 border-gray-500 gap-2'>
+        <form className='border-[1px] border-gray-400 rounded'>
+          <div className='flex border-[1px] border-gray-400 gap-2'>
             {/* Form header */}
-            <div className='flex w-1/2 p-2 justify-start gap-2 items-center'>
+            <div className='flex flex-grow p-2 justify-start gap-2 items-center'>
               <Image src={logo} alt='logo' width={50} />
               <h1 className='text-lg font-bold text-blue-500'>
                 {enterPriseInfo.name}
               </h1>{' '}
             </div>
-            <div className='border-x-2 border-gray-700 flex-grow flex justify-center items-center font-bold'>
+            <div className='border-x-[1px] border-gray-500 flex-grow flex text-base md:text-lg justify-center items-center font-bold'>
               Form & Formats <br />
               Site Safety <br />
               Feedback of Tool Box Talk

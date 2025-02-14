@@ -198,10 +198,9 @@ const SiteUploads = forwardRef(
     };
 
     return (
-      <form className='border-2 border-black flex flex-col gap-2 m-8'>
+      <form className='border-[1px] border-gray-400 rounded flex flex-col gap-2 m-8'>
         {/* log0 & all top */}
         <div className='grid grid-cols-3 p-2'>
-          
           {/* two section */}
           <div className=' col-span-2'>
             <div className='flex'>
@@ -290,8 +289,9 @@ const SiteUploads = forwardRef(
         </div>
         <div className='w-full justify-center items-center flex my-6 gap-2'>
           {!canEditAllDetails && !canEditImportantDetails && !siteFileURL && (
-            <span className='text-blue-500 flex justify-center items-center gap-2'>
-              <ExclamationTriangleIcon /> <p>No Site File Were Uploaded</p>
+            <span className='text-red-400 flex justify-center items-center gap-2'>
+              <ExclamationTriangleIcon className='w-[20px] h-[20px]' />{' '}
+              <p>No Site File Were Uploaded</p>
             </span>
           )}
           {canEditAllDetails && (
