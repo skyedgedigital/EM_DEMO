@@ -59,7 +59,7 @@ const AddToolBoxTalk = forwardRef(
     // Expose the form state to the parent component
     // console.log('FORMDATA', formData);
     useEffect(() => {
-      reset(toolBoxTalkData);
+      if (formData.vendorCode.trim() === '') reset(toolBoxTalkData);
     }, [toolBoxTalkData, reset]);
     useImperativeHandle(ref, () => ({
       getFeedbackData: () => {
