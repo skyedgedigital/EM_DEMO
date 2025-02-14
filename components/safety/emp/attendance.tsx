@@ -1,162 +1,360 @@
-import React, { useEffect, useState } from 'react';
-import { storage } from "@/utils/fireBase/config";
-import { ref, uploadBytesResumable, getDownloadURL } from 'firebase/storage';
-import toolBoxTalkAction from '@/lib/actions/SafetyEmp/daily/toolBoxTalk/toolBoxTalkAction';
+import React, {
+  forwardRef,
+  useEffect,
+  useImperativeHandle,
+  useState,
+} from 'react';
+import { storage } from '@/utils/fireBase/config';
+import {
+  ref as firebaseStorageRef,
+  uploadBytesResumable,
+  getDownloadURL,
+} from 'firebase/storage';
 import toast from 'react-hot-toast';
+import Image from 'next/image';
+import {
+  IAttendance,
+  IToolboxTalkVersion,
+  IToolboxTalkVersionWithRevNo,
+} from '../../../lib/models/Safety/toolboxtalk.model';
+import { IToolboxTalk } from '@/lib/models/Safety/toolboxtalk.model';
+import { IWorkOrderHr } from '@/lib/models/HR/workOrderHr.model';
+import toolboxTalkActions from '@/lib/actions/safety/toolboxtalk/toolboxtalkActions';
+import { FaSpinner } from 'react-icons/fa6';
+import { IEnterpriseBase } from '@/interfaces/enterprise.interface';
+import logo from '@/public/assets/dark-logo.png';
+import Link from 'next/link';
 
-const AttendanceUploads = () => {
-  const [fileName, setFileName] = useState('');
-  const [file, setFile] = useState(null);
-  const [progress, setProgress] = useState(0);
-  const [result, setResults] = useState([]);
-  const [date,setDate] = useState("")
-
-  useEffect(() => {
-    const fetchData = async () => {
-      const res = await toolBoxTalkAction.FETCH.fetchAttendanceUploads();
-      setResults(JSON.parse(res.data));
-    };
-    fetchData();
-  }, []);
-
-  const handleFileNameChange = (e) => {
-    setFileName(e.target.value);
-  };
-
-  const handleFileChange = (e) => {
-    setFile(e.target.files[0]);
-  };
-
-  const handleRemoveFile = () => {
-    setFile(null);
-    setProgress(0);
-  };
-
-  const handleUpload = () => {
-    if (!file || !fileName) {
-      alert("Please enter a file name and choose a file.");
-      return;
-    }
-
-    const storageRef = ref(storage, `files/${fileName}`);
-    const uploadTask = uploadBytesResumable(storageRef, file);
-
-    uploadTask.on('state_changed', 
-      (snapshot) => {
-        const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-        setProgress(progress);
-      }, 
-      (error) => {
-        console.error("Upload failed:", error);
-      }, 
-      async () => {
-        const downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
-        const obj = {
-          link: downloadURL,
-          name: fileName,
-          date:date
-        };
-        const resp = await toolBoxTalkAction.CREATE.createAttendanceUpload(JSON.stringify(obj));
-        if (resp.success) {
-          toast.success("Upload Saved");
-          setResults(prev => [...prev, obj]);
-          handleRemoveFile();
-        } else {
-          toast.error("Upload Failed");
-        }
-      }
-    );
-  };
-
-  const handleDelete = async (id:any) => {
-    const resp = await toolBoxTalkAction.DELETE.deleteAttendanceUpload(id);
-    if (resp.success) {
-      toast.success("Deleted,Refresh to view Changes");
-    //   setResults(prev => prev.filter(item => item.id !== id));
-    } else {
-      toast.error("Failed");
-    }
-  };
-
-  return (
-    <div className="p-6 max-w-4xl mx-auto">
-      <h2 className="text-2xl text-center mb-6">Upload Attendance File</h2>
-      <div className="mb-6 bg-white p-4 rounded-lg shadow-md">
-        <input 
-          type="text" 
-          placeholder="Enter file name" 
-          value={fileName} 
-          onChange={handleFileNameChange} 
-          className="border border-gray-300 rounded p-2 mb-4 w-full"
-        />
-        <input 
-          type="date" 
-          placeholder="Enter file name" 
-          value={date} 
-          onChange={(e)=>setDate(e.target.value)} 
-          className="border border-gray-300 rounded p-2 mb-4 w-full"
-        />
-        <input 
-          type="file" 
-          onChange={handleFileChange} 
-          className="border border-gray-300 rounded p-2 mb-4 w-full"
-        />
-        {file && (
-          <div className="mb-4 flex items-center">
-            <span className="mr-4 text-green-600">{file.name}</span>
-            <button 
-              onClick={handleRemoveFile} 
-              className="bg-red-500 text-white p-2 rounded hover:bg-red-700"
-            >
-              Remove File
-            </button>
-          </div>
-        )}
-        <button 
-          onClick={handleUpload} 
-          className="bg-blue-500 text-white p-2 rounded hover:bg-blue-700"
-        >
-          Upload
-        </button>
-        {progress > 0 && (
-          <progress value={progress} max="100" className="w-full mt-4 h-2 rounded-lg overflow-hidden">
-            <div className="bg-blue-500 h-full" style={{ width: `${progress}%` }}></div>
-          </progress>
-        )}
-      </div>
-
-      <h2 className="text-2xl text-center mb-6">Uploaded Files</h2>
-      <table className="min-w-full bg-white border border-gray-300 rounded-lg shadow-md">
-        <thead>
-          <tr>
-            <th className="py-3 px-6 border-b font-medium text-gray-700">File Name</th>
-            <th className="py-3 px-6 border-b font-medium text-gray-700">Date</th>
-            <th className="py-3 px-6 border-b font-medium text-gray-700">Link</th>
-            <th className="py-3 px-6 border-b font-medium text-gray-700">Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          {result.map((item, index) => (
-            <tr key={index} className="hover:bg-gray-100">
-              <td className="py-3 px-6 border-b text-center">{item.name}</td>
-              <td className="py-3 px-6 border-b text-center">{item.date}</td>
-              <td className="py-3 px-6 border-b text-center">
-                <a href={item.link} target="_blank" rel="noopener noreferrer" className="text-blue-500 underline">View</a>
-              </td>
-              <td className="py-3 px-6 border-b flex justify-center">
-                <button 
-                  onClick={() => handleDelete(item._id)} 
-                  className="bg-red-500 text-white p-2 rounded hover:bg-red-700"
-                >
-                  Delete
-                </button>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
-  );
+type IFromIToolboxTalkFields = Pick<
+  IToolboxTalk,
+  | 'programName'
+  | 'documentNo'
+  | 'effectiveDate'
+  | 'contractorRepresentative'
+  | 'vendorCode'
+>;
+type IFromIToolboxTalkVersion = Pick<IToolboxTalkVersion, 'uploadDate'>;
+type IFromIToolboxTalkVersionWithRevNo = Pick<
+  IToolboxTalkVersionWithRevNo,
+  'revNo'
+>;
+type IFromIWorkOrderHr = Pick<IWorkOrderHr, 'workOrderNumber'>;
+interface IAttendanceForm
+  extends IFromIToolboxTalkFields,
+    IFromIToolboxTalkVersion,
+    IFromIToolboxTalkVersionWithRevNo,
+    IFromIWorkOrderHr,
+    IAttendance {
+  updateAttendance: () => void;
+  enterPriseInfo: IEnterpriseBase;
+  canEditImportantDetails?: boolean;
+  canEditAllDetails?: boolean;
 }
 
+const AttendanceUploads = forwardRef(
+  (
+    {
+      documentNo = 'N/A',
+      effectiveDate,
+      revNo = -1,
+      workOrderNumber = 'N/A',
+      programName = 'N/A',
+      uploadDate,
+      contractorRepresentative = 'N/A',
+      vendorCode = 'N/A',
+      permitNo = 'N/A',
+      remarks = 'N/A',
+      attendanceFileURL,
+      updateAttendance = async () => {
+        console.error(
+          'FRONTEND LOAD ERROR : running default update attendance function'
+        );
+        toast.error(
+          'FRONTEND LOAD ERROR : running default update attendance function'
+        );
+      },
+      enterPriseInfo,
+      canEditAllDetails,
+      canEditImportantDetails,
+    }: IAttendanceForm,
+    ref
+  ) => {
+    console.log('AttendanceUpload');
+
+    const [file, setFile] = useState(null);
+    const [uploading, setUploading] = useState<boolean>(false);
+    const [attendanceData, setAttendanceData] = useState<IAttendance>({
+      permitNo: permitNo,
+      attendanceFileURL: attendanceFileURL,
+      remarks: remarks,
+    });
+
+    // Expose the local state to the parent component
+    useImperativeHandle(ref, () => ({
+      getFeedbackData: (): IAttendance => attendanceData, // Function to return the current attendance data
+    }));
+
+    useEffect(() => {
+      updateAttendance();
+    }, [attendanceData]);
+
+    const handleFileChange = (e) => {
+      setFile(e.target.files[0]);
+    };
+
+    const handleRemoveFile = () => {
+      setFile(null);
+    };
+
+    const handlePDFUpload = async (
+      file: File,
+      storagePath: string,
+      fileName: string
+    ): Promise<string> => {
+      try {
+        // Step 1: Convert the file to a Blob
+        const blob = new Blob([file], { type: file.type });
+
+        // Step 2: Upload the Blob to Firebase Storage
+
+        const storageRef = firebaseStorageRef(
+          storage,
+          `${storagePath}/${fileName}`
+        );
+        const uploadTask = uploadBytesResumable(storageRef, blob);
+        const downloadURL = await new Promise<string>((resolve, reject) => {
+          uploadTask.on(
+            'state_changed',
+            (snapshot) => {
+              const progress =
+                (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+              console.log(`Upload is ${progress}% done`);
+            },
+            (error) => {
+              console.error('Error uploading PDF to Firebase:', error);
+              reject(error);
+            },
+            async () => {
+              try {
+                const url = await getDownloadURL(uploadTask.snapshot.ref);
+                resolve(url);
+              } catch (error) {
+                console.error('Error getting download URL:', error);
+                reject(error);
+              }
+            }
+          );
+        });
+
+        toast.success('PDF uploaded successfully!');
+        return downloadURL;
+      } catch (error) {
+        console.error('Error uploading PDF:', error);
+        toast.error('Failed to upload PDF. Please try again.');
+        throw error;
+      }
+    };
+    const handleUpload = async () => {
+      if (!file) {
+        toast.error('No file selected');
+        return;
+      }
+      try {
+        setUploading(true);
+        const { data, error, success, status, message } =
+          await toolboxTalkActions.FETCH.getNextToolboxTalkVersion(documentNo);
+        if (!success) {
+          return toast.error(
+            message ||
+              JSON.stringify(error) ||
+              'Filed to generate next version for new upload. Please try later'
+          );
+        }
+        const { nextVersion } = data;
+        console.log('next version', nextVersion);
+        const downloadURL: string = await handlePDFUpload(
+          file,
+          `toolboxtalk/attendance/${documentNo}/${nextVersion}`, // Firebase Storage path
+          `${documentNo}${nextVersion}.pdf` // Unique file name
+        );
+
+        console.log('downloadURL', downloadURL);
+        if (downloadURL) {
+          toast.success('Attendance Photo uploaded');
+          setAttendanceData((prev) => ({
+            ...prev,
+            attendanceFileURL: downloadURL,
+          }));
+        }
+        // console.log(data, Error, Message, Status, Success);
+      } catch (error) {
+        console.log(error);
+        toast.error(
+          JSON.stringify(error) ||
+            `Failed to upload attendance ${documentNo} image`
+        );
+      } finally {
+        setUploading(false);
+      }
+    };
+
+    return (
+      <form className='border-2 border-black flex flex-col gap-2 m-8'>
+        {/* log0 & all top */}
+        <div className='grid grid-cols-3 p-2'>
+          {/* two section */}
+          <div className=' col-span-2'>
+            <div className='flex'>
+              <div className='flex w-1/2 p-2 justify-start gap-2 items-center'>
+                <Image src={logo} alt='logo' width={50} />
+                <h1 className='text-lg font-bold text-blue-500'>
+                  {enterPriseInfo.name}
+                </h1>{' '}
+              </div>
+              <p className='p-1 w-1/2 flex justify-center items-center font-bold text-lg'>
+                Form & Formats <br />
+                Site Safety <br />
+                Attendance Sheet
+              </p>
+            </div>
+            <div className=' flex flex-col'>
+              <div className='w-full flex justify-start items-center gap-3  flex-grow p-1'>
+                <p>Name of the program:</p>
+                <p>{programName}</p>
+              </div>
+              <div className='w-full flex justify-start items-center gap-3  flex-grow p-1'>
+                <p>Work Order Number:</p>
+                <p>{workOrderNumber}</p>
+              </div>
+              <div className='w-full flex justify-start items-center gap-3  flex-grow p-1'>
+                <label htmlFor='location'>Location:</label>
+                <p>location</p>
+              </div>
+              <div className='w-full flex justify-start items-center gap-3  flex-grow p-1'>
+                <p>Contractor Representative</p>
+                <p>{contractorRepresentative}</p>
+              </div>
+            </div>
+          </div>
+          <div className=' flex-col flex justify-around gap-2 p-2'>
+            <div className='w-full flex justify-start items-center gap-3  flex-grow px-1'>
+              <p>Sheet No.:</p>
+              <p>XX PROGRAM</p>
+            </div>
+            <div className='w-full flex justify-start items-center gap-3  flex-grow px-1'>
+              <p>Revision No:</p>
+              <p>{revNo}</p>
+            </div>
+            <div className='w-full flex justify-start items-center gap-3  flex-grow px-1'>
+              <p>Effective Date:</p>
+              <p>{effectiveDate?.toLocaleDateString()}</p>
+            </div>
+            <div className='w-full flex justify-start items-center gap-3  flex-grow px-1'>
+              <p>Document No.:</p>
+              <p>{documentNo}</p>
+            </div>
+            <div className='w-full flex justify-start items-center gap-3  flex-grow px-1'>
+              <p>Date:</p>
+              <p>{uploadDate?.toLocaleDateString()}</p>
+            </div>
+            <div className='w-full flex justify-start items-center gap-3  flex-grow px-1'>
+              <p>Time:</p>
+              <p>{uploadDate?.toTimeString()}</p>
+            </div>
+            <div className='w-full flex justify-start items-center gap-3  flex-grow px-1'>
+              <label htmlFor='vendorCode'>Vendor Code:</label>
+              <p>{vendorCode}</p>
+            </div>
+          </div>
+        </div>
+        <div className='w-full flex items-center justify-center gap-2 p-2'>
+          <div className='w-fit flex justify-start items-center gap-3  flex-grow p-1'>
+            <label htmlFor='permitNo' className='text-nowrap'>
+              Permit no
+            </label>
+            <input
+              disabled={!canEditAllDetails}
+              defaultValue={permitNo}
+              onChange={(e) =>
+                setAttendanceData((prev) => ({
+                  ...prev,
+                  permitNo: e.target.value,
+                }))
+              }
+              id='permitNo'
+              type='text'
+              className='border-[1px] border-gray-400 text-gray-600 bg-gray-50 p-1 rounded'
+            />
+          </div>
+          <div className='w-full flex justify-start items-center gap-3  flex-grow p-1'>
+            <label htmlFor='remarks'>Remarks</label>
+            <textarea
+              disabled={!canEditAllDetails}
+              defaultValue={remarks}
+              onChange={(e) => {
+                setAttendanceData((prev) => ({
+                  ...prev,
+                  remarks: e.target.value,
+                }));
+              }}
+              id='remarks'
+              className='border-[1px] border-gray-400 text-gray-600 bg-gray-50 p-1 rounded'
+            />
+          </div>
+          <div className='flex gap-2 w-full flex-col'>
+            <label htmlFor='attendance'>Attendances Photo:(required)</label>
+            <input
+              disabled={!canEditAllDetails}
+              id='attendance'
+              type='file'
+              onChange={handleFileChange}
+              className='border border-gray-300 rounded p-2 mb-4 w-full'
+            />
+            {file && (
+              <div className='mb-4 flex items-center'>
+                <span className='mr-4 text-green-600'>{file.name}</span>
+                <button
+                  onClick={handleRemoveFile}
+                  className='bg-red-500 text-white text-nowrap p-2 rounded hover:bg-red-700'
+                >
+                  Remove File
+                </button>
+              </div>
+            )}
+          </div>
+        </div>
+        <div className='w-full justify-center items-center flex my-6 gap-2'>
+          <button
+            type='submit'
+            onClick={(e: React.FormEvent) => {
+              e.preventDefault();
+              handleUpload();
+            }}
+            className='bg-blue-500 text-white px-2 py-1 rounded hover:bg-blue-700 flex justify-center items-center gap-2'
+          >
+            {uploading ? (
+              <>
+                <FaSpinner />
+                Uploading
+              </>
+            ) : (
+              'Upload'
+            )}
+          </button>
+          {attendanceFileURL && (
+            <Link
+              target='_blank'
+              href={attendanceFileURL}
+              className='border-[1px] border-blue-500 text-blue-500 px-2 py-1 rounded flex justify-center items-center gap-2'
+            >
+              See Uploaded Attendance File
+            </Link>
+          )}
+        </div>
+      </form>
+    );
+  }
+);
+
+AttendanceUploads.displayName = 'AttendanceUploads';
 export default AttendanceUploads;

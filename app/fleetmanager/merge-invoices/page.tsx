@@ -66,8 +66,7 @@ const Page = ({
       // const { data, success, error } =
       //   await workOrderAction.FETCH.fetchAllWorkOrder();
 
-      const workOrderResp =
-        await workOrderAction.FETCH.fetchAllWorkOrder();
+      const workOrderResp = await workOrderAction.FETCH.fetchAllWorkOrder();
       console.log('VALID WO', workOrderResp);
       const success = workOrderResp.success;
       const error = workOrderResp.error;
