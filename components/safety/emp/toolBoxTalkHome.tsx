@@ -8,7 +8,11 @@ import SiteUploads, { TSiteFileUrl } from './site';
 import Feedback from './feedBack';
 import { DividerVerticalIcon } from '@radix-ui/react-icons';
 import mongoose from 'mongoose';
-import { IQA, IToolboxTalk } from '@/lib/models/Safety/toolboxtalk.model';
+import {
+  IQA,
+  IStripPoint,
+  IToolboxTalk,
+} from '@/lib/models/Safety/toolboxtalk.model';
 import { IWorkOrderHr } from '@/lib/models/HR/workOrderHr.model';
 import WorkOrderHrAction from '@/lib/actions/HR/workOrderHr/workOrderAction';
 import toast from 'react-hot-toast';
@@ -73,11 +77,11 @@ const toolboxTalkExample: IToolboxTalk = {
       points: [
         {
           point: 'Always maintain three points of contact on ladders',
-          color: 'red',
+          color: 'orange',
         },
         {
           point: 'Inspect all equipment before use',
-          color: 'yellow',
+          color: 'purple',
         },
         {
           point: 'Report any safety concerns immediately',
@@ -149,6 +153,7 @@ const ToolBoxTalkHome = ({
   const feedbackRef = useRef(null);
   const attendanceRef = useRef(null);
   const siteUrlRef = useRef(null);
+  const stripPointsRef = useRef(null);
 
   useEffect(() => {
     if (session && session?.data?.user._id) {
@@ -287,6 +292,23 @@ const ToolBoxTalkHome = ({
     }
   };
 
+  const uploadStripsPoints = () => {
+    const updatedStripPoints: IStripPoint[] =
+      stripPointsRef.current?.getUpdatedStripPoints();
+    console.log('UPDATED STRIP POINTS', updatedStripPoints);
+    if (updatedStripPoints) {
+      setFetchedToolBoxData((prev) => ({
+        ...prev,
+        versions: [
+          {
+            ...prev.versions[0],
+            points: updatedStripPoints,
+          },
+        ],
+      }));
+    }
+  };
+
   // Save all changes to the server
   const handleSave = async () => {
     try {
@@ -318,17 +340,24 @@ const ToolBoxTalkHome = ({
         supervisor,
         suggestion,
       } = versions[0];
+      console.log('SUBMITTED DATA', fetchedToolBoxData);
+      console.log(
+        canEditImportantDetails,
+        attendance.attendanceFileURL,
+        workOrderNo,
+        programName,
+        documentNo
+      );
       if (
-        canEditImportantDetails &&
-        (!attendance.attendanceFileURL ||
-          !workOrderNo ||
-          !programName ||
-          !documentNo)
+        (canEditImportantDetails &&
+          (!attendance.attendanceFileURL ||
+            !workOrderNo ||
+            !programName ||
+            !documentNo)) ||
+        !contractorRepresentative
       ) {
         return toast.error('Please fill all required(*) fields');
       }
-
-      console.log('SUBMITTED DATA', fetchedToolBoxData);
 
       const response = await createToolboxTalk(
         await JSON.parse(
@@ -383,7 +412,7 @@ const ToolBoxTalkHome = ({
       {/* <div>{JSON.stringify(fetchedToolBoxData.versions[0].feedback)}</div>
       <div>{JSON.stringify(fetchedToolBoxData.versions[0].attendance)}</div>
       <div>{JSON.stringify(fetchedToolBoxData.versions[0].siteFileURL)}</div> */}
-      <div>{JSON.stringify(fetchedToolBoxData)}</div>
+      {/* <div>{JSON.stringify(fetchedToolBoxData)}</div> */}
       <div>
         canEditImportantDetails:{JSON.stringify(canEditImportantDetails)}
         canEditAllDetails:{JSON.stringify(canEditAllDetails)}
@@ -472,9 +501,9 @@ const ToolBoxTalkHome = ({
         <div className='tab-content'>
           {' '}
           {activeTab !== 'view' && (
-            <p className='w-full text-center my-2 text-gray-500'>
-              Note: Attendances photo, Program Name, Work Order Number &
-              Document Number are Required fields
+            <p className='w-full mx-8 text-center my-2 bg-yellow-50 p-2 rounded border-[1px] border-yellow-200 text-yellow-700'>
+              Required fields*: Document Number, Program Name, Attendances
+              photo, Contractor Representative & Work Order Number
             </p>
           )}
           {activeTab === 'add' && (
@@ -513,7 +542,15 @@ const ToolBoxTalkHome = ({
               canEditAllDetails={canEditAllDetails}
             />
           )}
-          {activeTab === 'strip' && <StripUploads />}
+          {activeTab === 'strip' && (
+            <StripUploads
+              ref={stripPointsRef}
+              canEditAllDetails={canEditAllDetails}
+              canEditImportantDetails={canEditImportantDetails}
+              stripPoints={fetchedToolBoxData.versions[0].points}
+              updateStripsPoints={uploadStripsPoints}
+            />
+          )}
           {activeTab === 'site' && (
             <SiteUploads
               updateSiteURL={updateSiteURL}

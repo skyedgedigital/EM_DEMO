@@ -14,17 +14,17 @@ export const RecordStatusNames = [
 ] as const;
 export type RecordStatusNamesTypes = (typeof RecordStatusNames)[number];
 
-export const StripColorsNames = ['red', 'orange', 'yellow', 'blue'] as const;
+export const StripColorsNames = ['orange', 'blue', 'purple', 'green'] as const;
 export type StripColorNameTypes = (typeof StripColorsNames)[number];
 interface IRecord {
-  actionBy: string;
+  actionBy?: string;
   when?: string;
-  targetDate: Date;
-  status: RecordStatusNamesTypes;
-  item: string;
+  targetDate?: Date;
+  status?: RecordStatusNamesTypes;
+  item?: string;
 }
 
-interface IPoint {
+export interface IStripPoint {
   point: string;
   color?: StripColorNameTypes;
 }
@@ -44,11 +44,11 @@ export interface IToolboxTalkVersion {
   totalSupervisors?: number;
   totalSafety?: number;
   totalEmployees?: number;
-  records: IRecord[];
+  records?: IRecord[];
   uploadDate?: Date;
   suggestion?: string;
   feedback: IQA[];
-  points: IPoint[];
+  points: IStripPoint[];
   attendance: IAttendance;
   siteFileURL?: string;
   supervisor: SupervisorNamesTypes;
@@ -106,7 +106,7 @@ const RecordSchema: mongoose.Schema<IRecord> = new mongoose.Schema({
   },
 });
 
-const PointSchema: mongoose.Schema<IPoint> = new mongoose.Schema({
+const PointSchema: mongoose.Schema<IStripPoint> = new mongoose.Schema({
   color: {
     type: String,
     enum: StripColorsNames,
@@ -211,10 +211,12 @@ const ToolboxTalkSchema: mongoose.Schema<IToolboxTalk> = new mongoose.Schema({
   programName: {
     type: String,
     default: '',
+    required: true,
   },
   safetyRepresentative: {
     type: String,
     default: '',
+    required: true,
   },
   vendorCode: {
     type: String,
