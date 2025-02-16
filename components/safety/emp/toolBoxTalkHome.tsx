@@ -395,7 +395,7 @@ const ToolBoxTalkHome = ({
 
   return (
     <>
-      <div>{JSON.stringify(fetchedToolBoxData.versions[0].points)}</div>
+      {/* <div>{JSON.stringify(fetchedToolBoxData.versions[0].points)}</div> */}
       <div className='mt-2'>
         <ul className='flex flex-wrap text-sm font-medium text-center text-gray-500 border-b border-gray-200 dark:border-gray-700 dark:text-gray-400'>
           <li className='me-2'>

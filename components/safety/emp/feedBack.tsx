@@ -91,8 +91,8 @@ const Feedback = forwardRef(
 
     return (
       <section className='m-8'>
-        <form className='border-[1px] border-gray-400 rounded'>
-          <div className='flex border-[1px] border-gray-400 gap-2'>
+        <form className='border-[1px] border-gray-300 p-3 rounded-md shadow'>
+          <div className='flex border-[1px] border-gray-400 rounded gap-2'>
             {/* Form header */}
             <div className='flex flex-grow p-2 justify-start gap-2 items-center'>
               <Image src={logo} alt='logo' width={50} />
@@ -129,10 +129,11 @@ const Feedback = forwardRef(
             </div>
           </div>
 
-          <div className='flex flex-col gap-4 mt-4 p-3'>
+          <div className='flex flex-col gap-4 mt-4'>
+            <h2 className='text-blue-500 font-semibold text-lg'>Feedbacks:</h2>
             {feedbackData.map((qna, i) => (
               <div key={qna.question} className='flex flex-col gap-1'>
-                <span className='flex gap-2'>
+                <span className='flex gap-2 text-gray-600'>
                   <p>{i + 1}</p>
                   <label htmlFor={qna.question}>{qna.question}</label>
                 </span>

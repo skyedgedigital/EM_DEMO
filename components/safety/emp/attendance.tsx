@@ -199,7 +199,7 @@ const AttendanceUploads = forwardRef(
     };
 
     return (
-      <form className='border-2 border-black flex flex-col gap-2 m-8'>
+      <form className='border-[1px] border-gray-300 p-3 rounded shadow flex flex-col gap-2 m-8'>
         {/* log0 & all top */}
         <div className='grid grid-cols-3 p-2'>
           {/* two section */}

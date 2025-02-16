@@ -4,7 +4,7 @@ import {
   StripColorsNames,
 } from '../../../lib/models/Safety/toolboxtalk.model';
 import { useFieldArray, useForm } from 'react-hook-form';
-import { FaCircle, FaEye } from 'react-icons/fa6';
+import { FaCircle } from 'react-icons/fa6';
 import { debounce } from 'lodash';
 import { storage } from '@/utils/fireBase/config';
 import {
@@ -14,8 +14,10 @@ import {
 } from 'firebase/storage';
 import toast, { LoaderIcon } from 'react-hot-toast';
 import toolboxTalkActions from '@/lib/actions/safety/toolboxtalk/toolboxtalkActions';
-import { CheckCircle, Link2Icon, Link2Off } from 'lucide-react';
+import { CheckCircle, Link2Icon } from 'lucide-react';
 import Link from 'next/link';
+import { MdCancel } from 'react-icons/md';
+import { ExclamationTriangleIcon } from '@radix-ui/react-icons';
 
 interface IStripsUploads {
   stripPoints: IStripPoint[];
@@ -63,47 +65,6 @@ const StripUploads = forwardRef(
     }, 500);
 
     const cancelDebounce = () => debouncePointUpdate.cancel();
-
-    // const handleFileUpload = async (
-    //   file: File,
-    //   uploadPath: string,
-    //   fileName: string
-    // ) => {
-    //   try {
-    //     const storageRef = firebaseStorageRef(
-    //       storage,
-    //       `stripPoints/${file.name}`
-    //     );
-    //     const uploadTask = uploadBytesResumable(storageRef, file);
-    //     const downloadURL = await new Promise<string>((resolve, reject) => {
-    //       uploadTask.on(
-    //         'state_changed',
-    //         (snapshot) => {
-    //           const progress =
-    //             (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-    //           console.log(`Upload is ${progress}% done`);
-    //         },
-    //         (error) => {
-    //           console.error('Error uploading file:', error);
-    //           reject(error);
-    //         },
-    //         async () => {
-    //           try {
-    //             const url = await getDownloadURL(uploadTask.snapshot.ref);
-    //             resolve(url);
-    //           } catch (error) {
-    //             console.error('Error getting download URL:', error);
-    //             reject(error);
-    //           }
-    //         }
-    //       );
-    //     });
-    //     return downloadURL;
-    //   } catch (error) {
-    //     console.error('Error uploading file:', error);
-    //     throw error;
-    //   }
-    // };
 
     const handleImageUpload = async (
       file: File,
@@ -198,7 +159,7 @@ const StripUploads = forwardRef(
     };
 
     return (
-      <section className=' w-full md:w-[80%] lg:w-[70%] mx-auto flex flex-col gap-3 my-5'>
+      <section className=' w-full md:w-[90%] lg:w-[80%] mx-auto flex flex-col gap-3 my-5 border-[1px] border-gray-300 p-4 rounded-md shadow-sm'>
         <h2 className='text-lg font-semibold text-blue-500'>
           All Raised Points
         </h2>
@@ -207,7 +168,7 @@ const StripUploads = forwardRef(
           {fields.map(({ id, color, point }, index) => (
             <div
               key={id}
-              className='flex flex-col md:flex-row justify-start items-center gap-6 '
+              className='flex flex-col md:flex-row justify-start items-center gap-6 border-b-[1px] border-gray-300 py-1 '
             >
               <span className='flex flex-col gap-1 flex-grow w-full md:w-auto'>
                 <label className='text-gray-500' htmlFor={`point${index}`}>
@@ -273,16 +234,17 @@ const StripUploads = forwardRef(
               </span>
               <button
                 type='button'
+                disabled={!canEditAllDetails}
                 onClick={() => remove(index)}
-                className='text-red-500 border-red-300 border-[1px] rounded px-2 py-1 text-nowrap text-sm'
+                className='text-red-500 disabled:text-red-400 border-red-300 border-[1px] rounded p-1 text-nowrap text-sm'
               >
-                Remove Point
+                <MdCancel style={{ height: 22, width: 22 }} />
               </button>
             </div>
           ))}
           <div className='flex justify-center md:justify-end items-center'>
             <button
-              disabled={uploadingPointFile}
+              disabled={uploadingPointFile || !canEditAllDetails}
               type='button'
               onClick={() =>
                 append({ point: '', color: 'blue', pointFileUrl: '' })
@@ -292,6 +254,14 @@ const StripUploads = forwardRef(
               Add Point
             </button>
           </div>
+          {!canEditAllDetails &&
+            !canEditImportantDetails &&
+            formData.stripPoints.length === 0 && (
+              <span className='text-red-400 flex justify-center items-center gap-2'>
+                <ExclamationTriangleIcon className='w-[20px] h-[20px]' />{' '}
+                <p>No Points were raised</p>
+              </span>
+            )}{' '}
         </form>
         <div className='w-full justify-center items-center flex'>
           {uploadingPointFile && (
