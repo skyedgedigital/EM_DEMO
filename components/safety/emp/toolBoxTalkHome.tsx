@@ -277,7 +277,7 @@ const ToolBoxTalkHome = ({
   };
 
   const uploadStripsPoints = () => {
-    const updatedStripPoints: IStripPoint[] =
+    const updatedStripPoints: { stripPoints: IStripPoint[] } =
       stripPointsRef.current?.getUpdatedStripPoints();
     console.log('UPDATED STRIP POINTS', updatedStripPoints);
     if (updatedStripPoints) {
@@ -286,7 +286,7 @@ const ToolBoxTalkHome = ({
         versions: [
           {
             ...prev.versions[0],
-            points: updatedStripPoints,
+            points: updatedStripPoints.stripPoints,
           },
         ],
       }));
@@ -395,6 +395,7 @@ const ToolBoxTalkHome = ({
 
   return (
     <>
+      {/* <div>{JSON.stringify(fetchedToolBoxData.versions[0].points)}</div> */}
       <div className='mt-2'>
         <ul className='flex flex-wrap text-sm font-medium text-center text-gray-500 border-b border-gray-200 dark:border-gray-700 dark:text-gray-400'>
           <li className='me-2'>
@@ -527,6 +528,7 @@ const ToolBoxTalkHome = ({
               canEditImportantDetails={canEditImportantDetails}
               stripPoints={fetchedToolBoxData.versions[0].points}
               updateStripsPoints={uploadStripsPoints}
+              documentNo={fetchedToolBoxData.documentNo}
             />
           )}
           {activeTab === 'site' && (

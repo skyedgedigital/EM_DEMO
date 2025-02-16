@@ -5,6 +5,7 @@ import toast, { LoaderIcon } from 'react-hot-toast';
 import { ICurrentVersionToolboxTalk } from '@/lib/actions/safety/toolboxtalk/fetch';
 import toolboxTalkActions from '@/lib/actions/safety/toolboxtalk/toolboxtalkActions';
 import Link from 'next/link';
+import { Loader2Icon, RefreshCcw } from 'lucide-react';
 
 const ViewToolBoxTalk = () => {
   console.log('ViewToolBox');
@@ -15,6 +16,7 @@ const ViewToolBoxTalk = () => {
 
   const fetchDocs = async () => {
     try {
+      setLoading(true);
       const { data, error, message, status, success } =
         await toolboxTalkActions.FETCH.fetchCurrentVersionOfAllToolboxTalk();
       if (success) {
@@ -49,11 +51,25 @@ const ViewToolBoxTalk = () => {
   return (
     <>
       <>
-        <div className='flex flex-col items-center justify-center'>
-          <h2 className='text-2xl my-4'>List Of Tool Box Forms</h2>
-          {allToolBoxTalkDocs?.length === 0 && (
-            <span className='mt-4'>No Audit Present</span>
-          )}
+        <div className='flex flex-col items-center justify-center my-4'>
+          <div className='flex justify-between items-center w-full'>
+            <h2 className='text-2xl my-4'>List Of Tool Box Forms:</h2>
+            {allToolBoxTalkDocs?.length === 0 && (
+              <span className='mt-4'>No Audit Present</span>
+            )}
+
+            <button
+              onClick={fetchDocs}
+              className='flex gap-2 justify-center items-center bg-blue-500 hover:bg-blue-600 text-white rounded py-2 px-3'
+            >
+              {loading ? (
+                <Loader2Icon className='animate-spin' />
+              ) : (
+                <RefreshCcw />
+              )}
+              <>Refresh</>
+            </button>
+          </div>
           {loading && (
             <div className='flex justify-center min-h-[50vh] items-center'>
               <div className='flex justify-center items-center flex-col'>

@@ -198,7 +198,7 @@ const SiteUploads = forwardRef(
     };
 
     return (
-      <form className='border-[1px] border-gray-400 rounded flex flex-col gap-2 m-8'>
+      <form className='border-[1px] border-gray-400 rounded shadow flex flex-col gap-2 m-8'>
         {/* log0 & all top */}
         <div className='grid grid-cols-3 p-2'>
           {/* two section */}

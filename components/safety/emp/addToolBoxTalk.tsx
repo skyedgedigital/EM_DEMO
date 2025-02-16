@@ -88,9 +88,9 @@ const AddToolBoxTalk = forwardRef(
     return (
       <section className='m-8 rounded'>
         {/* boundary */}
-        <form className='border-2 border-black flex flex-col gap-2'>
+        <form className='border-[1px] border-gray-300 p-3 rounded shadow flex flex-col gap-2'>
           {/* log0 & all top */}
-          <div className='grid grid-cols-3 border-[1px] border-black p-2'>
+          <div className='grid grid-cols-3 border-[1px] border-gray-400 p-2 rounded'>
             {/* two section */}
             <div className=' col-span-2'>
               <div className='flex'>
@@ -308,7 +308,7 @@ const AddToolBoxTalk = forwardRef(
             </span>
           </div>
 
-          <div className='my-3 flex flex-col gap-3 p-3'>
+          <div className='my-3 flex flex-col gap-3'>
             <p className='font-semibold'>
               ITEMS DISCUSSED: (Indicate if not discussed)
             </p>
@@ -459,7 +459,7 @@ const AddToolBoxTalk = forwardRef(
               </div>
             </div>
           </div>
-          <div className='flex justify-start  gap-1 px-3 items-start'>
+          <div className='flex justify-start  gap-1 items-start'>
             <label htmlFor='suggestion' className='font-semibold'>
               Suggestion:
             </label>

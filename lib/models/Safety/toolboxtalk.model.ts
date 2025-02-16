@@ -27,6 +27,7 @@ interface IRecord {
 export interface IStripPoint {
   point: string;
   color?: StripColorNameTypes;
+  pointFileUrl?: string;
 }
 
 export interface IAttendance {
@@ -113,6 +114,10 @@ const PointSchema: mongoose.Schema<IStripPoint> = new mongoose.Schema({
     default: 'blue',
   },
   point: {
+    type: String,
+    default: '',
+  },
+  pointFileUrl: {
     type: String,
     default: '',
   },

@@ -24,7 +24,9 @@ export const fetchCurrentVersionOfAllToolboxTalk = async (): Promise<
     const dbConnection = await handleDBConnection();
     if (!dbConnection.success) return dbConnection;
 
-    const documents = await ToolboxTalkModel.find({}).lean();
+    const documents = await ToolboxTalkModel.find({})
+      .sort({ effectiveDate: -1 })
+      .lean();
     if (!documents) {
       throw new Error('No Toolboxtalks found!');
     }
