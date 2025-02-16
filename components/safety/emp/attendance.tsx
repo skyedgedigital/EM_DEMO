@@ -146,7 +146,7 @@ const AttendanceUploads = forwardRef(
           );
         });
 
-        toast.success('PDF uploaded successfully!');
+        toast.success('Image uploaded successfully!');
         return downloadURL;
       } catch (error) {
         console.error('Error uploading PDF:', error);
