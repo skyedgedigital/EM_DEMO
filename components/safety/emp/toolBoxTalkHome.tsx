@@ -277,7 +277,7 @@ const ToolBoxTalkHome = ({
   };
 
   const uploadStripsPoints = () => {
-    const updatedStripPoints: IStripPoint[] =
+    const updatedStripPoints: { stripPoints: IStripPoint[] } =
       stripPointsRef.current?.getUpdatedStripPoints();
     console.log('UPDATED STRIP POINTS', updatedStripPoints);
     if (updatedStripPoints) {
@@ -286,7 +286,7 @@ const ToolBoxTalkHome = ({
         versions: [
           {
             ...prev.versions[0],
-            points: updatedStripPoints,
+            points: updatedStripPoints.stripPoints,
           },
         ],
       }));
