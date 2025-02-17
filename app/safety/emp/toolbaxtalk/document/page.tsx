@@ -48,7 +48,7 @@ const ToolBoxTalkDocument = ({
   return (
     <section className='min-h-screen'>
       <h1 className='font-bold text-blue-500 border-b-2 border-blue-500 text-center py-2 mb-4'>
-        Tool Box Talk Details
+        Tool Box Talk Version Details
       </h1>
       {loading && (
         <div className='min-h-screen flex justify-center items-center'>

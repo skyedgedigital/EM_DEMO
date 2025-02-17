@@ -476,15 +476,34 @@ const ToolBoxTalkHome = ({
             </button>
           </li>
         </ul>
-
-        <div className='tab-content'>
-          {' '}
-          {activeTab !== 'view' && (
-            <p className='w-full mx-8 text-center my-2 bg-yellow-50 p-2 rounded border-[1px] border-yellow-200 text-yellow-700'>
-              Required fields*: Document Number, Program Name, Attendances
-              photo, Contractor Representative & Work Order Number
+        <div
+          className={`${
+            activeTab === 'view' && 'hidden'
+          } flex justify-center items-center my-1 flex-col gap-1 mx-8`}
+        >
+          {!canEditAllDetails && !canEditImportantDetails && (
+            <p className='bg-blue-500 text-white py-1 px-3 rounded'>
+              View Only
             </p>
           )}
+          {canEditAllDetails && !canEditImportantDetails && (
+            <p className='bg-blue-500 text-white py-1 px-3 rounded'>
+              Edit Details
+            </p>
+          )}
+          {canEditAllDetails && canEditImportantDetails && (
+            <p className='bg-blue-500 text-white py-1 px-3 rounded'>
+              Create New Document
+            </p>
+          )}
+
+          <p className='w-full mx-8 text-center my-2 bg-yellow-50 p-2 rounded border-[1px] border-yellow-200 text-yellow-700'>
+            Required fields*: Document Number, Program Name, Attendances photo,
+            Contractor Representative & Work Order Number
+          </p>
+        </div>
+        <div className='tab-content'>
+          {' '}
           {activeTab === 'add' && (
             <AddToolBoxTalk
               ref={mainToolBoxTalkRef}
