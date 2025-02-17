@@ -168,13 +168,14 @@ const StripUploads = forwardRef(
           {fields.map(({ id, color, point }, index) => (
             <div
               key={id}
-              className='flex flex-col md:flex-row justify-start items-center gap-6 border-b-[1px] border-gray-300 py-1 '
+              className='flex flex-col md:flex-row justify-start items-end gap-6 border-b-[1px] border-gray-200 py-2 '
             >
               <span className='flex flex-col gap-1 flex-grow w-full md:w-auto'>
                 <label className='text-gray-500' htmlFor={`point${index}`}>
                   Point {index + 1}
                 </label>
-                <textarea
+                <input
+                  type='text'
                   disabled={!canEditAllDetails}
                   defaultValue={point}
                   className='border-[1px] border-gray-400 text-gray-600 bg-gray-50 p-1 rounded w-full '
