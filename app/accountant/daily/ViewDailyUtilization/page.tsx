@@ -6,7 +6,7 @@ import React, { useEffect, useState } from 'react';
 import toast from 'react-hot-toast';
 import * as XLSX from 'xlsx';
 import { saveAs } from 'file-saver';
-const Page = () => {
+const ViewDailyUtilization = () => {
   const [vehicles, setVehicles] = useState([]);
   const [selectedOption, setSelectedOption] = useState('');
   const [month, setMonth] = useState(0);
@@ -223,4 +223,4 @@ const Page = () => {
   );
 };
 
-export default Page;
+export default ViewDailyUtilization;

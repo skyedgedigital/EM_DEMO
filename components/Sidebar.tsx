@@ -36,6 +36,7 @@ import {
   LucideReceiptPoundSterling,
   IndianRupee,
   PersonStanding,
+  Eye,
 } from 'lucide-react';
 import { Building } from 'lucide-react';
 import { LocateFixed } from 'lucide-react';
@@ -249,6 +250,12 @@ const Sidebar = forwardRef<HTMLDivElement, Props>(
                 title: 'Daily Utilisation',
                 href: '/accountant/daily',
                 icon: ClipboardPen,
+                variant: 'ghost',
+              },
+              {
+                title: 'View Daily Utilisation',
+                href: '/accountant/daily/ViewDailyUtilization',
+                icon: Eye,
                 variant: 'ghost',
               },
               {

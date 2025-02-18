@@ -6,7 +6,7 @@ import workOrderAction from '@/lib/actions/workOrder/workOrderAction';
 import React, { useEffect, useState } from 'react';
 import toast from 'react-hot-toast';
 
-const Page = () => {
+const CreateDailyUtilization = () => {
   const [vehicles, setVehicles] = useState([]);
   const [date, setDate] = useState('');
   const [selectedOption, setSelectedOption] = useState('');
@@ -294,4 +294,4 @@ const Page = () => {
   );
 };
 
-export default Page;
+export default CreateDailyUtilization;
