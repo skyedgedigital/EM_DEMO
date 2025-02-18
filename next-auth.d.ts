@@ -1,4 +1,5 @@
 import { Session } from 'next-auth';
+import { access } from './utils/enum';
 
 declare module 'next-auth' {
     interface Session {
@@ -6,7 +7,7 @@ declare module 'next-auth' {
     }
     interface employee {
         _id: string;
-        access: "DRIVER" | "FLEETMANAGER" | "HR"|"Safety";
+        access: access,
         name: string;
         phoneNo: number;
         drivingLicenseNo: string;

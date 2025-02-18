@@ -227,14 +227,33 @@ const Sidebar = forwardRef<HTMLDivElement, Props>(
                 variant: 'ghost',
               },
               {
+                title: 'Setting',
+                href: '/driver/settings',
+                icon: Settings,
+                variant: 'ghost',
+              },
+            ]}
+          />
+        )}
+        {session?.data?.user?.access === 'ACCOUNTANT' && (
+          <Nav
+            isCollapsed={isCollapsed}
+            links={[
+              {
+                title: 'Dashboard',
+                href: '/accountant/profile',
+                icon: LayoutDashboard,
+                variant: 'ghost',
+              },
+              {
                 title: 'Daily Utilisation',
-                href: '/driver/daily',
+                href: '/accountant/daily',
                 icon: ClipboardPen,
                 variant: 'ghost',
               },
               {
                 title: 'Setting',
-                href: '/driver/settings',
+                href: '/accountant/settings',
                 icon: Settings,
                 variant: 'ghost',
               },
