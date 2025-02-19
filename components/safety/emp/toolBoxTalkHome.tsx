@@ -203,7 +203,7 @@ const ToolBoxTalkHome = ({
   const updateMainToolBoxTalk = useCallback(() => {
     const data: IToolboxTalk = mainToolBoxTalkRef.current?.getFeedbackData();
     data.versions[0].uploadedBy = new mongoose.Types.ObjectId(
-      session.data.user._id
+      session.data?.user?._id
     );
     console.log('UPDATED MAIN TOOL BOX TALK', data);
     if (data) {
@@ -513,6 +513,7 @@ const ToolBoxTalkHome = ({
               enterPriseInfo={enterPriseInfo}
               canEditImportantDetails={canEditImportantDetails}
               canEditAllDetails={canEditAllDetails}
+              selectedWorkOrder={selectedWorkOrderHr}
             />
           )}
           {activeTab === 'view' && <ViewToolBoxTalk />}

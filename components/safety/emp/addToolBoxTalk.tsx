@@ -22,6 +22,7 @@ interface IMainToolBoxTalk {
   enterPriseInfo: IEnterpriseBase;
   canEditImportantDetails?: boolean;
   canEditAllDetails?: boolean;
+  selectedWorkOrder: IWorkOrderHr;
 }
 const AddToolBoxTalk = forwardRef(
   (
@@ -39,6 +40,7 @@ const AddToolBoxTalk = forwardRef(
       enterPriseInfo,
       canEditImportantDetails = true,
       canEditAllDetails = true,
+      selectedWorkOrder = null,
     }: IMainToolBoxTalk,
     ref
   ) => {
@@ -126,22 +128,31 @@ const AddToolBoxTalk = forwardRef(
                   <label htmlFor='workOrder'>
                     Work Order Number:(required)
                   </label>
-                  <select
-                    id='workOrder'
-                    {...register('versions.0.workOrderNo', {
-                      required: true,
-                      onChange: debouncedUpdate,
-                    })}
-                    disabled={!canEditAllDetails}
-                    className='border-[1px] border-gray-400 text-gray-600 bg-gray-50 p-1 rounded'
-                  >
-                    <option value={null}>select work order</option>
-                    {workOrderHr.map((wo) => (
-                      <option key={wo._id.toString()} value={wo._id.toString()}>
-                        {wo.workOrderNumber}
-                      </option>
-                    ))}
-                  </select>
+                  {!canEditAllDetails && !canEditImportantDetails ? (
+                    <p className='border-[1px] border-gray-400 text-gray-600 bg-gray-50 p-1 rounded'>
+                      {selectedWorkOrder?.workOrderNumber}
+                    </p>
+                  ) : (
+                    <select
+                      id='workOrder'
+                      {...register('versions.0.workOrderNo', {
+                        required: true,
+                        onChange: debouncedUpdate,
+                      })}
+                      disabled={!canEditAllDetails}
+                      className='border-[1px] border-gray-400 text-gray-600 bg-gray-50 p-1 rounded'
+                    >
+                      <option value={null}>select work order</option>
+                      {workOrderHr.map((wo) => (
+                        <option
+                          key={wo._id.toString()}
+                          value={wo._id.toString()}
+                        >
+                          {wo.workOrderNumber}
+                        </option>
+                      ))}
+                    </select>
+                  )}
                 </div>
 
                 <div className='w-full flex justify-start items-center gap-3 flex-grow p-1'>
