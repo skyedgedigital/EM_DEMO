@@ -2,32 +2,39 @@
 
 import { ApiResponse } from '@/interfaces/APIresponses.interface';
 import handleDBConnection from '@/lib/database';
-import { ExamModel, IExam } from '@/lib/models/Safety/training.model';
+import {
+  TrainingExamModel,
+  ITrainingExam,
+} from '@/lib/models/Safety/training.model';
 
 export const createExamWithQuestions = async (
-  params: IExam
-): Promise<ApiResponse<IExam>> => {
+  params: ITrainingExam
+): Promise<ApiResponse<ITrainingExam>> => {
   try {
     const dbConnection = await handleDBConnection();
     if (!dbConnection.success) return dbConnection;
 
-    const { title, questions, allowedCandidates, trainer } = params;
+    const { title, questions, allowedCandidates, trainer, targetDate } = params;
 
-    if (!title || !trainer) {
-      throw new Error('Insufficient values: Title and trainer are required');
+    if (!title || !trainer || !targetDate) {
+      throw new Error(
+        'Insufficient values: Title, trainer and targetDate are required'
+      );
     }
 
-    const existingExam = await ExamModel.findOne({ title });
+    const existingExam = await TrainingExamModel.findOne({ title });
 
     if (!existingExam) {
       throw new Error('An exam with this title already exists');
     }
 
-    const exam = await ExamModel.create({
+    const exam = await TrainingExamModel.create({
       title,
       allowedCandidates,
       questions,
       trainer,
+      targetDate,
+      responsibility: params?.responsibility || '',
     });
 
     if (!exam) {
@@ -54,8 +61,8 @@ export const createExamWithQuestions = async (
 
 export const updateExam = async (
   examId: string,
-  updates: Partial<IExam>
-): Promise<ApiResponse<IExam>> => {
+  updates: Partial<ITrainingExam>
+): Promise<ApiResponse<ITrainingExam>> => {
   try {
     const dbConnection = await handleDBConnection();
     if (!dbConnection.success) return dbConnection;
@@ -64,10 +71,14 @@ export const updateExam = async (
       throw new Error('Invalid input: examId and updates are required');
     }
 
-    const updatedExam = await ExamModel.findByIdAndUpdate(examId, updates, {
-      new: true,
-      runValidators: true,
-    });
+    const updatedExam = await TrainingExamModel.findByIdAndUpdate(
+      examId,
+      updates,
+      {
+        new: true,
+        runValidators: true,
+      }
+    );
 
     if (!updatedExam) {
       throw new Error('Exam not found or update failed');

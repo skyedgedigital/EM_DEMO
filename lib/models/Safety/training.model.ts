@@ -11,11 +11,13 @@ export interface IQuestion {
   correctAnswers: number[];
 }
 
-export interface IExam {
+export interface ITrainingExam {
   title: string;
   trainer: mongoose.Types.ObjectId;
   questions: mongoose.Types.ObjectId[];
   allowedCandidates: mongoose.Types.ObjectId[];
+  targetDate: Date;
+  responsibility?: string;
 }
 
 export interface IAttempt {
@@ -48,37 +50,42 @@ const QuestionSchema: mongoose.Schema<IQuestion> = new mongoose.Schema({
   },
 });
 
-const ExamSchema: mongoose.Schema<IExam> = new mongoose.Schema({
-  title: {
-    type: String,
-    required: true,
-    unique: true,
-  },
-  allowedCandidates: [
-    {
+const TrainingExamSchema: mongoose.Schema<ITrainingExam> = new mongoose.Schema(
+  {
+    title: {
+      type: String,
+      required: true,
+      unique: true,
+    },
+    allowedCandidates: [QuestionSchema],
+    questions: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Question',
+        required: true,
+      },
+    ],
+    trainer: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: 'EmployeeData',
+      ref: 'Employee', // Ensure consistency with `AttemptSchema`
       required: true,
     },
-  ],
-  questions: [
-    {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: 'Question',
+    targetDate: {
+      type: Date,
       required: true,
     },
-  ],
-  trainer: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'Employee', // Ensure consistency with `AttemptSchema`
-    required: true,
+    responsibility: {
+      type: String,
+      default: '',
+    },
   },
-});
+  { timestamps: true }
+);
 
 const AttemptSchema: mongoose.Schema<IAttempt> = new mongoose.Schema({
   candidate: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'EmployeeData', // Ensure consistency with `ExamSchema`
+    ref: 'EmployeeData', // Ensure consistency with `TrainingExamSchema`
     required: true,
   },
   exam: {
@@ -101,9 +108,9 @@ const AttemptSchema: mongoose.Schema<IAttempt> = new mongoose.Schema({
 
 const QuestionModel: mongoose.Model<IQuestion> =
   mongoose.models.Question || mongoose.model('Question', QuestionSchema);
-const ExamModel: mongoose.Model<IExam> =
-  mongoose.models.Exam || mongoose.model('Exam', ExamSchema);
+const TrainingExamModel: mongoose.Model<ITrainingExam> =
+  mongoose.models.Exam || mongoose.model('Exam', TrainingExamSchema);
 const AttemptModel: mongoose.Model<IAttempt> =
   mongoose.models.Attempt || mongoose.model('Attempt', AttemptSchema);
 
-export { QuestionModel, AttemptModel, ExamModel };
+export { QuestionModel, AttemptModel, TrainingExamModel };
