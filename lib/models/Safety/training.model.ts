@@ -4,21 +4,21 @@ export const QuestionTypesNames = ['mcq', 'multiple_answers'];
 
 export type QuestionTypes = (typeof QuestionTypesNames)[number];
 
-interface IQuestion {
+export interface IQuestion {
   text: string;
   type: QuestionTypes;
   options: { text: string }[];
   correctAnswers: number[];
 }
 
-interface IExam {
+export interface IExam {
   title: string;
   trainer: mongoose.Types.ObjectId;
   questions: mongoose.Types.ObjectId[];
   allowedCandidates: mongoose.Types.ObjectId[];
 }
 
-interface IAttempt {
+export interface IAttempt {
   candidate: mongoose.Types.ObjectId;
   exam: mongoose.Types.ObjectId;
   responses: {
@@ -52,6 +52,7 @@ const ExamSchema: mongoose.Schema<IExam> = new mongoose.Schema({
   title: {
     type: String,
     required: true,
+    unique: true,
   },
   allowedCandidates: [
     {
