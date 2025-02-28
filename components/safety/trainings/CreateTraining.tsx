@@ -138,6 +138,7 @@ const CreateTraining = () => {
         );
       if (success) {
         console.log('response data', data);
+        toast.success(message);
       }
       if (!success) {
         toast.error(message || 'Failed to create training exam try later');
