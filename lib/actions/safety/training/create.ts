@@ -21,10 +21,9 @@ export const createTrainingExamWithQuestions = async (
         'Insufficient values: Title, trainer and targetDate are required'
       );
     }
-
     const existingExam = await TrainingExamModel.findOne({ title });
-
-    if (!existingExam) {
+    console.log('EXsT EXM', existingExam);
+    if (existingExam) {
       throw new Error('An exam with this title already exists');
     }
 
@@ -45,7 +44,7 @@ export const createTrainingExamWithQuestions = async (
       success: true,
       status: 201,
       message: 'Exam successfully created!',
-      data: exam,
+      data: await JSON.parse(JSON.stringify(exam)),
       error: null,
     };
   } catch (error) {
@@ -53,7 +52,9 @@ export const createTrainingExamWithQuestions = async (
     return {
       success: false,
       status: 400,
-      message: error.message || 'Something went wrong!',
+      message:
+        error.message ||
+        'Unexpected error occurred!, Failed to create training, Please try later',
       data: null,
       error: error,
     };

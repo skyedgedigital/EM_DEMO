@@ -134,7 +134,7 @@ const CreateTraining = () => {
     try {
       const { data, error, message, status, success } =
         await trainingActions.CREATE.createTrainingExamWithQuestions(
-          submittedFormData as ITrainingExam
+          (await JSON.parse(JSON.stringify(submittedFormData))) as ITrainingExam
         );
       if (success) {
         console.log('response data', data);
