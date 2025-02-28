@@ -14,7 +14,7 @@ export interface IQuestion {
 export interface ITrainingExam {
   title: string;
   trainer: mongoose.Types.ObjectId;
-  questions: mongoose.Types.ObjectId[];
+  questions: IQuestion[];
   allowedCandidates: mongoose.Types.ObjectId[];
   targetDate: Date;
   responsibility?: string;
@@ -57,14 +57,14 @@ const TrainingExamSchema: mongoose.Schema<ITrainingExam> = new mongoose.Schema(
       required: true,
       unique: true,
     },
-    allowedCandidates: [QuestionSchema],
-    questions: [
+    allowedCandidates: [
       {
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'Question',
+        ref: 'EmployeeData',
         required: true,
       },
     ],
+    questions: [QuestionSchema],
     trainer: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'Employee', // Ensure consistency with `AttemptSchema`
