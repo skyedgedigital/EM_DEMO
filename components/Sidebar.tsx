@@ -37,6 +37,7 @@ import {
   IndianRupee,
   PersonStanding,
   Eye,
+  SwordsIcon,
 } from 'lucide-react';
 import { Building } from 'lucide-react';
 import { LocateFixed } from 'lucide-react';
@@ -305,6 +306,12 @@ const Sidebar = forwardRef<HTMLDivElement, Props>(
                 title: 'Documents',
                 href: '/safety/documents',
                 icon: FileText,
+                variant: 'ghost',
+              },
+              {
+                title: 'Trainings',
+                href: '/safety/trainings',
+                icon: SwordsIcon,
                 variant: 'ghost',
               },
             ]}

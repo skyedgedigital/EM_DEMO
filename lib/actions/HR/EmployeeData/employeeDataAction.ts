@@ -13,9 +13,15 @@ import {
   fetchAllEmployees,
   fetchEmployeesLazyLoading,
   fetchCompliancesByMonthYear,
-  fetchEmployeesWithWorkorderHr
+  fetchEmployeesWithWorkorderHr,
+  fetchAllEmployeesSelectedFieldInfos,
 } from './fetch';
-import { fetchEmployeesJoined, fetchEmployeesResigned, fetchEmpNames, fetchEmpsJoinedOrLeftWithinDateRange } from './fetchData';
+import {
+  fetchEmployeesJoined,
+  fetchEmployeesResigned,
+  fetchEmpNames,
+  fetchEmpsJoinedOrLeftWithinDateRange,
+} from './fetchData';
 import { getNotification } from './notification';
 import { updateEmployeeData } from './update';
 
@@ -43,9 +49,10 @@ const EmployeeDataAction = {
     fetchNotification: getNotification,
     fetchCompliances: fetchCompliancesByMonthYear,
     fetchEmpNames: fetchEmpNames,
-    fetchEmpsWithDateRange:fetchEmpsJoinedOrLeftWithinDateRange,
-    fetchEmpsJoinedWithinDateRange:fetchEmployeesJoined,
-    fetchEmpsResigned:fetchEmployeesResigned
+    fetchEmpsWithDateRange: fetchEmpsJoinedOrLeftWithinDateRange,
+    fetchEmpsJoinedWithinDateRange: fetchEmployeesJoined,
+    fetchEmpsResigned: fetchEmployeesResigned,
+    fetchAllEmployeesSelectedFieldInfos,
   },
 };
 

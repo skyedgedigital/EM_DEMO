@@ -7,13 +7,13 @@ import {
   ITrainingExam,
 } from '@/lib/models/Safety/training.model';
 
-export const createExamWithQuestions = async (
+export const createTrainingExamWithQuestions = async (
   params: ITrainingExam
 ): Promise<ApiResponse<ITrainingExam>> => {
   try {
     const dbConnection = await handleDBConnection();
     if (!dbConnection.success) return dbConnection;
-
+    console.log('PARAMS', params);
     const { title, questions, allowedCandidates, trainer, targetDate } = params;
 
     if (!title || !trainer || !targetDate) {
@@ -49,6 +49,7 @@ export const createExamWithQuestions = async (
       error: null,
     };
   } catch (error) {
+    console.log('ERRORRR', error);
     return {
       success: false,
       status: 400,
