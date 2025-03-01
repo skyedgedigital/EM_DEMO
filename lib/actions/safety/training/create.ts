@@ -40,24 +40,28 @@ export const createTrainingExamWithQuestions = async (
       throw new Error("Couldn't create exam");
     }
 
-    return {
-      success: true,
-      status: 201,
-      message: 'Exam successfully created!',
-      data: await JSON.parse(JSON.stringify(exam)),
-      error: null,
-    };
+    return JSON.parse(
+      JSON.stringify({
+        success: true,
+        status: 201,
+        message: 'Exam successfully created!',
+        data: exam,
+        error: null,
+      })
+    );
   } catch (error) {
     console.log('ERRORRR', error);
-    return {
-      success: false,
-      status: 400,
-      message:
-        error.message ||
-        'Unexpected error occurred!, Failed to create training, Please try later',
-      data: null,
-      error: error,
-    };
+    return JSON.parse(
+      JSON.stringify({
+        success: false,
+        status: 400,
+        message:
+          error.message ||
+          'Unexpected error occurred!, Failed to create training, Please try later',
+        data: null,
+        error: error,
+      })
+    );
   }
 };
 
@@ -86,20 +90,24 @@ export const updateExam = async (
       throw new Error('Exam not found or update failed');
     }
 
-    return {
-      success: true,
-      status: 200,
-      message: 'Exam updated successfully!',
-      data: updatedExam,
-      error: null,
-    };
+    return JSON.parse(
+      JSON.stringify({
+        success: true,
+        status: 200,
+        message: 'Exam updated successfully!',
+        data: updatedExam,
+        error: null,
+      })
+    );
   } catch (error) {
-    return {
-      success: false,
-      status: 400,
-      message: error.message || 'Something went wrong!',
-      data: null,
-      error: error,
-    };
+    return JSON.parse(
+      JSON.stringify({
+        success: false,
+        status: 400,
+        message: error.message || 'Something went wrong!',
+        data: null,
+        error: error,
+      })
+    );
   }
 };
