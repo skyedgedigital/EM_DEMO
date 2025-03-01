@@ -44,7 +44,7 @@ export const createTrainingExamWithQuestions = async (
       JSON.stringify({
         success: true,
         status: 201,
-        message: 'Exam successfully created!',
+        message: 'New training exam created successfully',
         data: exam,
         error: null,
       })
