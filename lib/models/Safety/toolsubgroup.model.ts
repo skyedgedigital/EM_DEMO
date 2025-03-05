@@ -23,6 +23,6 @@ const ToolSubGroupSchema = new Schema({
     },
 });
 
-const ToolSubGroup = mongoose.models.ToolSubGroup || mongoose.model('ToolSubGroup', ToolSubGroupSchema);
+const ToolSubGroup = mongoose.models?.ToolSubGroup || mongoose.model('ToolSubGroup', ToolSubGroupSchema);
 
 // export default ToolSubGroup;

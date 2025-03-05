@@ -14,6 +14,6 @@ const ToolBoxTalkSchema : mongoose.Schema<IData> = new Schema({
     date: { type: String, required: true },
 })
 
-const ToolBoxTalk: mongoose.Model<IData> = mongoose.models.ToolChecking || mongoose.model("ToolChecking",ToolBoxTalkSchema)
+const ToolBoxTalk: mongoose.Model<IData> = mongoose.models?.ToolChecking || mongoose.model("ToolChecking",ToolBoxTalkSchema)
 
 export default ToolBoxTalk

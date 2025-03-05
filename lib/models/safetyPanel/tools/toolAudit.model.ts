@@ -23,6 +23,6 @@ const ToolAuditSchema: mongoose.Schema<IToolAudit> = new Schema({
     }
 })
 
-const ToolAudit : mongoose.Model<IToolAudit> = mongoose.models.ToolAudit || mongoose.model("ToolAudit",ToolAuditSchema)
+const ToolAudit : mongoose.Model<IToolAudit> = mongoose.models?.ToolAudit || mongoose.model("ToolAudit",ToolAuditSchema)
 
 export default ToolAudit

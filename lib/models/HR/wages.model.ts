@@ -97,7 +97,7 @@ const WagesSchema: mongoose.Schema<any> = new mongoose.Schema({
 });
 
 const Wages: mongoose.Model<any> =
-  mongoose.models.Wages || mongoose.model('Wages', WagesSchema);
+  mongoose.models?.Wages || mongoose.model('Wages', WagesSchema);
 
 export default Wages;
 

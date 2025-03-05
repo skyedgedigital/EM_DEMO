@@ -46,7 +46,7 @@ WorkOrderSchema.pre('save', function (next) {
 });
 
 const WorkOrder: mongoose.Model<IWorkOrder> =
-  mongoose.models.WorkOrder || mongoose.model('WorkOrder', WorkOrderSchema);
+  mongoose.models?.WorkOrder || mongoose.model('WorkOrder', WorkOrderSchema);
 
 export default WorkOrder;
 

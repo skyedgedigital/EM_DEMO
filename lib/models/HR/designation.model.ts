@@ -41,7 +41,7 @@ const DesignationSchema:mongoose.Schema<IDesignation> = new Schema({
     },
 })
 
-const Designation : mongoose.Model<IDesignation> = mongoose.models.Designation || mongoose.model("Designation",DesignationSchema)
+const Designation : mongoose.Model<IDesignation> = mongoose.models?.Designation || mongoose.model("Designation",DesignationSchema)
 
 export default Designation
 

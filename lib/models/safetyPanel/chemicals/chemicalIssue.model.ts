@@ -27,7 +27,7 @@ const ChemicalIssueSchema : mongoose.Schema<IChemicalIssue> = new Schema({
     }
 })
 
-const ChemicalIssue : mongoose.Model<IChemicalIssue> = mongoose.models.ChemicalIssue || mongoose.model("ChemicalIssue",ChemicalIssueSchema);
+const ChemicalIssue : mongoose.Model<IChemicalIssue> = mongoose.models?.ChemicalIssue || mongoose.model("ChemicalIssue",ChemicalIssueSchema);
 
 export default ChemicalIssue;
 

@@ -17,6 +17,6 @@ const ToolIssueAndReplacementRegisterSchema : mongoose.Schema<IToolIssueAndRepla
     },
 })
 
-const ToolIssueAndReplacementRegister : mongoose.Model<IToolIssueAndReplacementRegister> = mongoose.models.ToolIssueAndReplacementRegister || mongoose.model("ToolIssueAndReplacementRegister",ToolIssueAndReplacementRegisterSchema)
+const ToolIssueAndReplacementRegister : mongoose.Model<IToolIssueAndReplacementRegister> = mongoose.models?.ToolIssueAndReplacementRegister || mongoose.model("ToolIssueAndReplacementRegister",ToolIssueAndReplacementRegisterSchema)
 
 export default ToolIssueAndReplacementRegister

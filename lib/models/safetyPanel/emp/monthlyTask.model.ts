@@ -26,6 +26,6 @@ const MonthlyTaskSchema: mongoose.Schema<IMonthlyTask> = new Schema({
     }
 })
 
-const MonthlyTask: mongoose.Model<IMonthlyTask> = mongoose.models.MonthlyTask || mongoose.model("MonthlyTask",MonthlyTaskSchema);
+const MonthlyTask: mongoose.Model<IMonthlyTask> = mongoose.models?.MonthlyTask || mongoose.model("MonthlyTask",MonthlyTaskSchema);
 
 export default MonthlyTask

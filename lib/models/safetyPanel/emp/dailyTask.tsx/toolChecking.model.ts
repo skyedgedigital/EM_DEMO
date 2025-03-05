@@ -33,6 +33,6 @@ const ToolCheckingSchema : mongoose.Schema<IToolChecking> = new Schema({
     }
 })
 
-const ToolChecking: mongoose.Model<IToolChecking> = mongoose.models.ToolChecking || mongoose.model("ToolChecking",ToolCheckingSchema)
+const ToolChecking: mongoose.Model<IToolChecking> = mongoose.models?.ToolChecking || mongoose.model("ToolChecking",ToolCheckingSchema)
 
 export default ToolChecking

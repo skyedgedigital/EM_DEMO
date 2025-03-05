@@ -15,7 +15,7 @@ const HouseKeepingAuditSchema : mongoose.Schema<IData> = new Schema({
 
 })
 
-const HouseKeepingAudit : mongoose.Model<IData> = mongoose.models.HouseKeepingAudit || mongoose.model("HouseKeepingAudit",HouseKeepingAuditSchema)
+const HouseKeepingAudit : mongoose.Model<IData> = mongoose.models?.HouseKeepingAudit || mongoose.model("HouseKeepingAudit",HouseKeepingAuditSchema)
 
 export default HouseKeepingAudit;
 

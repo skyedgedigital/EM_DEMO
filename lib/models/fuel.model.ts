@@ -26,6 +26,6 @@ FuelSchema.pre<IFuel>('save', function (next) {
   next();
 });
 
-const Fuel: mongoose.Model<IFuel> = mongoose.models.Fuel || mongoose.model("Fuel", FuelSchema);
+const Fuel: mongoose.Model<IFuel> = mongoose.models?.Fuel || mongoose.model("Fuel", FuelSchema);
 
 export default Fuel;

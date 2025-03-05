@@ -15,6 +15,6 @@ const PpeIssueAndReplacementSchema : mongoose.Schema<IData> = new Schema({
     docNo: { type: String },
 })
 
-const PpeIssueAndReplacement : mongoose.Model<IData> = mongoose.models.PpeIssueAndReplacement || mongoose.model("PpeIssueAndReplacement",PpeIssueAndReplacementSchema)
+const PpeIssueAndReplacement : mongoose.Model<IData> = mongoose.models?.PpeIssueAndReplacement || mongoose.model("PpeIssueAndReplacement",PpeIssueAndReplacementSchema)
 
 export default PpeIssueAndReplacement

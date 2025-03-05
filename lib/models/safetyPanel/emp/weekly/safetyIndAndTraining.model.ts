@@ -14,6 +14,6 @@ const SafetyIndAndTrainingSchema : mongoose.Schema<IData> = new Schema({
     docNo: { type: String },
 })
 
-const SafetyIndAndTraining : mongoose.Model<IData> = mongoose.models.SafetyIndAndTraining || mongoose.model("SafetyIndAndTraining",SafetyIndAndTrainingSchema)
+const SafetyIndAndTraining : mongoose.Model<IData> = mongoose.models?.SafetyIndAndTraining || mongoose.model("SafetyIndAndTraining",SafetyIndAndTrainingSchema)
 
 export default SafetyIndAndTraining

@@ -86,7 +86,7 @@ const VehicleSchema: mongoose.Schema<IVehicle> = new mongoose.Schema(
 );
 
 const Vehicle: mongoose.Model<IVehicle> =
-  mongoose.models.Vehicle || mongoose.model('Vehicle', VehicleSchema);
+  mongoose.models?.Vehicle || mongoose.model('Vehicle', VehicleSchema);
 
 export default Vehicle;
 export { VehicleSchema };

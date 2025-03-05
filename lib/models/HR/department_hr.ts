@@ -13,7 +13,7 @@ const DepartmentHrSchema:mongoose.Schema<IDepartmentHr> = new Schema({
     }
 })
 
-const DepartmentHr:  mongoose.Model<IDepartmentHr> = mongoose.models.DepartmentHr|| mongoose.model("DepartmentHr",DepartmentHrSchema)
+const DepartmentHr:  mongoose.Model<IDepartmentHr> = mongoose.models?.DepartmentHr|| mongoose.model("DepartmentHr",DepartmentHrSchema)
 
 export default DepartmentHr
 
