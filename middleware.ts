@@ -12,6 +12,7 @@ export const config = {
     '/safety/:path*',
     '/accountant/:path*',
     '/training-exam/:path*',
+    '/hr/:path*',
   ],
 };
 
@@ -54,6 +55,10 @@ export async function middleware(req: NextRequest) {
     return NextResponse.redirect(new URL('/deniedaccess', req.url));
   }
   if (pathname.startsWith('/accountant') && session.access !== 'ACCOUNTANT') {
+    console.log('Accountant access denied');
+    return NextResponse.redirect(new URL('/deniedaccess', req.url));
+  }
+  if (pathname.startsWith('/hr') && session.access !== 'HR') {
     console.log('Accountant access denied');
     return NextResponse.redirect(new URL('/deniedaccess', req.url));
   }
