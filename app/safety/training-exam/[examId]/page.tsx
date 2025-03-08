@@ -147,7 +147,7 @@ const QuestionsForms = ({ examId, candidate, employeeCode }) => {
     setAttemptedAnswers((prev) => ({
       ...prev,
       responses: Array.from({ length: exam.questions.length }, () => ({
-        selectedAnswer: -1,
+        selectedAnswer: null,
       })),
     }));
   }, [exam]);
