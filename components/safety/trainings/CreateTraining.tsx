@@ -29,7 +29,7 @@ const trainingSchema = z.object({
           })
         )
         .nonempty('At-least one option is necessary'),
-      correctAnswers: z.array(z.number()),
+      correctAnswer: z.number(),
       // .nonempty('At-least one option should be correct'),
     })
   ),
@@ -218,7 +218,7 @@ const CreateTraining = () => {
               appendQuestion({
                 text: '',
                 options: [{ text: '' }],
-                correctAnswers: [],
+                correctAnswer: -1,
               })
             }
             className=' text-blue-500 p-1 rounded flex justify-center items-center gap-1 px-3 py-1 border-[1px] border-blue-400 ml-0 md:ml-auto'
@@ -306,22 +306,19 @@ const Question = ({
 
   // Handle checkbox change for correct answers
   const handleCorrectAnswerChange = (optionIndex: number) => {
-    const currentCorrectAnswers =
-      watch(`questions.${questionIndex}.correctAnswers`) || [];
-    let updatedCorrectAnswers;
+    // const currentCorrectAnswers =
+    //   watch(`questions.${questionIndex}.correctAnswers`) || [];
+    // let updatedCorrectAnswers;
 
-    if (currentCorrectAnswers.includes(optionIndex)) {
-      updatedCorrectAnswers = currentCorrectAnswers.filter(
-        (idx) => idx !== optionIndex
-      );
-    } else {
-      updatedCorrectAnswers = [...currentCorrectAnswers, optionIndex];
-    }
+    // if (currentCorrectAnswers.includes(optionIndex)) {
+    //   updatedCorrectAnswers = currentCorrectAnswers.filter(
+    //     (idx) => idx !== optionIndex
+    //   );
+    // } else {
+    //   updatedCorrectAnswers = [...currentCorrectAnswers, optionIndex];
+    // }
 
-    setValue(
-      `questions.${questionIndex}.correctAnswers`,
-      updatedCorrectAnswers
-    );
+    setValue(`questions.${questionIndex}.correctAnswer`, optionIndex);
   };
 
   return (
@@ -353,15 +350,16 @@ const Question = ({
       </div>
 
       <div className='flex flex-col gap-2'>
-        <label>Options (Tick all correct options):</label>
+        <label>Options (Tick correct options):</label>
         <div className='md:grid md:grid-cols-4 lg:grid-cols-5 gap-2'>
           {optionFields.map((option, optionIndex) => (
             <div key={option.id} className='flex gap-2 items-center'>
               <input
-                type='checkbox'
-                checked={(
-                  watch(`questions.${questionIndex}.correctAnswers`) || []
-                ).includes(optionIndex)}
+                type='radio'
+                name={`question-${questionIndex}-text`}
+                // checked={(
+                //   watch(`questions.${questionIndex}.correctAnswers`) || []
+                // ).includes(optionIndex)}
                 onChange={() => handleCorrectAnswerChange(optionIndex)}
               />
               <input

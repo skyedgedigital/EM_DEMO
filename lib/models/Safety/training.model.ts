@@ -8,7 +8,7 @@ export interface IQuestion {
   text: string;
   // type: QuestionTypes;
   options: { text: string }[];
-  correctAnswers: number[];
+  correctAnswer: number;
 }
 
 export interface ITrainingExam {
@@ -44,8 +44,8 @@ const QuestionSchema: mongoose.Schema<IQuestion> = new mongoose.Schema(
       type: [{ text: String, _id: false }],
       required: true,
     },
-    correctAnswers: {
-      type: [Number],
+    correctAnswer: {
+      type: Number,
       required: true,
     },
   },
