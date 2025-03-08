@@ -22,7 +22,7 @@ const SiteSecurityUploadsSchema : mongoose.Schema<IData> = new Schema({
 })
 
 
-const SiteSecurityUploads : mongoose.Model<IData> = mongoose.models.SiteSecurityUploads || mongoose.model("SiteSecurityUploads",SiteSecurityUploadsSchema)
+const SiteSecurityUploads : mongoose.Model<IData> = mongoose.models?.SiteSecurityUploads || mongoose.model("SiteSecurityUploads",SiteSecurityUploadsSchema)
 
 export default SiteSecurityUploads
 

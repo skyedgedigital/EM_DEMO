@@ -23,6 +23,6 @@ const ToolCheckListSchema: mongoose.Schema<IToolCheckList> = new Schema({
     }
 })
 
-const ToolCheckList : mongoose.Model<IToolCheckList> = mongoose.models.ToolCheckList || mongoose.model("ToolCheckList",ToolCheckListSchema)
+const ToolCheckList : mongoose.Model<IToolCheckList> = mongoose.models?.ToolCheckList || mongoose.model("ToolCheckList",ToolCheckListSchema)
 
 export default ToolCheckList

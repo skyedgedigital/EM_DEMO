@@ -34,7 +34,7 @@ DepartmentSchema.pre<IDepartment>("deleteOne", async function (next) {
   }
 });
 
-const Department: mongoose.Model<IDepartment> = mongoose.models.Department || mongoose.model("Department", DepartmentSchema);
+const Department: mongoose.Model<IDepartment> = mongoose.models?.Department || mongoose.model("Department", DepartmentSchema);
 
 export default Department;
 

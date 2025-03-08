@@ -33,7 +33,7 @@ const FinalSettlementSchema:mongoose.Schema<any> = new Schema({
     
 })
 
-const FinalSettlement : mongoose.Model<any> = mongoose.models.FinalSettlement || mongoose.model("FinalSettlement",FinalSettlementSchema)
+const FinalSettlement : mongoose.Model<any> = mongoose.models?.FinalSettlement || mongoose.model("FinalSettlement",FinalSettlementSchema)
 
 export default FinalSettlement
 

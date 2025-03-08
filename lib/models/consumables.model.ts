@@ -47,5 +47,5 @@ const ConsumableSchema : mongoose.Schema<IConsumables> = new mongoose.Schema({
     }
 })
 
-const Consumable : mongoose.Model<IConsumables> = mongoose.models.Consumable || mongoose.model("Consumable", ConsumableSchema);
+const Consumable : mongoose.Model<IConsumables> = mongoose.models?.Consumable || mongoose.model("Consumable", ConsumableSchema);
 export default Consumable;

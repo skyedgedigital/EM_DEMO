@@ -27,7 +27,7 @@ EngineerSchema.pre<IEngineer>('save', function (next) {
   next();
 });
 
-const Engineer: mongoose.Model<IEngineer> = mongoose.models.Engineer || mongoose.model("Engineer", EngineerSchema);
+const Engineer: mongoose.Model<IEngineer> = mongoose.models?.Engineer || mongoose.model("Engineer", EngineerSchema);
 
 export default Engineer;
 

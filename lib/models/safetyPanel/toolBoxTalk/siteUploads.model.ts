@@ -21,5 +21,5 @@ const SiteUploadsSchema : mongoose.Schema<IData> = new Schema({
     }
 })
 
-const SiteUploads : mongoose.Model<IData> = mongoose.models.SiteUploads || mongoose.model("SiteUploads",SiteUploadsSchema);
+const SiteUploads : mongoose.Model<IData> = mongoose.models?.SiteUploads || mongoose.model("SiteUploads",SiteUploadsSchema);
 export default SiteUploads;

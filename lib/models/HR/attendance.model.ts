@@ -72,7 +72,7 @@ AttendanceSchema.pre<any>('save', function (next) {
 });
 
 const Attendance: mongoose.Model<any> =
-  mongoose.models.Attendance || mongoose.model('Attendance', AttendanceSchema);
+  mongoose.models?.Attendance || mongoose.model('Attendance', AttendanceSchema);
 
 export default Attendance;
 

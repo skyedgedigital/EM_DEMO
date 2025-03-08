@@ -23,6 +23,6 @@ const CheckListSchema: mongoose.Schema<ICheckList> = new Schema({
     }
 })
 
-const CheckList : mongoose.Model<ICheckList> = mongoose.models.CheckList || mongoose.model("CheckList",CheckListSchema)
+const CheckList : mongoose.Model<ICheckList> = mongoose.models?.CheckList || mongoose.model("CheckList",CheckListSchema)
 
 export default CheckList

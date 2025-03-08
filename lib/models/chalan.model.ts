@@ -111,7 +111,7 @@ ChalanSchema.pre<IChalan>('save',function(next){
     next();
 })
 
-const Chalan : mongoose.Model<IChalan> = mongoose.models.Chalan || mongoose.model("Chalan", ChalanSchema);
+const Chalan : mongoose.Model<IChalan> = mongoose.models?.Chalan || mongoose.model("Chalan", ChalanSchema);
 
 export default Chalan;
 

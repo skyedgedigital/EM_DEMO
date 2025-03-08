@@ -25,6 +25,6 @@ const ToolBoxTalkSchema : mongoose.Schema<IToolBoxTalk> = new Schema({
     }
 })
 
-const ToolBoxTalk : mongoose.Model<IToolBoxTalk> = mongoose.models.ToolBoxTalk || mongoose.model("ToolBoxTalk",ToolBoxTalkSchema)
+const ToolBoxTalk : mongoose.Model<IToolBoxTalk> = mongoose.models?.ToolBoxTalk || mongoose.model("ToolBoxTalk",ToolBoxTalkSchema)
 
 export default ToolBoxTalk

@@ -31,7 +31,7 @@ ToolSchema.pre<ITool>("save", function (next) {
 });
 
 const Tool: mongoose.Model<ITool> =
-  mongoose.models.Tool || mongoose.model("Tool", ToolSchema);
+  mongoose.models?.Tool || mongoose.model("Tool", ToolSchema);
 
 export default Tool;
 

@@ -41,7 +41,7 @@ const SafetyToolSchema = new Schema({
     },
 });
 
-const SafetyTool = mongoose.models.SafetyTool || mongoose.model('SafetyTool', SafetyToolSchema);
+const SafetyTool = mongoose.models?.SafetyTool || mongoose.model('SafetyTool', SafetyToolSchema);
 
 // export default SafetyTool;
 

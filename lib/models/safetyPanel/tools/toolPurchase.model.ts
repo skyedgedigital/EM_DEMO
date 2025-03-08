@@ -27,5 +27,5 @@ const SafetyToolPurchaseSchema:mongoose.Schema<IToolP> = new Schema({
     }
 })
 
-const SafetyToolPurchase:mongoose.Model<IToolP> = mongoose.models.SafetyToolPurchase || mongoose.model("SafetyToolPurchase",SafetyToolPurchaseSchema);
+const SafetyToolPurchase:mongoose.Model<IToolP> = mongoose.models?.SafetyToolPurchase || mongoose.model("SafetyToolPurchase",SafetyToolPurchaseSchema);
 export default SafetyToolPurchase;

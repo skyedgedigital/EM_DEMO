@@ -17,6 +17,6 @@ const ChemicalIssueAndReplacementRegisterSchema : mongoose.Schema<IChemicalIssue
     },
 })
 
-const ChemicalIssueAndReplacementRegister : mongoose.Model<IChemicalIssueAndReplacementRegister> = mongoose.models.ChemicalIssueAndReplacementRegister || mongoose.model("ChemicalIssueAndReplacementRegister",ChemicalIssueAndReplacementRegisterSchema)
+const ChemicalIssueAndReplacementRegister : mongoose.Model<IChemicalIssueAndReplacementRegister> = mongoose.models?.ChemicalIssueAndReplacementRegister || mongoose.model("ChemicalIssueAndReplacementRegister",ChemicalIssueAndReplacementRegisterSchema)
 
 export default ChemicalIssueAndReplacementRegister

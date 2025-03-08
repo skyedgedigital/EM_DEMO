@@ -21,5 +21,5 @@ const StripUploadsSchema : mongoose.Schema<IData> = new Schema({
     }
 })
 
-const StripUploads : mongoose.Model<IData> = mongoose.models.StripUploads || mongoose.model("StripUploads",StripUploadsSchema);
+const StripUploads : mongoose.Model<IData> = mongoose.models?.StripUploads || mongoose.model("StripUploads",StripUploadsSchema);
 export default StripUploads;

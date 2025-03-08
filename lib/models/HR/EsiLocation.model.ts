@@ -26,7 +26,7 @@ const EsiLocationSchema:mongoose.Schema<IEsiLocation> = new Schema({
     }
 })
 
-const EsiLocation : mongoose.Model<IEsiLocation> = mongoose.models.EsiLocation || mongoose.model("EsiLocation",EsiLocationSchema)
+const EsiLocation : mongoose.Model<IEsiLocation> = mongoose.models?.EsiLocation || mongoose.model("EsiLocation",EsiLocationSchema)
 
 export default EsiLocation
 

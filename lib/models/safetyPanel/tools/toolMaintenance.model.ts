@@ -25,6 +25,6 @@ const SafetyToolMaintenanceSchema : mongoose.Schema<IToolM> = new Schema({
     }
 })
 
-const SafetyToolMaintenance:mongoose.Model<IToolM> = mongoose.models.SafetyToolMaintenance || mongoose.model("SafetyToolMaintenance",SafetyToolMaintenanceSchema)
+const SafetyToolMaintenance:mongoose.Model<IToolM> = mongoose.models?.SafetyToolMaintenance || mongoose.model("SafetyToolMaintenance",SafetyToolMaintenanceSchema)
 
 export default SafetyToolMaintenance

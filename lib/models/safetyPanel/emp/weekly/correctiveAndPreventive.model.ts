@@ -14,6 +14,6 @@ const CorrectiveAndPreventiveSchema : mongoose.Schema<IData> = new Schema({
     docNo: { type: String },
 })
 
-const CorrectiveAndPreventive : mongoose.Model<IData> = mongoose.models.CorrectiveAndPreventive || mongoose.model("CorrectiveAndPreventive",CorrectiveAndPreventiveSchema)
+const CorrectiveAndPreventive : mongoose.Model<IData> = mongoose.models?.CorrectiveAndPreventive || mongoose.model("CorrectiveAndPreventive",CorrectiveAndPreventiveSchema)
 
 export default CorrectiveAndPreventive

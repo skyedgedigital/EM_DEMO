@@ -23,6 +23,6 @@ const ToolMaintanenceSchema: mongoose.Schema<IToolMaintanence> = new Schema({
     }
 })
 
-const ToolMaintanence : mongoose.Model<IToolMaintanence> = mongoose.models.ToolMaintanence || mongoose.model("ToolMaintanence",ToolMaintanenceSchema)
+const ToolMaintanence : mongoose.Model<IToolMaintanence> = mongoose.models?.ToolMaintanence || mongoose.model("ToolMaintanence",ToolMaintanenceSchema)
 
 export default ToolMaintanence

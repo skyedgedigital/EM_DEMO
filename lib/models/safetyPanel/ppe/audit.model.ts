@@ -23,6 +23,6 @@ const AuditSchema: mongoose.Schema<IAudit> = new Schema({
     }
 })
 
-const Audit : mongoose.Model<IAudit> = mongoose.models.Audit || mongoose.model("Audit",AuditSchema)
+const Audit : mongoose.Model<IAudit> = mongoose.models?.Audit || mongoose.model("Audit",AuditSchema)
 
 export default Audit

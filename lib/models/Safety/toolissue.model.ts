@@ -36,6 +36,6 @@ const ToolIssueSchema = new Schema({
     },
 });
 
-const ToolIssue = mongoose.models.ToolIssue || mongoose.model('ToolIssue', ToolIssueSchema);
+const ToolIssue = mongoose.models?.ToolIssue || mongoose.model('ToolIssue', ToolIssueSchema);
 
 // export default ToolIssue;

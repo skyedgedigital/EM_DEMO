@@ -24,7 +24,7 @@ const BankSchema:mongoose.Schema<IBank> = new Schema({
     
 })
 
-const Bank : mongoose.Model<IBank> = mongoose.models.Bank || mongoose.model("Bank",BankSchema)
+const Bank : mongoose.Model<IBank> = mongoose.models?.Bank || mongoose.model("Bank",BankSchema)
 
 export default Bank
 

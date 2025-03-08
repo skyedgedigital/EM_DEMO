@@ -27,5 +27,5 @@ const PpePurchaseSchema:mongoose.Schema<IPpeP> = new Schema({
     }
 })
 
-const PpePurchase:mongoose.Model<IPpeP> = mongoose.models.PpePurchase || mongoose.model("PpePurchase",PpePurchaseSchema);
+const PpePurchase:mongoose.Model<IPpeP> = mongoose.models?.PpePurchase || mongoose.model("PpePurchase",PpePurchaseSchema);
 export default PpePurchase;

@@ -38,6 +38,6 @@ const EnterpriseSchema: mongoose.Schema<IEnterprise> = new mongoose.Schema(
 // });
 
 const Enterprise: mongoose.Model<IEnterprise> =
-  mongoose.models.Enterprise || mongoose.model('Enterprise', EnterpriseSchema);
+  mongoose.models?.Enterprise || mongoose.model('Enterprise', EnterpriseSchema);
 
 export default Enterprise;

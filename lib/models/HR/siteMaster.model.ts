@@ -11,7 +11,7 @@ const SiteMasterSchema:mongoose.Schema<ISiteMaster> = new Schema({
     },
 })
 
-const Site : mongoose.Model<ISiteMaster> = mongoose.models.Site || mongoose.model("Site",SiteMasterSchema)
+const Site : mongoose.Model<ISiteMaster> = mongoose.models?.Site || mongoose.model("Site",SiteMasterSchema)
 
 export default Site
 

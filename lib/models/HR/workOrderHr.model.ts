@@ -67,7 +67,7 @@ const WorkOrderHrSchema: mongoose.Schema<IWorkOrderHr> = new Schema({
 });
 
 const WorkOrderHr: mongoose.Model<IWorkOrderHr> =
-  mongoose.models.WorkOrderHr ||
+  mongoose.models?.WorkOrderHr ||
   mongoose.model('WorkOrderHr', WorkOrderHrSchema);
 export { WorkOrderHrSchema };
 export default WorkOrderHr;
