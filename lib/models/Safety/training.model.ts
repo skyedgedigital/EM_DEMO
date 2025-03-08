@@ -24,7 +24,7 @@ export interface IAttempt {
   candidate: mongoose.Types.ObjectId;
   exam: mongoose.Types.ObjectId;
   responses: {
-    selectedAnswers: number[];
+    selectedAnswer: number;
   }[];
   score: number;
 }
