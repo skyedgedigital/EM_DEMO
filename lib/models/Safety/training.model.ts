@@ -24,7 +24,6 @@ export interface IAttempt {
   candidate: mongoose.Types.ObjectId;
   exam: mongoose.Types.ObjectId;
   responses: {
-    question: mongoose.Types.ObjectId;
     selectedAnswers: number[];
   }[];
   score: number;
@@ -99,11 +98,13 @@ const AttemptSchema: mongoose.Schema<IAttempt> = new mongoose.Schema(
     },
     responses: [
       {
-        question: {
-          type: mongoose.Schema.Types.ObjectId,
-          ref: 'Question',
-          required: true,
-        },
+        // it is not required since, Question is not a separate collection
+        // question: {
+        //   type: mongoose.Schema.Types.ObjectId,
+        //   ref: 'Question',
+        //   required: true,
+        // },
+
         selectedAnswers: { type: [Number], required: true },
       },
     ],
