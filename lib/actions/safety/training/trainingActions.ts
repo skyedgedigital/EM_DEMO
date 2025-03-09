@@ -6,6 +6,7 @@ import {
   updateTraining,
 } from './create';
 import {
+  fetchExamandTrainingDetail,
   fetchExamByTrainingIdAndExamType,
   fetchSelectedInfosOfExamByExamId,
 } from './fetch';
@@ -18,6 +19,7 @@ export const trainingActions = {
   FETCH: {
     fetchExamByTrainingIdAndExamType,
     fetchSelectedInfosOfExamByExamId,
+    fetchExamandTrainingDetail,
   },
   CHECKS: {
     checkEmployeeTrainingExamEligibility,
