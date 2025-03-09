@@ -29,6 +29,7 @@ export const createTrainingExamWithQuestions = async (
   try {
     const dbConnection = await handleDBConnection();
     if (!dbConnection.success) return dbConnection;
+    // console.log('----------------------------------------------------');
     console.log('PARAMS', params);
     const {
       title,
@@ -69,13 +70,15 @@ export const createTrainingExamWithQuestions = async (
       }
 
       const new_exam = await ExamModel.create(
-        {
-          examType,
-          questions,
-          responsibility: params?.responsibility || '',
-          targetDate,
-          trainingId: existingTraining._id,
-        },
+        [
+          {
+            examType,
+            questions,
+            responsibility: params?.responsibility || '',
+            targetDate,
+            trainingId: existingTraining._id,
+          },
+        ],
         { session }
       );
       if (new_exam) {
@@ -100,11 +103,13 @@ export const createTrainingExamWithQuestions = async (
     }
 
     const new_training = await TrainingModel.create(
-      {
-        title,
-        trainer,
-        allowedCandidates,
-      },
+      [
+        {
+          title,
+          trainer,
+          allowedCandidates,
+        },
+      ],
       { session }
     );
 
@@ -113,13 +118,15 @@ export const createTrainingExamWithQuestions = async (
     }
 
     const new_exam = await ExamModel.create(
-      {
-        examType,
-        questions,
-        targetDate,
-        responsibility: params.responsibility,
-        trainingId: new_training[0]._id,
-      },
+      [
+        {
+          examType,
+          questions,
+          targetDate,
+          responsibility: params.responsibility,
+          trainingId: new_training[0]._id,
+        },
+      ],
       { session }
     );
 
@@ -137,6 +144,9 @@ export const createTrainingExamWithQuestions = async (
       })
     );
   } catch (error) {
+    // console.log(
+    //   '-------------------------------------------------------------------------------'
+    // );
     await session.abortTransaction();
     console.log('ERRORRR', error);
     return JSON.parse(
