@@ -1,5 +1,10 @@
 import mongoose from 'mongoose';
 
+export const ExamTypeNames = [
+  'pre-training-exam',
+  'post-training-exam',
+] as const;
+export type ExamTypes = (typeof ExamTypeNames)[number];
 export interface IQuestion {
   text: string;
   options: { text: string }[];
@@ -16,7 +21,7 @@ export interface IExam {
   questions: IQuestion[];
   targetDate: Date;
   responsibility?: string;
-  examType: 'pre' | 'post';
+  examType: ExamTypes;
   trainingId: mongoose.Types.ObjectId;
 }
 
@@ -72,7 +77,7 @@ const ExamSchema: mongoose.Schema<IExam> = new mongoose.Schema(
     examType: {
       type: String,
       required: true,
-      enum: ['pre', 'post'],
+      enum: ExamTypeNames,
     },
     questions: [QuestionSchema],
     targetDate: {

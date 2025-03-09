@@ -10,25 +10,26 @@ import {
   IQuestion,
   IAttempt,
   AttemptModel,
+  ExamTypes,
 } from '@/lib/models/Safety/training.model';
 import mongoose from 'mongoose';
 
-interface CreateExamParams extends ITraining {
+export interface CreateTrainingExamParams extends ITraining {
   questions: IQuestion[];
   targetDate: Date;
   responsibility?: string;
-  examType: 'pre' | 'post';
+  examType: ExamTypes;
 }
 
 export const createTrainingExamWithQuestions = async (
-  params: CreateExamParams
+  params: CreateTrainingExamParams
 ): Promise<ApiResponse<IExam>> => {
   const session = await mongoose.startSession();
   session.startTransaction();
   try {
     const dbConnection = await handleDBConnection();
     if (!dbConnection.success) return dbConnection;
-    // console.log('PARAMS', params);
+    console.log('PARAMS', params);
     const {
       title,
       questions,
@@ -63,7 +64,7 @@ export const createTrainingExamWithQuestions = async (
         );
       }
       // if training exist then, pre exam must have been create before
-      if (examType === 'pre') {
+      if (examType === 'pre-training-exam') {
         throw new Error('Cannot create a pre exam, it already exist');
       }
 
@@ -94,7 +95,7 @@ export const createTrainingExamWithQuestions = async (
     }
 
     // if training does not exist then user must create a pre exam first
-    if (examType !== 'pre') {
+    if (examType !== 'pre-training-exam') {
       throw new Error(`Cannot create a ${examType}, first create a PRE exam`);
     }
 

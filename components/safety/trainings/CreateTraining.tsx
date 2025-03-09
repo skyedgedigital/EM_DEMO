@@ -10,7 +10,8 @@ import { MdClose, MdDeleteForever } from 'react-icons/md';
 import { z } from 'zod';
 import { useSession } from 'next-auth/react';
 import { trainingActions } from '@/lib/actions/safety/training/trainingActions';
-import { ITrainingExam } from '@/lib/models/Safety/training.model';
+import { CreateTrainingExamParams } from '@/lib/actions/safety/training/create';
+import { ExamTypeNames } from '@/lib/models/Safety/training.model';
 
 // Define the Zod schema for the form
 const trainingSchema = z.object({
@@ -34,6 +35,7 @@ const trainingSchema = z.object({
     })
   ),
   trainer: z.instanceof(mongoose.Types.ObjectId),
+  examType: z.enum(ExamTypeNames).default('pre-training-exam'),
 });
 
 type TrainingFormData = z.infer<typeof trainingSchema>;
@@ -134,7 +136,9 @@ const CreateTraining = () => {
     try {
       const { data, error, message, status, success } =
         await trainingActions.CREATE.createTrainingExamWithQuestions(
-          (await JSON.parse(JSON.stringify(submittedFormData))) as ITrainingExam
+          (await JSON.parse(
+            JSON.stringify(submittedFormData)
+          )) as CreateTrainingExamParams
         );
       if (success) {
         console.log('response data', data);
@@ -161,7 +165,21 @@ const CreateTraining = () => {
       <form onSubmit={handleSubmit(onSubmit)} className='flex flex-col gap-2'>
         <div className='flex gap-2 items-center'>
           <div className='flex flex-col gap-1 flex-grow p-1'>
-            <label htmlFor='title'>Title</label>
+            <label htmlFor='examType'>Exam Type:</label>
+            <select
+              {...register('examType', { required: true })}
+              className='border-[1px] border-gray-400 text-gray-600 bg-gray-50 p-1 rounded'
+            >
+              {ExamTypeNames.map((exTy) => (
+                <option key={exTy}>{exTy}</option>
+              ))}
+            </select>
+            {errors.title && (
+              <p className='text-red-500 text-sm'>{errors.title.message}</p>
+            )}
+          </div>
+          <div className='flex flex-col gap-1 flex-grow p-1'>
+            <label htmlFor='title'>Title:</label>
             <input
               id='title'
               type='text'
@@ -173,7 +191,7 @@ const CreateTraining = () => {
             )}
           </div>
           <div className='flex flex-col gap-1 flex-grow p-1'>
-            <label htmlFor='targetDate'>Date</label>
+            <label htmlFor='targetDate'>Date:</label>
             <input
               id='targetDate'
               type='date'
@@ -187,7 +205,7 @@ const CreateTraining = () => {
             )}
           </div>
           <div className='w-1/2 flex flex-col gap-1 flex-grow p-1'>
-            <label htmlFor='responsibility'>Responsibility</label>
+            <label htmlFor='responsibility'>Responsibility:</label>
             <textarea
               id='responsibility'
               {...register('responsibility')}
