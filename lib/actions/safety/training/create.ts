@@ -8,6 +8,8 @@ import {
   TrainingModel,
   ExamModel,
   IQuestion,
+  IAttempt,
+  AttemptModel,
 } from '@/lib/models/Safety/training.model';
 import mongoose from 'mongoose';
 
@@ -242,6 +244,73 @@ export const updateTraining = async (params: {
         status: 200,
         message: 'Training Successfully updated',
         data: updated_training,
+        error: null,
+      })
+    );
+  } catch (error) {
+    return JSON.parse(
+      JSON.stringify({
+        success: false,
+        status: 400,
+        message: error.message || 'Something went wrong!',
+        data: null,
+        error: error,
+      })
+    );
+  }
+};
+
+export const createExamAttempt = async (
+  params: Partial<IAttempt>
+): Promise<ApiResponse<IAttempt>> => {
+  try {
+    const dbConnection = await handleDBConnection();
+    if (!dbConnection.success) return dbConnection;
+
+    const { candidate, exam, responses } = params;
+
+    if (!candidate || !exam || responses) {
+      throw new Error('Please provide candidate and exam');
+    }
+
+    const examExist = await ExamModel.findOne({ _id: exam });
+
+    if (!examExist) {
+      throw new Error('Exam does not exist');
+    }
+
+    const { questions } = examExist;
+
+    // there should be as many answers as questions
+    if (questions.length !== responses.length) {
+      throw new Error('Answer all questions');
+    }
+
+    let total_score = 0;
+
+    for (let i = 0; i < questions.length; i++) {
+      if (questions[i].correctAnswer === responses[i].selectedAnswer) {
+        total_score++;
+      }
+    }
+
+    const attempt = await AttemptModel.create({
+      candidate,
+      exam,
+      responses,
+      score: total_score,
+    });
+
+    if (!attempt) {
+      throw new Error("Couldn't save progress, Try Again");
+    }
+
+    return JSON.parse(
+      JSON.stringify({
+        success: true,
+        status: 200,
+        message: 'Answers successfully submitted',
+        data: attempt,
         error: null,
       })
     );

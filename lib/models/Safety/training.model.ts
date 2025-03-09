@@ -106,7 +106,7 @@ const AttemptSchema: mongoose.Schema<IAttempt> = new mongoose.Schema(
     },
     responses: [
       {
-        selectedAnswers: { type: [Number], required: true },
+        selectedAnswers: { type: Number, required: true },
       },
     ],
     score: { type: Number, required: true },
