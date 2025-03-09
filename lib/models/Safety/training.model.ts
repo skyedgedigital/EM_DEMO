@@ -1,23 +1,23 @@
 import mongoose from 'mongoose';
 
-// export const QuestionTypesNames = ['mcq', 'multiple_answers'];
-
-// export type QuestionTypes = (typeof QuestionTypesNames)[number];
-
 export interface IQuestion {
   text: string;
-  // type: QuestionTypes;
   options: { text: string }[];
   correctAnswer: number;
 }
 
-export interface ITrainingExam {
+export interface ITraining {
   title: string;
   trainer: mongoose.Types.ObjectId;
-  questions: IQuestion[];
   allowedCandidates: mongoose.Types.ObjectId[];
+}
+
+export interface IExam {
+  questions: IQuestion[];
   targetDate: Date;
   responsibility?: string;
+  examType: 'pre' | 'post';
+  trainingId: mongoose.Types.ObjectId;
 }
 
 export interface IAttempt {
@@ -35,11 +35,6 @@ const QuestionSchema: mongoose.Schema<IQuestion> = new mongoose.Schema(
       type: String,
       required: true,
     },
-    // type: {
-    //   type: String,
-    //   enum: QuestionTypesNames,
-    //   required: true,
-    // },
     options: {
       type: [{ text: String, _id: false }],
       required: true,
@@ -52,26 +47,34 @@ const QuestionSchema: mongoose.Schema<IQuestion> = new mongoose.Schema(
   { timestamps: true }
 );
 
-const TrainingExamSchema: mongoose.Schema<ITrainingExam> = new mongoose.Schema(
+const TrainingSchema: mongoose.Schema<ITraining> = new mongoose.Schema({
+  title: {
+    type: String,
+    required: true,
+    unique: true,
+  },
+  allowedCandidates: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'EmployeeData',
+      required: true,
+    },
+  ],
+  trainer: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Employee',
+    required: true,
+  },
+});
+
+const ExamSchema: mongoose.Schema<IExam> = new mongoose.Schema(
   {
-    title: {
+    examType: {
       type: String,
       required: true,
-      unique: true,
+      enum: ['pre', 'post'],
     },
-    allowedCandidates: [
-      {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'EmployeeData',
-        required: true,
-      },
-    ],
     questions: [QuestionSchema],
-    trainer: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: 'Employee', // Ensure consistency with `AttemptSchema`
-      required: true,
-    },
     targetDate: {
       type: Date,
       required: true,
@@ -79,6 +82,11 @@ const TrainingExamSchema: mongoose.Schema<ITrainingExam> = new mongoose.Schema(
     responsibility: {
       type: String,
       default: '',
+    },
+    trainingId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Training',
+      required: true,
     },
   },
   { timestamps: true }
@@ -88,7 +96,7 @@ const AttemptSchema: mongoose.Schema<IAttempt> = new mongoose.Schema(
   {
     candidate: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: 'EmployeeData', // Ensure consistency with `TrainingExamSchema`
+      ref: 'EmployeeData', // Ensure consistency with `ExamSchema`
       required: true,
     },
     exam: {
@@ -98,13 +106,6 @@ const AttemptSchema: mongoose.Schema<IAttempt> = new mongoose.Schema(
     },
     responses: [
       {
-        // it is not required since, Question is not a separate collection
-        // question: {
-        //   type: mongoose.Schema.Types.ObjectId,
-        //   ref: 'Question',
-        //   required: true,
-        // },
-
         selectedAnswers: { type: [Number], required: true },
       },
     ],
@@ -117,10 +118,11 @@ const AttemptSchema: mongoose.Schema<IAttempt> = new mongoose.Schema(
 
 const QuestionModel: mongoose.Model<IQuestion> =
   mongoose.models?.Question || mongoose.model('Question', QuestionSchema);
-const TrainingExamModel: mongoose.Model<ITrainingExam> =
-  mongoose.models?.TrainingExam ||
-  mongoose.model('TrainingExam', TrainingExamSchema);
+const TrainingModel: mongoose.Model<ITraining> =
+  mongoose.models?.Training || mongoose.model('Training', TrainingSchema);
+const ExamModel: mongoose.Model<IExam> =
+  mongoose.models?.Exam || mongoose.model('Exam', ExamSchema);
 const AttemptModel: mongoose.Model<IAttempt> =
   mongoose.models?.Attempt || mongoose.model('Attempt', AttemptSchema);
 
-export { QuestionModel, AttemptModel, TrainingExamModel };
+export { QuestionModel, AttemptModel, ExamModel, TrainingModel };

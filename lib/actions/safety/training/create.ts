@@ -3,53 +3,138 @@
 import { ApiResponse } from '@/interfaces/APIresponses.interface';
 import handleDBConnection from '@/lib/database';
 import {
-  TrainingExamModel,
-  ITrainingExam,
+  IExam,
+  ITraining,
+  TrainingModel,
+  ExamModel,
+  IQuestion,
 } from '@/lib/models/Safety/training.model';
+import mongoose from 'mongoose';
+
+interface CreateExamParams extends ITraining {
+  questions: IQuestion[];
+  targetDate: Date;
+  responsibility?: string;
+  examType: 'pre' | 'post';
+}
 
 export const createTrainingExamWithQuestions = async (
-  params: ITrainingExam
-): Promise<ApiResponse<ITrainingExam>> => {
+  params: CreateExamParams
+): Promise<ApiResponse<IExam>> => {
+  const session = await mongoose.startSession();
+  session.startTransaction();
   try {
     const dbConnection = await handleDBConnection();
     if (!dbConnection.success) return dbConnection;
-    console.log('PARAMS', params);
-    const { title, questions, allowedCandidates, trainer, targetDate } = params;
-
-    if (!title || !trainer || !targetDate) {
-      throw new Error(
-        'Insufficient values: Title, trainer and targetDate are required'
-      );
-    }
-    const existingExam = await TrainingExamModel.findOne({ title });
-    console.log('EXsT EXM', existingExam);
-    if (existingExam) {
-      throw new Error('An exam with this title already exists');
-    }
-
-    const exam = await TrainingExamModel.create({
+    // console.log('PARAMS', params);
+    const {
       title,
-      allowedCandidates,
       questions,
+      allowedCandidates,
       trainer,
       targetDate,
-      responsibility: params?.responsibility || '',
+      examType,
+    } = params;
+
+    if (!title || !trainer || !targetDate || !examType) {
+      throw new Error(
+        'Insufficient values: Title, trainer, examType, and targetDate are required'
+      );
+    }
+
+    const existingTraining = await TrainingModel.findOne({ title }, null, {
+      session,
     });
 
-    if (!exam) {
-      throw new Error("Couldn't create exam");
+    if (existingTraining) {
+      // if pre and post exams exist then no other exams should be created
+      const existingExams = await ExamModel.find(
+        {
+          trainingId: existingTraining._id,
+        },
+        null,
+        { session }
+      );
+      if (existingExams.length >= 2) {
+        throw new Error(
+          'Cannot create exams, pre and post exams already exist'
+        );
+      }
+      // if training exist then, pre exam must have been create before
+      if (examType === 'pre') {
+        throw new Error('Cannot create a pre exam, it already exist');
+      }
+
+      const new_exam = await ExamModel.create(
+        {
+          examType,
+          questions,
+          responsibility: params?.responsibility || '',
+          targetDate,
+          trainingId: existingTraining._id,
+        },
+        { session }
+      );
+      if (new_exam) {
+        await session.commitTransaction();
+        return JSON.parse(
+          JSON.stringify({
+            data: new_exam[0],
+            error: null,
+            message: 'POST exam successfully created',
+            status: 201,
+            success: true,
+          })
+        );
+      } else {
+        throw new Error('Something went wrong');
+      }
+    }
+
+    // if training does not exist then user must create a pre exam first
+    if (examType !== 'pre') {
+      throw new Error(`Cannot create a ${examType}, first create a PRE exam`);
+    }
+
+    const new_training = await TrainingModel.create(
+      {
+        title,
+        trainer,
+        allowedCandidates,
+      },
+      { session }
+    );
+
+    if (!new_training || new_training.length != 1) {
+      throw new Error('Could not create training, something went wrong');
+    }
+
+    const new_exam = await ExamModel.create(
+      {
+        examType,
+        questions,
+        targetDate,
+        responsibility: params.responsibility,
+        trainingId: new_training[0]._id,
+      },
+      { session }
+    );
+
+    if (!new_exam || new_exam.length != 1) {
+      throw new Error("Couldn't create PRE exam, something went wrong");
     }
 
     return JSON.parse(
       JSON.stringify({
         success: true,
         status: 201,
-        message: 'New training exam created successfully',
-        data: exam,
+        message: 'PRE exam successfully created',
+        data: new_exam[0],
         error: null,
       })
     );
   } catch (error) {
+    await session.abortTransaction();
     console.log('ERRORRR', error);
     return JSON.parse(
       JSON.stringify({
@@ -66,9 +151,9 @@ export const createTrainingExamWithQuestions = async (
 };
 
 export const updateExam = async (
-  examId: string,
-  updates: Partial<ITrainingExam>
-): Promise<ApiResponse<ITrainingExam>> => {
+  examId: mongoose.Schema.Types.ObjectId,
+  updates: Partial<IExam>
+): Promise<ApiResponse<IExam>> => {
   try {
     const dbConnection = await handleDBConnection();
     if (!dbConnection.success) return dbConnection;
@@ -77,14 +162,10 @@ export const updateExam = async (
       throw new Error('Invalid input: examId and updates are required');
     }
 
-    const updatedExam = await TrainingExamModel.findByIdAndUpdate(
-      examId,
-      updates,
-      {
-        new: true,
-        runValidators: true,
-      }
-    );
+    const updatedExam = await ExamModel.findByIdAndUpdate(examId, updates, {
+      new: true,
+      runValidators: true,
+    });
 
     if (!updatedExam) {
       throw new Error('Exam not found or update failed');
