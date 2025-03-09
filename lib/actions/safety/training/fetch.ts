@@ -2,28 +2,29 @@
 import { ApiResponse } from '@/interfaces/APIresponses.interface';
 import handleDBConnection from '@/lib/database';
 import {
-  ITrainingExam,
-  TrainingExamModel,
+  ExamModel,
+  ExamTypes,
+  IExam,
 } from '@/lib/models/Safety/training.model';
+import mongoose from 'mongoose';
 
-export const fetchExamByExamId = async (
-  examId: string
-): Promise<ApiResponse<ITrainingExam>> => {
+export const fetchExamByTrainingIdAndExamType = async (
+  trainingId: mongoose.Schema.Types.ObjectId,
+  examType: ExamTypes
+): Promise<ApiResponse<IExam>> => {
   try {
     const dbConnection = await handleDBConnection();
     if (!dbConnection.success) return dbConnection;
-    console.log('ExamId', examId);
-    if (!examId) {
+
+    if (!trainingId || !examType) {
       throw new Error('Invalid input: examId are required');
     }
 
-    const exam = await TrainingExamModel.findById(examId).select(
-      'questions title targetDate responsibility'
-    );
+    const exam = await ExamModel.findOne({ trainingId, examType });
     console.log('Exam', exam);
 
     if (!exam) {
-      throw new Error('Exam not found or update failed');
+      throw new Error('Exam not found');
     }
 
     return JSON.parse(

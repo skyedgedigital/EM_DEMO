@@ -5,7 +5,10 @@ import {
   updateExam,
   updateTraining,
 } from './create';
-import { fetchExamByExamId, fetchSelectedInfosOfExamByExamId } from './fetch';
+import {
+  fetchExamByTrainingIdAndExamType,
+  fetchSelectedInfosOfExamByExamId,
+} from './fetch';
 
 export const trainingActions = {
   CREATE: {
@@ -13,7 +16,7 @@ export const trainingActions = {
     createExamAttempt,
   },
   FETCH: {
-    fetchExamByExamId,
+    fetchExamByTrainingIdAndExamType,
     fetchSelectedInfosOfExamByExamId,
   },
   CHECKS: {
