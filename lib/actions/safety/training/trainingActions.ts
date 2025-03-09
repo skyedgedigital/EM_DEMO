@@ -8,7 +8,8 @@ import {
 import {
   fetchExamandTrainingDetail,
   fetchExamByTrainingIdAndExamType,
-  fetchSelectedInfosOfExamByExamId,
+  fetchTrainingDetailById,
+  // fetchSelectedInfosOfExamByExamId,
 } from './fetch';
 
 export const trainingActions = {
@@ -18,7 +19,7 @@ export const trainingActions = {
   },
   FETCH: {
     fetchExamByTrainingIdAndExamType,
-    fetchSelectedInfosOfExamByExamId,
+    fetchTrainingDetailById,
     fetchExamandTrainingDetail,
   },
   CHECKS: {

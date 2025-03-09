@@ -6,6 +6,7 @@ import {
   ExamTypes,
   IExam,
   ITraining,
+  TrainingModel,
 } from '@/lib/models/Safety/training.model';
 import mongoose from 'mongoose';
 
@@ -96,39 +97,32 @@ export const fetchExamandTrainingDetail = async (
   }
 };
 
-export const fetchSelectedInfosOfExamByExamId = async (
-  examId: string,
-  selectedField: (keyof ITrainingExam)[] | string[] = []
-): Promise<ApiResponse<ITrainingExam>> => {
+export const fetchTrainingDetailById = async (
+  trainingId: mongoose.Schema.Types.ObjectId
+) => {
   try {
-    // console.log('HELLO');
     const dbConnection = await handleDBConnection();
     if (!dbConnection.success) return dbConnection;
-    console.log('ExamId', examId);
-    if (!examId) {
-      throw new Error('Invalid input: examId are required');
+
+    if (!trainingId) {
+      throw new Error('Invalid input: trainingId is required');
     }
 
-    const exam = await TrainingExamModel.findById(examId).select(
-      selectedField.join(' ')
-    );
-    // console.log('Exam', exam);
+    const training = await TrainingModel.findOne({ _id: trainingId });
 
-    if (!exam) {
-      throw new Error('Exam not found or update failed');
+    if (!training) {
+      throw new Error(`No training found with id: ${trainingId}`);
     }
-
     return JSON.parse(
       JSON.stringify({
         success: true,
         status: 200,
-        message: 'Exam fetched successfully!',
-        data: exam,
+        message: 'Training fetched successfully!',
+        data: training,
         error: null,
       })
     );
   } catch (error) {
-    console.log('Error', error.message);
     return JSON.parse(
       JSON.stringify({
         success: false,
@@ -140,3 +134,48 @@ export const fetchSelectedInfosOfExamByExamId = async (
     );
   }
 };
+
+// export const fetchSelectedInfosOfExamByExamId = async (
+//   examId: string,
+//   selectedField: (keyof ITrainingExam)[] | string[] = []
+// ): Promise<ApiResponse<ITrainingExam>> => {
+//   try {
+//     // console.log('HELLO');
+//     const dbConnection = await handleDBConnection();
+//     if (!dbConnection.success) return dbConnection;
+//     console.log('ExamId', examId);
+//     if (!examId) {
+//       throw new Error('Invalid input: examId are required');
+//     }
+
+//     const exam = await TrainingExamModel.findById(examId).select(
+//       selectedField.join(' ')
+//     );
+//     // console.log('Exam', exam);
+
+//     if (!exam) {
+//       throw new Error('Exam not found or update failed');
+//     }
+
+//     return JSON.parse(
+//       JSON.stringify({
+//         success: true,
+//         status: 200,
+//         message: 'Exam fetched successfully!',
+//         data: exam,
+//         error: null,
+//       })
+//     );
+//   } catch (error) {
+//     console.log('Error', error.message);
+//     return JSON.parse(
+//       JSON.stringify({
+//         success: false,
+//         status: 400,
+//         message: error.message || 'Something went wrong!',
+//         data: null,
+//         error: error,
+//       })
+//     );
+//   }
+// };
