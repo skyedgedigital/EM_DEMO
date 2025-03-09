@@ -130,10 +130,12 @@ export const createTrainingExamWithQuestions = async (
       { session }
     );
 
+    console.log('---------------------------', new_exam);
+
     if (!new_exam || new_exam.length != 1) {
       throw new Error("Couldn't create PRE exam, something went wrong");
     }
-
+    await session.commitTransaction();
     return JSON.parse(
       JSON.stringify({
         success: true,
