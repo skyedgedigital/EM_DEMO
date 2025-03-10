@@ -195,3 +195,35 @@ export const fetchTrainingDetailById = async (trainingId: string) => {
 //     );
 //   }
 // };
+
+export const fetchAllTrainingDetails = async (): Promise<
+  ApiResponse<ITraining[]>
+> => {
+  try {
+    const dbConnection = await handleDBConnection();
+    if (!dbConnection.success) return dbConnection;
+    const trainings = await TrainingModel.find({});
+    if (!trainings) {
+      throw new Error('no trainings exist');
+    }
+    return JSON.parse(
+      JSON.stringify({
+        success: true,
+        status: 200,
+        message: 'Training fetched successfully!',
+        data: trainings,
+        error: null,
+      })
+    );
+  } catch (error) {
+    return JSON.parse(
+      JSON.stringify({
+        success: false,
+        status: 400,
+        message: error.message || 'Something went wrong!',
+        data: null,
+        error: error,
+      })
+    );
+  }
+};
