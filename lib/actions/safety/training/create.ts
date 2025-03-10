@@ -296,11 +296,24 @@ export const createExamAttempt = async (
       throw new Error('Exam does not exist');
     }
 
+    const attemptExist = await TrainingExamAttemptModel.findOne({
+      candidate,
+      exam,
+    });
+
+    if (attemptExist) {
+      throw new Error('Exam already attempted');
+    }
+
     const { questions } = examExist;
+
+    if (questions.length !== responses.length) {
+      throw new Error('Please answer all questions');
+    }
 
     // there should be as many answers as questions
     for (let i = 0; i < responses.length; i++) {
-      if (!responses[i].selectedAnswer) {
+      if (responses[i].selectedAnswer === null) {
         throw new Error('Answering all questions is necessary');
       }
     }
