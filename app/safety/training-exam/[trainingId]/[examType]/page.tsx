@@ -2,19 +2,14 @@
 import React, { FormEvent, FormEventHandler, useEffect, useState } from 'react';
 import { ExclamationTriangleIcon } from '@radix-ui/react-icons';
 import { useForm } from 'react-hook-form';
-import {
-  IAttempt,
-  ITrainingExam,
-  IQuestion,
-  ITraining,
-} from '../../../../../lib/models/Safety/training.model';
+import { ITrainingExamAttempt } from '../../../../../lib/models/Safety/training.model';
 import { trainingActions } from '@/lib/actions/safety/training/trainingActions';
 import toast from 'react-hot-toast';
 import { ArrowRight, Loader2Icon } from 'lucide-react';
-import { z } from 'zod';
 import mongoose from 'mongoose';
 import { IEmployeeData } from '@/interfaces/HR/EmployeeData.interface';
 import EmployeeDataAction from '@/lib/actions/HR/EmployeeData/employeeDataAction';
+import { IRequiredDetailsForATrainingExam } from '@/lib/actions/safety/training/fetch';
 
 const ExamPage = ({
   params,
@@ -72,7 +67,7 @@ const ExamPage = ({
     }
   };
   return (
-    <div className='border-2 border-red-500 mt-16 min-h-[90vh] flex flex-col justify-between '>
+    <div className=' mt-16 min-h-[90vh] flex flex-col justify-between '>
       <h1 className='font-bold text-blue-500 border-b-2 border-blue-500 text-center py-2 mb-4'>
         Training Exam
       </h1>
@@ -126,24 +121,15 @@ const ExamPage = ({
 
 export default ExamPage;
 
-const attemptSchema = z.object({
-  candidate: z.instanceof(mongoose.Types.ObjectId),
-  exam: z.instanceof(mongoose.Types.ObjectId),
-  score: z.number().default(0),
-  responses: z.array(
-    z.object({
-      selectedAnswers: z.array(z.number()),
-    })
-  ),
-});
 const QuestionsForms = ({ trainingId, candidate, employeeCode, examType }) => {
-  const [exam, setExam] = useState<Partial<ITrainingExam & ITraining>>(null);
+  const [exam, setExam] = useState<IRequiredDetailsForATrainingExam>(null);
   const [employee, setEmployee] = useState<Partial<IEmployeeData>>();
-  const [attemptedAnswers, setAttemptedAnswers] = useState<IAttempt>({
+  const [attemptedAnswers, setAttemptedAnswers] = useState<
+    Partial<ITrainingExamAttempt>
+  >({
     candidate,
     exam: trainingId,
     responses: [],
-    score: 0,
   });
   const [loadingStates, setLoadingStates] = useState({
     submittingAnswer: false,
@@ -189,6 +175,7 @@ const QuestionsForms = ({ trainingId, candidate, employeeCode, examType }) => {
         console.log('received combined details', data);
         if (success) {
           setExam(data);
+          setAttemptedAnswers((prev) => ({ ...prev, exam: data.examId }));
         }
         if (!success) {
           console.log('error', message);
@@ -211,28 +198,9 @@ const QuestionsForms = ({ trainingId, candidate, employeeCode, examType }) => {
       ...prev,
       responses: currentAnswers,
     }));
-    calculateScore();
   };
 
-  const calculateScore = async () => {
-    const allQuestions: IQuestion[] = exam.questions;
-    const submittedAnswer: Pick<IAttempt, 'responses'> = {
-      responses: attemptedAnswers.responses,
-    };
-
-    let point = 0;
-    // correctAnswer holding the index of correct option in options array
-    allQuestions.forEach((ques, index) => {
-      if (
-        ques.correctAnswer === submittedAnswer.responses[index].selectedAnswer
-      ) {
-        point++;
-      }
-    });
-    setAttemptedAnswers((prev) => ({ ...prev, score: point }));
-  };
-
-  const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
     for (let i = 0; i < attemptedAnswers.responses.length; i++) {
@@ -243,7 +211,19 @@ const QuestionsForms = ({ trainingId, candidate, employeeCode, examType }) => {
     try {
       setLoadingStates((prev) => ({ ...prev, submittingAnswer: true }));
       console.log('Submitted Answer', attemptedAnswers);
+      const { data, status, success, message, error } =
+        await trainingActions.CREATE.createExamAttempt(attemptedAnswers);
+
+      if (!success) {
+        toast.error(message);
+      }
+      if (success) {
+        toast.success(message);
+      }
     } catch (error) {
+      toast.error(
+        error.message || 'Attempt could not be saved, Please try later'
+      );
     } finally {
       setLoadingStates((prev) => ({ ...prev, submittingAnswer: false }));
     }
@@ -251,13 +231,13 @@ const QuestionsForms = ({ trainingId, candidate, employeeCode, examType }) => {
     // SEND DATA TO BACKEND
   };
   return (
-    <div className='border-2 border-green-500 h-full flex-grow p-6 flex flex-col gap-4'>
+    <div className='h-full flex-grow p-6 flex flex-col gap-4'>
       {/* <div>EXAM DETAILS - {JSON.stringify(exam)}</div>
       ------------------------------------------ <br />
       {JSON.stringify(employee)}
       ------------------------------------------ <br />
       */}
-      ATTEMPTED ANSWER:-{JSON.stringify(attemptedAnswers)}
+      {/* ATTEMPTED ANSWER:-{JSON.stringify(attemptedAnswers)} */}
       {employee && (
         <div className='w-full flex flex-col gap-2 border-[1px] border-gray-200 rounded shadow-sm p-3'>
           <h1 className='text-blue-500 font-semibold'>Candidate Details:</h1>

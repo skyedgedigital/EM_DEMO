@@ -8,7 +8,7 @@ import {
   ITraining,
   TrainingModel,
 } from '@/lib/models/Safety/training.model';
-import mongoose from 'mongoose';
+import mongoose, { mongo } from 'mongoose';
 
 export const fetchExamByTrainingIdAndExamType = async (
   trainingId: mongoose.Schema.Types.ObjectId,
@@ -52,10 +52,14 @@ export const fetchExamByTrainingIdAndExamType = async (
   }
 };
 
+export interface IRequiredDetailsForATrainingExam
+  extends Partial<ITraining & ITrainingExam> {
+  examId: mongoose.Types.ObjectId;
+}
 export const fetchRequiredDetailsForATrainingExam = async (
   trainingId: mongoose.Schema.Types.ObjectId,
   examType: ExamTypes
-): Promise<ApiResponse<Partial<ITrainingExam & ITraining>>> => {
+): Promise<ApiResponse<IRequiredDetailsForATrainingExam>> => {
   try {
     const dbConnection = await handleDBConnection();
     if (!dbConnection.success) return dbConnection;
@@ -80,12 +84,13 @@ export const fetchRequiredDetailsForATrainingExam = async (
       throw new Error('exam not found');
     }
 
-    const combinedData: Partial<ITraining & ITrainingExam> = {
+    const combinedData: IRequiredDetailsForATrainingExam = {
       title: training.title,
       examType: exam.examType,
       questions: exam.questions,
       targetDate: exam.targetDate,
       responsibility: exam.responsibility,
+      examId: exam._id,
     };
     console.log('Combined data', combinedData);
     return JSON.parse(

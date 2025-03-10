@@ -8,8 +8,8 @@ import {
   TrainingModel,
   TrainingExamModel,
   IQuestion,
-  IAttempt,
-  AttemptModel,
+  ITrainingExamAttempt,
+  TrainingExamAttemptModel,
   ExamTypes,
 } from '@/lib/models/Safety/training.model';
 import mongoose from 'mongoose';
@@ -278,15 +278,15 @@ export const updateTraining = async (params: {
 };
 
 export const createExamAttempt = async (
-  params: Partial<IAttempt>
-): Promise<ApiResponse<IAttempt>> => {
+  params: Partial<ITrainingExamAttempt>
+): Promise<ApiResponse<ITrainingExamAttempt>> => {
   try {
     const dbConnection = await handleDBConnection();
     if (!dbConnection.success) return dbConnection;
 
     const { candidate, exam, responses } = params;
 
-    if (!candidate || !exam || responses) {
+    if (!candidate || !exam || !responses) {
       throw new Error('Please provide candidate and exam');
     }
 
@@ -299,8 +299,10 @@ export const createExamAttempt = async (
     const { questions } = examExist;
 
     // there should be as many answers as questions
-    if (questions.length !== responses.length) {
-      throw new Error('Answer all questions');
+    for (let i = 0; i < responses.length; i++) {
+      if (!responses[i].selectedAnswer) {
+        throw new Error('Answering all questions is necessary');
+      }
     }
 
     let total_score = 0;
@@ -311,7 +313,7 @@ export const createExamAttempt = async (
       }
     }
 
-    const attempt = await AttemptModel.create({
+    const attempt = await TrainingExamAttemptModel.create({
       candidate,
       exam,
       responses,
