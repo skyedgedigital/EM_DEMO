@@ -232,6 +232,46 @@ const fetchEmployeeByCode = async (code: string): Promise<ApiResponse<any>> => {
   }
 };
 
+const fetchEmployeeSelectedFieldByCode = async (
+  code: string,
+  selectFields: (keyof IEmployeeData)[] = []
+): Promise<ApiResponse<Partial<IEmployeeData>>> => {
+  const dbConnection = await handleDBConnection();
+  if (!dbConnection.success) return dbConnection;
+  try {
+    const resp = await EmployeeData.findOne({
+      code,
+    }).select(selectFields.join(' '));
+
+    console.log('Employee INFO', resp);
+    if (!resp) {
+      return {
+        success: false,
+        status: 400,
+        message: `No employee with code ${code} found`,
+        data: null,
+        error: null,
+      };
+    }
+    return {
+      success: true,
+      status: 200,
+      message: 'Details Fetched',
+      data: await JSON.parse(JSON.stringify(resp)),
+      error: null,
+    };
+  } catch (err) {
+    return {
+      success: false,
+      message:
+        'Unexpected error occurred, Failed to update Damage Register, Please Try Later',
+      status: 500,
+      error: JSON.stringify(err),
+      data: null,
+    };
+  }
+};
+
 const fetchEmployeeById = async (docId: any): Promise<ApiResponse<any>> => {
   const dbConnection = await handleDBConnection();
   if (!dbConnection.success) return dbConnection;
@@ -405,4 +445,5 @@ export {
   fetchCompliancesByMonthYear,
   fetchEmployeesWithWorkorderHr,
   fetchAllEmployeesSelectedFieldInfos,
+  fetchEmployeeSelectedFieldByCode,
 };

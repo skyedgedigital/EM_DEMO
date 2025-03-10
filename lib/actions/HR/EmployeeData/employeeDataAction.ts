@@ -15,6 +15,7 @@ import {
   fetchCompliancesByMonthYear,
   fetchEmployeesWithWorkorderHr,
   fetchAllEmployeesSelectedFieldInfos,
+  fetchEmployeeSelectedFieldByCode,
 } from './fetch';
 import {
   fetchEmployeesJoined,
@@ -53,6 +54,7 @@ const EmployeeDataAction = {
     fetchEmpsJoinedWithinDateRange: fetchEmployeesJoined,
     fetchEmpsResigned: fetchEmployeesResigned,
     fetchAllEmployeesSelectedFieldInfos,
+    fetchEmployeeSelectedFieldByCode,
   },
 };
 

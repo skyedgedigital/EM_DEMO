@@ -2,9 +2,9 @@
 import { ApiResponse } from '@/interfaces/APIresponses.interface';
 import handleDBConnection from '@/lib/database';
 import {
-  ExamModel,
+  TrainingExamModel,
   ExamTypes,
-  IExam,
+  ITrainingExam,
   ITraining,
   TrainingModel,
 } from '@/lib/models/Safety/training.model';
@@ -13,7 +13,7 @@ import mongoose from 'mongoose';
 export const fetchExamByTrainingIdAndExamType = async (
   trainingId: mongoose.Schema.Types.ObjectId,
   examType: ExamTypes
-): Promise<ApiResponse<IExam>> => {
+): Promise<ApiResponse<ITrainingExam>> => {
   try {
     const dbConnection = await handleDBConnection();
     if (!dbConnection.success) return dbConnection;
@@ -22,7 +22,7 @@ export const fetchExamByTrainingIdAndExamType = async (
       throw new Error('Invalid input: examId are required');
     }
 
-    const exam = await ExamModel.findOne({ trainingId, examType });
+    const exam = await TrainingExamModel.findOne({ trainingId, examType });
     console.log('Exam', exam);
 
     if (!exam) {
@@ -52,10 +52,10 @@ export const fetchExamByTrainingIdAndExamType = async (
   }
 };
 
-export const fetchExamandTrainingDetail = async (
+export const fetchRequiredDetailsForATrainingExam = async (
   trainingId: mongoose.Schema.Types.ObjectId,
   examType: ExamTypes
-): Promise<ApiResponse<IExam & ITraining>> => {
+): Promise<ApiResponse<Partial<ITrainingExam & ITraining>>> => {
   try {
     const dbConnection = await handleDBConnection();
     if (!dbConnection.success) return dbConnection;
@@ -64,23 +64,36 @@ export const fetchExamandTrainingDetail = async (
       throw new Error('Invalid input: examId are required');
     }
 
-    const examAndTrainingDetail = await ExamModel.findOne({
+    const training = await TrainingModel.findById(trainingId).select('title');
+    console.log('Found Training', training);
+    if (!training) {
+      throw new Error(`No training with ID ${trainingId} found`);
+    }
+    const exam = await TrainingExamModel.findOne({
       trainingId,
       examType,
     })
-      .populate('training')
+      .populate('questions')
       .exec();
-
-    if (!examAndTrainingDetail) {
+    console.log('Found Exam', exam);
+    if (!exam) {
       throw new Error('exam not found');
     }
 
+    const combinedData: Partial<ITraining & ITrainingExam> = {
+      title: training.title,
+      examType: exam.examType,
+      questions: exam.questions,
+      targetDate: exam.targetDate,
+      responsibility: exam.responsibility,
+    };
+    console.log('Combined data', combinedData);
     return JSON.parse(
       JSON.stringify({
         success: true,
         status: 200,
         message: 'Exam fetched successfully!',
-        data: examAndTrainingDetail,
+        data: combinedData,
         error: null,
       })
     );
@@ -97,9 +110,7 @@ export const fetchExamandTrainingDetail = async (
   }
 };
 
-export const fetchTrainingDetailById = async (
-  trainingId: mongoose.Schema.Types.ObjectId
-) => {
+export const fetchTrainingDetailById = async (trainingId: string) => {
   try {
     const dbConnection = await handleDBConnection();
     if (!dbConnection.success) return dbConnection;

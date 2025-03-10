@@ -3,7 +3,7 @@ import { ApiResponse } from '@/interfaces/APIresponses.interface';
 import handleDBConnection from '@/lib/database';
 import EmployeeData from '@/lib/models/HR/EmployeeData.model';
 import mongoose from 'mongoose';
-import { fetchSelectedInfosOfExamByExamId } from './fetch';
+import { fetchTrainingDetailById } from './fetch';
 
 export interface IEmployeeTrainingExamEligibility {
   _id: mongoose.Types.ObjectId;
@@ -11,10 +11,10 @@ export interface IEmployeeTrainingExamEligibility {
 }
 export const checkEmployeeTrainingExamEligibility = async (
   employeeCode: string,
-  examId: string
+  trainingId: string
 ): Promise<ApiResponse<IEmployeeTrainingExamEligibility>> => {
-  console.log('emp code', employeeCode);
-  console.log('exam id', examId);
+  // console.log('emp code', employeeCode);
+  // console.log('exam id', trainingId);
   //   const session = await mongoose.startSession();
   //   session.startTransaction();
   try {
@@ -42,8 +42,9 @@ export const checkEmployeeTrainingExamEligibility = async (
     }
     const employeeId = employee[0]._id;
 
-    const { data, error, status, success } =
-      await fetchSelectedInfosOfExamByExamId(examId, ['allowedCandidates']);
+    const { data, error, status, success } = await fetchTrainingDetailById(
+      trainingId
+    );
     console.log('Allowed candidates', data);
     if (!success) {
       throw new Error('Failed to check eligibility');

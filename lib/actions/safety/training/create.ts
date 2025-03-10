@@ -3,10 +3,10 @@
 import { ApiResponse } from '@/interfaces/APIresponses.interface';
 import handleDBConnection from '@/lib/database';
 import {
-  IExam,
+  ITrainingExam,
   ITraining,
   TrainingModel,
-  ExamModel,
+  TrainingExamModel,
   IQuestion,
   IAttempt,
   AttemptModel,
@@ -23,7 +23,7 @@ export interface CreateTrainingExamParams extends ITraining {
 
 export const createTrainingExamWithQuestions = async (
   params: CreateTrainingExamParams
-): Promise<ApiResponse<IExam>> => {
+): Promise<ApiResponse<ITrainingExam>> => {
   const session = await mongoose.startSession();
   session.startTransaction();
   try {
@@ -52,7 +52,7 @@ export const createTrainingExamWithQuestions = async (
 
     if (existingTraining) {
       // if pre and post exams exist then no other exams should be created
-      const existingExams = await ExamModel.find(
+      const existingExams = await TrainingExamModel.find(
         {
           trainingId: existingTraining._id,
         },
@@ -69,7 +69,7 @@ export const createTrainingExamWithQuestions = async (
         throw new Error('Cannot create a pre exam, it already exist');
       }
 
-      const new_exam = await ExamModel.create(
+      const new_exam = await TrainingExamModel.create(
         [
           {
             examType,
@@ -117,7 +117,7 @@ export const createTrainingExamWithQuestions = async (
       throw new Error('Could not create training, something went wrong');
     }
 
-    const new_exam = await ExamModel.create(
+    const new_exam = await TrainingExamModel.create(
       [
         {
           examType,
@@ -169,8 +169,8 @@ export const updateExam = async (
   trainer: mongoose.Schema.Types.ObjectId,
   trainingId: mongoose.Schema.Types.ObjectId,
   examId: mongoose.Schema.Types.ObjectId,
-  updates: Partial<IExam>
-): Promise<ApiResponse<IExam>> => {
+  updates: Partial<ITrainingExam>
+): Promise<ApiResponse<ITrainingExam>> => {
   try {
     const dbConnection = await handleDBConnection();
     if (!dbConnection.success) return dbConnection;
@@ -189,10 +189,14 @@ export const updateExam = async (
       throw new Error('Training does not exist');
     }
 
-    const updatedExam = await ExamModel.findByIdAndUpdate(examId, updates, {
-      new: true,
-      runValidators: true,
-    });
+    const updatedExam = await TrainingExamModel.findByIdAndUpdate(
+      examId,
+      updates,
+      {
+        new: true,
+        runValidators: true,
+      }
+    );
 
     if (!updatedExam) {
       throw new Error('Exam not found or update failed');
@@ -286,7 +290,7 @@ export const createExamAttempt = async (
       throw new Error('Please provide candidate and exam');
     }
 
-    const examExist = await ExamModel.findOne({ _id: exam });
+    const examExist = await TrainingExamModel.findOne({ _id: exam });
 
     if (!examExist) {
       throw new Error('Exam does not exist');

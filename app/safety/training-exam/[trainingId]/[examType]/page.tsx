@@ -4,22 +4,25 @@ import { ExclamationTriangleIcon } from '@radix-ui/react-icons';
 import { useForm } from 'react-hook-form';
 import {
   IAttempt,
-  IQuestion,
   ITrainingExam,
-} from '../../../../lib/models/Safety/training.model';
+  IQuestion,
+  ITraining,
+} from '../../../../../lib/models/Safety/training.model';
 import { trainingActions } from '@/lib/actions/safety/training/trainingActions';
 import toast from 'react-hot-toast';
 import { ArrowRight, Loader2Icon } from 'lucide-react';
 import { z } from 'zod';
 import mongoose from 'mongoose';
 import { IEmployeeData } from '@/interfaces/HR/EmployeeData.interface';
+import EmployeeDataAction from '@/lib/actions/HR/EmployeeData/employeeDataAction';
 
 const ExamPage = ({
   params,
 }: {
   params: { [key: string]: string | undefined };
 }) => {
-  const examId = params?.examId || undefined;
+  const trainingId = params?.trainingId || undefined;
+  const examType = params.examType || undefined;
   const [isCandidateAllowed, setIsCandidateAllowed] = useState(false);
   const [checkEligibility, setCheckEligibility] = useState(false);
   const [candidateId, setCandidateId] = useState<mongoose.Types.ObjectId>(null);
@@ -33,7 +36,7 @@ const ExamPage = ({
 
   const formData = watch();
 
-  if (!examId) {
+  if (!trainingId) {
     return (
       <div className='border-2 border-red-500 mt-16 min-h-screen'>
         <span className='text-red-400 flex justify-center items-center gap-2'>
@@ -53,7 +56,7 @@ const ExamPage = ({
       const { data, success, error, status, message } =
         await trainingActions.CHECKS.checkEmployeeTrainingExamEligibility(
           submittedFormData.employeeCode,
-          examId
+          trainingId
         );
       if (success && data) {
         setCandidateId(data._id);
@@ -76,8 +79,9 @@ const ExamPage = ({
       {isCandidateAllowed ? (
         <QuestionsForms
           employeeCode={formData.employeeCode}
-          examId={examId}
+          trainingId={trainingId}
           candidate={candidateId}
+          examType={examType}
         />
       ) : (
         <div className='border-2 border-blue-600 h-full flex-grow flex justify-center items-center'>
@@ -132,16 +136,19 @@ const attemptSchema = z.object({
     })
   ),
 });
-const QuestionsForms = ({ examId, candidate, employeeCode }) => {
-  const [exam, setExam] = useState<Partial<ITrainingExam>>(null);
-  const [employee, setEmployee] = useState<IEmployeeData>();
+const QuestionsForms = ({ trainingId, candidate, employeeCode, examType }) => {
+  const [exam, setExam] = useState<Partial<ITrainingExam & ITraining>>(null);
+  const [employee, setEmployee] = useState<Partial<IEmployeeData>>();
   const [attemptedAnswers, setAttemptedAnswers] = useState<IAttempt>({
     candidate,
-    exam: examId,
+    exam: trainingId,
     responses: [],
     score: 0,
   });
-  console.log('ATTEMPTED ANSWER', attemptedAnswers);
+  const [loadingStates, setLoadingStates] = useState({
+    submittingAnswer: false,
+  });
+  // console.log('ATTEMPTED ANSWER', attemptedAnswers);
   useEffect(() => {
     if (attemptedAnswers.responses.length > 0 || !exam) return;
     setAttemptedAnswers((prev) => ({
@@ -154,19 +161,33 @@ const QuestionsForms = ({ examId, candidate, employeeCode }) => {
 
   useEffect(() => {
     const fn = async () => {
+      const { data, error, message, status, success } =
+        await EmployeeDataAction.FETCH.fetchEmployeeSelectedFieldByCode(
+          employeeCode,
+          ['name', 'code', 'fathersName']
+        );
+
+      if (!success) {
+        return toast.error('Failed to load your details');
+      }
+      if (success) {
+        setEmployee(data);
+      }
+    };
+    if (employeeCode) fn();
+  }, [employeeCode]);
+
+  useEffect(() => {
+    const fn = async () => {
       try {
         console.log('fetching exam');
         const { data, status, success, message, error } =
-          await trainingActions.FETCH.fetchSelectedInfosOfExamByExamId(examId, [
-            'title',
-            'questions',
-            'responsibility',
-            'targetDate',
-            'allowedCandidates',
-          ]);
-        console.log(data);
+          await trainingActions.FETCH.fetchRequiredDetailsForATrainingExam(
+            trainingId,
+            examType
+          );
+        console.log('received combined details', data);
         if (success) {
-          console.log('received exam', exam);
           setExam(data);
         }
         if (!success) {
@@ -180,8 +201,8 @@ const QuestionsForms = ({ examId, candidate, employeeCode }) => {
         );
       }
     };
-    if (examId) fn();
-  }, [examId]);
+    if (trainingId) fn();
+  }, [trainingId]);
 
   const handleOptionChange = (quNo: number, opNo: number) => {
     const currentAnswers = [...attemptedAnswers.responses];
@@ -215,74 +236,109 @@ const QuestionsForms = ({ examId, candidate, employeeCode }) => {
     e.preventDefault();
 
     for (let i = 0; i < attemptedAnswers.responses.length; i++) {
-      if (attemptedAnswers.responses[i].selectedAnswer === -1) {
+      if (!attemptedAnswers.responses[i].selectedAnswer) {
         return toast.error('Please attempt all questions');
       }
+    }
+    try {
+      setLoadingStates((prev) => ({ ...prev, submittingAnswer: true }));
+      console.log('Submitted Answer', attemptedAnswers);
+    } catch (error) {
+    } finally {
+      setLoadingStates((prev) => ({ ...prev, submittingAnswer: false }));
     }
 
     // SEND DATA TO BACKEND
   };
   return (
-    <div className='border-2 border-green-500 h-full flex-grow p-6'>
-      <div>EXAM DETAILS - {JSON.stringify(exam)}</div>
+    <div className='border-2 border-green-500 h-full flex-grow p-6 flex flex-col gap-4'>
+      {/* <div>EXAM DETAILS - {JSON.stringify(exam)}</div>
       ------------------------------------------ <br />
+      {JSON.stringify(employee)}
+      ------------------------------------------ <br />
+      */}
       ATTEMPTED ANSWER:-{JSON.stringify(attemptedAnswers)}
+      {employee && (
+        <div className='w-full flex flex-col gap-2 border-[1px] border-gray-200 rounded shadow-sm p-3'>
+          <h1 className='text-blue-500 font-semibold'>Candidate Details:</h1>
+          <div className='w-full flex justify-start items-start gap-6'>
+            <span className='flex justify-center items-center gap-1'>
+              <label className='text-sm text-gray-500'>Name:</label>
+              <p>{employee?.name}</p>
+            </span>
+            <span className='flex justify-center items-center gap-1'>
+              <label className='text-sm text-gray-500'>Code:</label>
+              <p>{employee?.code}</p>
+            </span>
+            <span className='flex justify-center items-center gap-1'>
+              <label className='text-sm text-gray-500'>Father Name:</label>
+              <p>{employee?.fathersName}</p>
+            </span>
+          </div>
+        </div>
+      )}
       {exam && (
-        <div>
+        <div className='w-full flex flex-col gap-2 border-[1px] border-gray-200 rounded shadow-sm p-3'>
+          <h1 className='text-blue-500 font-semibold'>Exam:</h1>
           <form className='flex flex-col gap-4' onSubmit={handleSubmit}>
             <div className='flex justify-center items-center gap-3'>
               <div className='w-full'>
-                <label>Exam Id:</label>
-                <p>{examId}</p>
+                <label className='text-sm text-gray-500'>Title:</label>
+                <p>{exam?.title}</p>
               </div>
               <div className='w-full'>
-                <label>Employee Code:</label>
-                <p>{employeeCode}</p>
-              </div>
-              <div className='w-full'>
-                <label>Exam Date:</label>
-                <p>{exam?.targetDate?.toString()}</p>
-              </div>
-              <div className='w-full'>
-                <label>Responsibility:</label>
+                <label className='text-sm text-gray-500'>Responsibility:</label>
                 <p>{exam?.responsibility}</p>
+              </div>
+              <div className='w-full'>
+                <label className='text-sm text-gray-500'>Exam Date:</label>
+                <p>{exam?.targetDate?.toString()}</p>
               </div>
             </div>
             <div className='flex flex-col gap-6'>
-              {exam.questions.map((ques, qNo) => (
-                <div key={ques.text} className='flex flex-col gap-1'>
-                  <p className='font-semibold'>
-                    Q{qNo + 1} {ques.text}
-                  </p>
-                  <div className='flex items-start gap-4'>
-                    {ques.options.map((op, opNo) => (
-                      <span
-                        key={op.text}
-                        className='border-[1px] border-gray-200 rounded p-1 px-2 gap-2 hover:bg-gray-200 flex justify-center items-center'
-                      >
-                        <input
-                          id={`${qNo}-${opNo}`}
-                          name={`question-${qNo}`}
-                          type='radio'
-                          onChange={() => handleOptionChange(qNo, opNo)}
-                        />
-                        <label
-                          className='capitalize flex justify-center items-center gap-2'
-                          htmlFor={`${qNo}-${opNo}`}
+              <h1 className='font-semibold border-b-[1px] border-gray-200'>
+                Questions (All questions are must to answer):
+              </h1>
+              <div className='flex flex-col gap-4'>
+                {exam.questions.map((ques, qNo) => (
+                  <div key={ques.text} className='flex flex-col gap-1'>
+                    <p className='font-semibold'>
+                      Q{qNo + 1}: {ques.text}
+                    </p>
+                    <div className='flex items-start gap-4'>
+                      {ques.options.map((op, opNo) => (
+                        <span
+                          key={op.text}
+                          className='border-[1px] border-gray-200 rounded p-1 px-2 gap-2 hover:bg-gray-200 flex justify-center items-center'
                         >
-                          {op.text}
-                        </label>
-                      </span>
-                    ))}
+                          <label
+                            className='capitalize flex justify-center items-center gap-2'
+                            htmlFor={`${qNo}-${opNo}`}
+                          >
+                            <input
+                              id={`${qNo}-${opNo}`}
+                              name={`question-${qNo}`}
+                              type='radio'
+                              onChange={() => handleOptionChange(qNo, opNo)}
+                            />
+                            {op.text}
+                          </label>
+                        </span>
+                      ))}
+                    </div>
                   </div>
-                </div>
-              ))}
+                ))}
+              </div>
             </div>
             <button
               type='submit'
               className='bg-green-500 text-white p-2 rounded w-fit px-2 py-1 mx-auto my-4'
             >
-              Submit Answer
+              {loadingStates.submittingAnswer ? (
+                <Loader2Icon className='animate-spin' />
+              ) : (
+                <>Submit Answer</>
+              )}
             </button>
           </form>
         </div>
