@@ -11,9 +11,10 @@ import {
 import mongoose, { mongo } from 'mongoose';
 
 export const fetchExamByTrainingIdAndExamType = async (
-  trainingId: mongoose.Schema.Types.ObjectId,
-  examType: ExamTypes
-): Promise<ApiResponse<ITrainingExam>> => {
+  trainingId: mongoose.Types.ObjectId,
+  examType: ExamTypes,
+  selectedFields: (keyof ITrainingExam)[] = []
+): Promise<ApiResponse<ITrainingExam & { _id: mongoose.Types.ObjectId }>> => {
   try {
     const dbConnection = await handleDBConnection();
     if (!dbConnection.success) return dbConnection;
@@ -22,7 +23,10 @@ export const fetchExamByTrainingIdAndExamType = async (
       throw new Error('Invalid input: examId are required');
     }
 
-    const exam = await TrainingExamModel.findOne({ trainingId, examType });
+    const exam = await TrainingExamModel.findOne({
+      trainingId,
+      examType,
+    }).select(selectedFields.join(' '));
     console.log('Exam', exam);
 
     if (!exam) {

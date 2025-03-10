@@ -3,7 +3,14 @@ import { ApiResponse } from '@/interfaces/APIresponses.interface';
 import handleDBConnection from '@/lib/database';
 import EmployeeData from '@/lib/models/HR/EmployeeData.model';
 import mongoose from 'mongoose';
-import { fetchTrainingDetailById } from './fetch';
+import {
+  fetchExamByTrainingIdAndExamType,
+  fetchTrainingDetailById,
+} from './fetch';
+import {
+  ExamTypes,
+  TrainingExamAttemptModel,
+} from '@/lib/models/Safety/training.model';
 
 export interface IEmployeeTrainingExamEligibility {
   _id: mongoose.Types.ObjectId;
@@ -11,37 +18,29 @@ export interface IEmployeeTrainingExamEligibility {
 }
 export const checkEmployeeTrainingExamEligibility = async (
   employeeCode: string,
-  trainingId: string
+  trainingId: string,
+  examType: ExamTypes
 ): Promise<ApiResponse<IEmployeeTrainingExamEligibility>> => {
-  // console.log('emp code', employeeCode);
-  // console.log('exam id', trainingId);
-  //   const session = await mongoose.startSession();
-  //   session.startTransaction();
   try {
     const dbConnection = await handleDBConnection();
     if (!dbConnection.success) return dbConnection;
     if (!employeeCode) {
       throw new Error('No employee code found');
     }
+    // CHECKING IF EMPLOYEE EVEN EXIST WITH THIS EMPLOYEE CODE
     const employee = await EmployeeData.find({
       code: employeeCode,
     }).select('code');
 
-    console.log('found employee', employee);
+    // console.log('found employee', employee);
     if (employee?.length === 0) {
-      return {
-        success: true,
-        status: 400,
-        message: 'Employee not eligible to proceed',
-        error: null,
-        data: {
-          _id: null,
-          eligible: false,
-        },
-      };
+      throw new Error(
+        `No candidate alias employee found with code ${employeeCode}`
+      );
     }
     const employeeId = employee[0]._id;
 
+    // CHECKING IF EMPLOYEE IS IN ALLOWED LIST IN THIS TRAINING
     const { data, error, status, success } = await fetchTrainingDetailById(
       trainingId
     );
@@ -54,7 +53,31 @@ export const checkEmployeeTrainingExamEligibility = async (
       (canId) => canId.toString() === employeeId.toString()
     );
     if (!isEmployeeExistInAllowedCandidates) {
-      throw new Error('Employee not eligible to proceed');
+      throw new Error('You were not selected for this exam');
+    }
+
+    // CHECKING IF EMPLOYEE HAS ALREADY ATTEMPTED OR SUBMITTED EXAM
+    const { data: examData, success: examSuccess } =
+      await fetchExamByTrainingIdAndExamType(
+        new mongoose.Types.ObjectId(trainingId),
+        examType,
+        ['examType']
+      );
+
+    if (!examSuccess) {
+      throw new Error('Failed to check eligibility');
+    }
+    // console.log('exam data', examData);
+    // console.log('candidate', employeeId, 'exam', examData._id);
+    const attempt = await TrainingExamAttemptModel.find({
+      candidate: employeeId,
+      exam: examData._id,
+    });
+    // console.log('attempt', attempt);
+    const hasCandidateAlreadyAttemptedExam = attempt.length > 0;
+
+    if (hasCandidateAlreadyAttemptedExam) {
+      throw new Error('Candidate has already attempted & submitted exam');
     }
     return await JSON.parse(
       JSON.stringify({
@@ -63,7 +86,7 @@ export const checkEmployeeTrainingExamEligibility = async (
         message: 'Candidate is eligible',
         data: {
           _id: employeeId,
-          eligible: isEmployeeExistInAllowedCandidates,
+          eligible: true,
         },
         error: null,
       })
