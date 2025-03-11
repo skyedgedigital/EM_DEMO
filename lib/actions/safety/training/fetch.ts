@@ -231,3 +231,83 @@ export const fetchAllTrainingDetails = async (): Promise<
     );
   }
 };
+
+export const fetchUpcomingTrainings = async () => {
+  try {
+    const dbConnection = await handleDBConnection();
+    if (!dbConnection.success) return dbConnection;
+    const upcomingTrainingIds = await TrainingExamModel.distinct('trainingId', {
+      targetDate: { $gte: new Date() },
+    });
+    if (!upcomingTrainingIds) {
+      throw new Error('no trainings exist');
+    }
+    const trainings = await TrainingModel.find({
+      _id: { $in: upcomingTrainingIds },
+    });
+
+    if (!trainings) {
+      throw new Error('no training exist');
+    }
+
+    return JSON.parse(
+      JSON.stringify({
+        success: true,
+        status: 200,
+        message: 'upcoming trainings fetched successfully!',
+        data: trainings,
+        error: null,
+      })
+    );
+  } catch (error) {
+    return JSON.parse(
+      JSON.stringify({
+        success: false,
+        status: 400,
+        message: error.message || 'Something went wrong!',
+        data: null,
+        error: error,
+      })
+    );
+  }
+};
+
+export const fetchCompletedTrainings = async () => {
+  try {
+    const dbConnection = await handleDBConnection();
+    if (!dbConnection.success) return dbConnection;
+    const upcomingTrainingIds = await TrainingExamModel.distinct('trainingId', {
+      targetDate: { $lt: new Date() },
+    });
+    if (!upcomingTrainingIds) {
+      throw new Error('no trainings exist');
+    }
+    const trainings = await TrainingModel.find({
+      _id: { $in: upcomingTrainingIds },
+    });
+
+    if (!trainings) {
+      throw new Error('no training exist');
+    }
+
+    return JSON.parse(
+      JSON.stringify({
+        success: true,
+        status: 200,
+        message: 'completed trainings fetched successfully!',
+        data: trainings,
+        error: null,
+      })
+    );
+  } catch (error) {
+    return JSON.parse(
+      JSON.stringify({
+        success: false,
+        status: 400,
+        message: error.message || 'Something went wrong!',
+        data: null,
+        error: error,
+      })
+    );
+  }
+};
