@@ -232,7 +232,13 @@ export const fetchAllTrainingDetails = async (): Promise<
   }
 };
 
-export const fetchUpcomingTrainings = async () => {
+export interface IUpcomingTrainingsResponse extends ITraining {
+  _id: mongoose.Types.ObjectId;
+  createdAt: Date;
+}
+export const fetchUpcomingTrainings = async (): Promise<
+  ApiResponse<IUpcomingTrainingsResponse[]>
+> => {
   try {
     const dbConnection = await handleDBConnection();
     if (!dbConnection.success) return dbConnection;
@@ -271,8 +277,13 @@ export const fetchUpcomingTrainings = async () => {
     );
   }
 };
-
-export const fetchCompletedTrainings = async () => {
+export interface ICompletedTrainingsResponse extends ITraining {
+  _id: mongoose.Types.ObjectId;
+  createdAt: Date;
+}
+export const fetchCompletedTrainings = async (): Promise<
+  ApiResponse<ICompletedTrainingsResponse[]>
+> => {
   try {
     const dbConnection = await handleDBConnection();
     if (!dbConnection.success) return dbConnection;
