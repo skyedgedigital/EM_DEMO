@@ -69,6 +69,7 @@ const CompletedTraining = () => {
         <div className='flex flex-col justify-center items-center gap-2'>
           {completedTrainings?.map((training, index) => (
             <Link
+              target='_blank'
               href={`/safety/trainings/trainingDetails?trainingId=${training._id}`}
               key={training.title}
               className='flex justify-start gap-6 items-center w-full border-b-[1px] border-gray-200 p-2 mt-2 hover:bg-gray-50'

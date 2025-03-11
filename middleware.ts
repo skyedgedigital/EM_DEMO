@@ -19,8 +19,8 @@ export const config = {
 export async function middleware(req: NextRequest) {
   const session = await getToken({ req, secret: process.env.NEXTAUTH_SECRET });
   const { pathname } = req.nextUrl;
-  console.log('Pathname:', pathname);
-  console.log('Session:', session);
+  // console.log('Pathname:', pathname);
+  // console.log('Session:', session);
 
   // Skip middleware for public routes
   if (pathname.startsWith('/safety/training-exam')) {

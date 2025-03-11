@@ -10,7 +10,7 @@ import {
   TrainingModel,
   TrainingExamAttemptModel,
 } from '@/lib/models/Safety/training.model';
-import mongoose, { mongo } from 'mongoose';
+import mongoose from 'mongoose';
 
 export const fetchExamByTrainingIdAndExamType = async (
   trainingId: mongoose.Types.ObjectId,
@@ -337,6 +337,7 @@ export interface ITrainingDetailWithExamsResponse {
     name: IEmployeeData['name'];
   }[];
   exams: ITrainingExamWithAttempts[];
+  createdAt: Date;
 }
 
 export const fetchTrainingDetailWithExamsById = async (
@@ -350,15 +351,17 @@ export const fetchTrainingDetailWithExamsById = async (
       throw new Error('Provide valid trainingId');
     }
 
-    const training = await TrainingModel.findOne({ _id: trainingId }).populate({
-      path: 'allowedCandidates',
-      select: 'code name',
-    });
+    const training = await TrainingModel.findOne({ _id: trainingId })
+      .populate({
+        path: 'allowedCandidates',
+        select: 'code name',
+      })
+      .lean();
 
     if (!training) {
       throw new Error('Training does not exist');
     }
-    const trainingExams = await TrainingExamModel.find({ trainingId });
+    const trainingExams = await TrainingExamModel.find({ trainingId }).lean();
     if (!trainingExams) {
       throw new Error('No exams exist within this training');
     }
