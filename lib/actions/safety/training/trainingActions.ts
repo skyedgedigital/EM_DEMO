@@ -11,6 +11,7 @@ import {
   fetchTrainingDetailById,
   fetchUpcomingTrainings,
   fetchCompletedTrainings,
+  fetchTrainingDetailWithExamsById,
   // fetchSelectedInfosOfExamByExamId,
 } from './fetch';
 
@@ -25,6 +26,7 @@ export const trainingActions = {
     fetchRequiredDetailsForATrainingExam,
     fetchUpcomingTrainings,
     fetchCompletedTrainings,
+    fetchTrainingDetailWithExamsById,
   },
   CHECKS: {
     checkEmployeeTrainingExamEligibility,
