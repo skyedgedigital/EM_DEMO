@@ -1,5 +1,6 @@
 'use server';
 import { ApiResponse } from '@/interfaces/APIresponses.interface';
+import { IEmployeeData } from '@/interfaces/HR/EmployeeData.interface';
 import handleDBConnection from '@/lib/database';
 import {
   TrainingExamModel,
@@ -317,11 +318,18 @@ export const fetchCompletedTrainings = async (): Promise<
   }
 };
 
+type ITrainingExamWithAttempts = ITrainingExam & {
+  totalCandidatesAttempted: number;
+};
+
 interface TrainingDetailWithExams {
   title: string;
   trainer: mongoose.Types.ObjectId;
-  allowedCandidates: { code: string; name: string }[];
-  exams: ITrainingExam[];
+  allowedCandidates: {
+    code: IEmployeeData['code'];
+    name: IEmployeeData['name'];
+  }[];
+  exams: ITrainingExamWithAttempts[];
 }
 
 export const fetchTrainingDetailWithExamsById = async (
@@ -347,12 +355,27 @@ export const fetchTrainingDetailWithExamsById = async (
     if (!trainingExams) {
       throw new Error('No exams exist within this training');
     }
+
+    const examsWithAttempts = await Promise.all(
+      trainingExams.map(async (exam) => {
+        const totalCandidatesAttempted =
+          await TrainingExamAttemptModel.countDocuments({
+            exam: exam._id,
+          });
+
+        return {
+          ...exam,
+          totalCandidatesAttempted,
+        };
+      })
+    );
+
     return JSON.parse(
       JSON.stringify({
         success: true,
         status: 200,
         message: 'Training details fetched successfully!',
-        data: { ...training, exams: trainingExams },
+        data: { ...training, exams: examsWithAttempts },
         error: null,
       })
     );
