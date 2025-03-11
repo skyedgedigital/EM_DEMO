@@ -329,7 +329,7 @@ type ITrainingExamWithAttempts = ITrainingExam & {
   totalCandidatesAttempted: number;
 };
 
-interface TrainingDetailWithExams {
+export interface ITrainingDetailWithExamsResponse {
   title: string;
   trainer: mongoose.Types.ObjectId;
   allowedCandidates: {
@@ -341,7 +341,7 @@ interface TrainingDetailWithExams {
 
 export const fetchTrainingDetailWithExamsById = async (
   trainingId: string
-): Promise<ApiResponse<TrainingDetailWithExams>> => {
+): Promise<ApiResponse<ITrainingDetailWithExamsResponse>> => {
   try {
     const dbConnection = await handleDBConnection();
     if (!dbConnection.success) return dbConnection;

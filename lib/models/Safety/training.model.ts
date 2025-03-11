@@ -52,25 +52,30 @@ const QuestionSchema: mongoose.Schema<IQuestion> = new mongoose.Schema(
   { timestamps: true }
 );
 
-const TrainingSchema: mongoose.Schema<ITraining> = new mongoose.Schema({
-  title: {
-    type: String,
-    required: true,
-    unique: true,
-  },
-  allowedCandidates: [
-    {
+const TrainingSchema: mongoose.Schema<ITraining> = new mongoose.Schema(
+  {
+    title: {
+      type: String,
+      required: true,
+      unique: true,
+    },
+    allowedCandidates: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'EmployeeData',
+        required: true,
+      },
+    ],
+    trainer: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: 'EmployeeData',
+      ref: 'Employee',
       required: true,
     },
-  ],
-  trainer: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'Employee',
-    required: true,
   },
-});
+  {
+    timestamps: true,
+  }
+);
 
 const TrainingExamSchema: mongoose.Schema<ITrainingExam> = new mongoose.Schema(
   {
@@ -107,7 +112,7 @@ const TrainingExamAttemptSchema: mongoose.Schema<ITrainingExamAttempt> =
       },
       exam: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'Exam',
+        ref: 'TrainingExam',
         required: true,
       },
       responses: [

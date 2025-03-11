@@ -10,7 +10,7 @@ type tabOptionTypes =
   | 'create-training';
 
 const TrainingHome = () => {
-  const [activeTab, setActiveTab] = useState<tabOptionTypes>('create-training');
+  const [activeTab, setActiveTab] = useState<tabOptionTypes>('upcoming-trainings');
 
   const handleTabClick = (tab: tabOptionTypes) => {
     setActiveTab(tab);
