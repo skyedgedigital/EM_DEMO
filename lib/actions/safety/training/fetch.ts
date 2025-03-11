@@ -7,6 +7,7 @@ import {
   ITrainingExam,
   ITraining,
   TrainingModel,
+  TrainingExamAttemptModel,
 } from '@/lib/models/Safety/training.model';
 import mongoose, { mongo } from 'mongoose';
 
@@ -307,6 +308,109 @@ export const fetchCompletedTrainings = async (): Promise<
         status: 200,
         message: 'completed trainings fetched successfully!',
         data: trainings,
+        error: null,
+      })
+    );
+  } catch (error) {
+    return JSON.parse(
+      JSON.stringify({
+        success: false,
+        status: 400,
+        message: error.message || 'Something went wrong!',
+        data: null,
+        error: error,
+      })
+    );
+  }
+};
+
+interface TrainingDetailWithExams {
+  title: string;
+  trainer: mongoose.Types.ObjectId;
+  allowedCandidates: { code: string; name: string }[];
+  exams: ITrainingExam[];
+}
+
+export const fetchTrainingDetailWithExamsById = async (
+  trainingId: string
+): Promise<ApiResponse<TrainingDetailWithExams>> => {
+  try {
+    const dbConnection = await handleDBConnection();
+    if (!dbConnection.success) return dbConnection;
+
+    if (!trainingId) {
+      throw new Error('Provide valid trainingId');
+    }
+
+    const training = await TrainingModel.findOne({ _id: trainingId }).populate({
+      path: 'allowedCandidates',
+      select: 'code name',
+    });
+
+    if (!training) {
+      throw new Error('Training does not exist');
+    }
+    const trainingExams = await TrainingExamModel.find({ trainingId });
+    if (!trainingExams) {
+      throw new Error('No exams exist within this training');
+    }
+    return JSON.parse(
+      JSON.stringify({
+        success: true,
+        status: 200,
+        message: 'Training details fetched successfully!',
+        data: { ...training, exams: trainingExams },
+        error: null,
+      })
+    );
+  } catch (error) {
+    return JSON.parse(
+      JSON.stringify({
+        success: false,
+        status: 400,
+        message: error.message || 'Something went wrong!',
+        data: null,
+        error: error,
+      })
+    );
+  }
+};
+
+interface ExamAttemptDetailsResponse {
+  candidate: { code: string; name: string }[];
+  exam: ITrainingExam;
+  responses: {
+    selectedAnswer: number;
+  }[];
+  score: number;
+}
+
+export const fetchExamAttemptDetails = async (
+  examId: string
+): Promise<ApiResponse<ExamAttemptDetailsResponse[]>> => {
+  try {
+    const dbConnection = await handleDBConnection();
+    if (!dbConnection.success) return dbConnection;
+
+    if (!examId) {
+      throw new Error('Provide valid examId');
+    }
+
+    const attempts = await TrainingExamAttemptModel.find({
+      exam: examId,
+    })
+      .populate('exam')
+      .populate({ path: 'candidate', select: 'code name' });
+    if (!attempts) {
+      throw new Error('No attempts found for this exam');
+    }
+
+    return JSON.parse(
+      JSON.stringify({
+        success: true,
+        status: 200,
+        message: 'Attempts fetched successfully!',
+        data: attempts,
         error: null,
       })
     );
