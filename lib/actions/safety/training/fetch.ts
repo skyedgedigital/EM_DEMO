@@ -538,22 +538,24 @@ export const fetchExamAttemptDetails = async (
 };
 
 export const fetchExamQuestionsByExamId = async (
-  examId: string
-): Promise<ApiResponse<{ questions: ITrainingExam['questions'][] }>> => {
+  trainingId: string,
+  examType: ITrainingExam['examType']
+): Promise<ApiResponse<{ questions: ITrainingExam['questions'] }>> => {
   try {
     const dbConnection = await handleDBConnection();
     if (!dbConnection.success) return dbConnection;
 
-    if (!examId) {
-      throw new Error('Provide valid examId');
+    if (!trainingId || !examType || examType !== 'pre-training-exam') {
+      throw new Error('Provide valid examId and examType');
     }
 
-    const questions = await TrainingExamModel.findById(examId).select(
-      'questions'
-    );
+    const questions = await TrainingExamModel.findOne({
+      trainingId,
+      examType,
+    }).select('questions');
 
     if (!questions) {
-      throw new Error('Exam not found!');
+      throw new Error('Training or exam does not exist');
     }
 
     return JSON.parse(
