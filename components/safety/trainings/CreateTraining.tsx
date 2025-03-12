@@ -1,6 +1,6 @@
 import { IEmployeeData } from '@/interfaces/HR/EmployeeData.interface';
 import EmployeeDataAction from '@/lib/actions/HR/EmployeeData/employeeDataAction';
-import { Plus, RefreshCcw } from 'lucide-react';
+import { Loader2Icon, Plus, RefreshCcw } from 'lucide-react';
 import mongoose from 'mongoose';
 import React, { useEffect, useState } from 'react';
 import { useFieldArray, useForm } from 'react-hook-form';
@@ -11,7 +11,7 @@ import { z } from 'zod';
 import { useSession } from 'next-auth/react';
 import { trainingActions } from '@/lib/actions/safety/training/trainingActions';
 import { CreateTrainingExamParams } from '@/lib/actions/safety/training/create';
-import { ExamTypeNames } from '@/lib/models/Safety/training.model';
+import { ExamTypeNames, ExamTypes } from '@/lib/models/Safety/training.model';
 
 // Define the Zod schema for the form
 const trainingSchema = z.object({
@@ -36,6 +36,7 @@ const trainingSchema = z.object({
   ),
   trainer: z.instanceof(mongoose.Types.ObjectId),
   examType: z.enum(ExamTypeNames).default('pre-training-exam'),
+  trainingId: z.instanceof(mongoose.Types.ObjectId).nullable().default(null),
 });
 
 type TrainingFormData = z.infer<typeof trainingSchema>;
@@ -44,9 +45,16 @@ interface IEmployee extends Pick<IEmployeeData, 'code' | 'name'> {
   _id: mongoose.Types.ObjectId;
 }
 
-const CreateTraining = () => {
+interface ICreateTraining {
+  presetTrainingId: string;
+  presetExamType: ExamTypes;
+}
+const CreateTraining = ({
+  presetExamType,
+  presetTrainingId,
+}: ICreateTraining) => {
+  const presetAlreadyProvided = !!(presetExamType && presetTrainingId);
   const session = useSession();
-
   const [employees, setAllEmployees] = React.useState<IEmployee[]>([]);
   const [loadingStates, setLoadingStates] = useState<{
     loadingEmployees: boolean;
@@ -71,6 +79,8 @@ const CreateTraining = () => {
       trainer: new mongoose.Types.ObjectId(), // Initialize with a valid ObjectId
       targetDate: new Date(), // Initialize with current date
       responsibility: '',
+      examType: presetAlreadyProvided ? presetExamType : 'pre-training-exam',
+      trainingId: null,
     },
   });
 
@@ -92,6 +102,12 @@ const CreateTraining = () => {
       );
     }
   }, [session]);
+
+  useEffect(() => {
+    if (presetAlreadyProvided) {
+      setValue('trainingId', new mongoose.Types.ObjectId(presetTrainingId));
+    }
+  }, [presetAlreadyProvided, presetTrainingId]);
 
   const fetchEmployee = async () => {
     try {
@@ -134,6 +150,9 @@ const CreateTraining = () => {
 
   const onSubmit = async (submittedFormData: TrainingFormData) => {
     try {
+      setLoadingStates((prev) => ({ ...prev, creatingTraining: true }));
+
+      console.log('Submitted Data', submittedFormData);
       const { data, error, message, status, success } =
         await trainingActions.CREATE.createTrainingExamWithQuestions(
           (await JSON.parse(
@@ -150,6 +169,11 @@ const CreateTraining = () => {
       }
     } catch (error) {
       console.log('errrrrrrrr', error);
+      toast.error(
+        error.message || 'Unexpected error occurred, Please try later'
+      );
+    } finally {
+      setLoadingStates((prev) => ({ ...prev, creatingTraining: false }));
     }
   };
 
@@ -158,7 +182,7 @@ const CreateTraining = () => {
   }, [errors]);
   return (
     <section>
-      <div>{JSON.stringify(formData)}</div>
+      {/* <div>{JSON.stringify(formData)}</div> */}
       <h2 className='text-lg text-blue-500 font-semibold'>
         Fill details to create training
       </h2>
@@ -167,6 +191,7 @@ const CreateTraining = () => {
           <div className='flex flex-col gap-1 flex-grow p-1'>
             <label htmlFor='examType'>Exam Type:</label>
             <select
+              disabled={presetAlreadyProvided}
               {...register('examType', { required: true })}
               className='border-[1px] border-gray-400 text-gray-600 bg-gray-50 p-1 rounded'
             >
@@ -291,10 +316,14 @@ const CreateTraining = () => {
         </div>
 
         <button
+          disabled={loadingStates.creatingTraining}
           type='submit'
-          className='bg-green-500 text-white p-2 rounded w-fit px-2 py-1 mx-auto my-4'
+          className='bg-green-700 disabled:bg-green-500 flex justify-center items-center gap-2 text-white p-2 rounded w-fit px-2 py-1 mx-auto my-4'
         >
-          Create Training
+          <>Create Training</>
+          {loadingStates.creatingTraining && (
+            <Loader2Icon className='animate-spin' />
+          )}
         </button>
       </form>
     </section>

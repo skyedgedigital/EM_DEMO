@@ -2,6 +2,7 @@
 import { ApiResponse } from '@/interfaces/APIresponses.interface';
 import { IEmployeeData } from '@/interfaces/HR/EmployeeData.interface';
 import handleDBConnection from '@/lib/database';
+import EmployeeData from '@/lib/models/HR/EmployeeData.model';
 import {
   TrainingExamModel,
   ExamTypes,
