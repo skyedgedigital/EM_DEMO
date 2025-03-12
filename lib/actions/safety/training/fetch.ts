@@ -544,8 +544,9 @@ export const fetchExamQuestionsByExamId = async (
   try {
     const dbConnection = await handleDBConnection();
     if (!dbConnection.success) return dbConnection;
+    console.log(trainingId, examType);
 
-    if (!trainingId || !examType || examType !== 'pre-training-exam') {
+    if (!trainingId || !examType) {
       throw new Error('Provide valid examId and examType');
     }
 

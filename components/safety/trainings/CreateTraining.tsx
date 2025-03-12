@@ -11,7 +11,11 @@ import { z } from 'zod';
 import { useSession } from 'next-auth/react';
 import { trainingActions } from '@/lib/actions/safety/training/trainingActions';
 import { CreateTrainingExamParams } from '@/lib/actions/safety/training/create';
-import { ExamTypeNames, ExamTypes } from '@/lib/models/Safety/training.model';
+import {
+  ExamTypeNames,
+  ExamTypes,
+  ITrainingExam,
+} from '@/lib/models/Safety/training.model';
 
 // Define the Zod schema for the form
 const trainingSchema = z.object({
@@ -56,12 +60,17 @@ const CreateTraining = ({
   const presetAlreadyProvided = !!(presetExamType && presetTrainingId);
   const session = useSession();
   const [employees, setAllEmployees] = React.useState<IEmployee[]>([]);
+  const [preTrainingQuestions, setPreTrainingQuestions] = useState<{
+    questions: ITrainingExam['questions'];
+  }>(null);
   const [loadingStates, setLoadingStates] = useState<{
     loadingEmployees: boolean;
     creatingTraining: boolean;
+    loadingPreTrainingExamQuestion: boolean;
   }>({
     loadingEmployees: true,
     creatingTraining: false,
+    loadingPreTrainingExamQuestion: false,
   });
   // Use the Zod schema with react-hook-form
   const {
@@ -132,9 +141,43 @@ const CreateTraining = ({
   };
 
   useEffect(() => {
+    if (presetAlreadyProvided) return;
     fetchEmployee();
-  }, []);
+  }, [presetAlreadyProvided]);
 
+  const fetchPreTrainingExamQuestion = async () => {
+    try {
+      setLoadingStates((prev) => ({
+        ...prev,
+        loadingPreTrainingExamQuestion: true,
+      }));
+      const { data, message, status, success, error } =
+        await trainingActions.FETCH.fetchExamQuestionsByExamId(
+          presetTrainingId,
+          'pre-training-exam'
+        );
+      if (success) {
+        // setPreTrainingQuestions(data);
+        console.log('data', data);
+        setValue('questions', data.questions as any);
+
+        toast.success(message);
+      }
+      if (!success) {
+        toast.error(message);
+      }
+    } catch (error) {
+      toast.error(
+        error.message ||
+          'Unexpected error occurred, Failed to Load pre-training exam question, You can still continue by adding question on your own'
+      );
+    } finally {
+      setLoadingStates((prev) => ({
+        ...prev,
+        loadingPreTrainingExamQuestion: false,
+      }));
+    }
+  };
   const handleCheckboxChange = (_id: string) => {
     const allowedCandidates = watch('allowedCandidates');
     const receivedId = new mongoose.Types.ObjectId(_id); // Convert _id to ObjectId
@@ -240,7 +283,19 @@ const CreateTraining = ({
         </div>
 
         <div className='flex flex-col gap-1 border-[1px] border-gray-200 p-2 rounded'>
-          <h2 className='font-semibold'>Create Questions:</h2>
+          <div className='w-full justify-between items-center'>
+            <h2 className='font-semibold'>Create Questions:</h2>
+            <button
+              type='button'
+              onClick={fetchPreTrainingExamQuestion}
+              className=' bg-blue-500 text-white p-1 rounded flex justify-center items-center gap-1 px-3 py-1 border-[1px] border-blue-400 ml-0 md:ml-auto'
+            >
+              <>Use Pre-Training Exam Questions</>
+              {loadingStates.loadingPreTrainingExamQuestion && (
+                <Loader2Icon className='animate-spin' />
+              )}
+            </button>
+          </div>
           {questionFields.map((question, questionIndex) => (
             <div key={question.id}>
               <Question
@@ -270,50 +325,60 @@ const CreateTraining = ({
             <>Add Question</>
           </button>
         </div>
-        <div className='flex flex-col gap-3 border-[1px] border-gray-200 rounded p-2'>
-          <div className='flex justify-between items-center'>
-            <h2 className='font-semibold'>Select Participants:</h2>
-            <button
-              onClick={fetchEmployee}
-              type='button'
-              className='flex justify-center items-center gap-2 px-2 py-2 rounded bg-blue-500 text-white text-nowrap text-sm'
-            >
-              <RefreshCcw
-                className={`${
-                  loadingStates.loadingEmployees && `animate-spin`
-                } w-[16px] h-[16px] `}
-              />
-              <>Reload Employees</>
-            </button>
+        {!presetAlreadyProvided ? (
+          <div className='flex flex-col gap-3 border-[1px] border-gray-200 rounded p-2'>
+            <div className='flex justify-between items-center'>
+              <h2 className='font-semibold'>Select Participants:</h2>
+              <button
+                onClick={fetchEmployee}
+                type='button'
+                className='flex justify-center items-center gap-2 px-2 py-2 rounded bg-blue-500 text-white text-nowrap text-sm'
+              >
+                <RefreshCcw
+                  className={`${
+                    loadingStates.loadingEmployees && `animate-spin`
+                  } w-[16px] h-[16px] `}
+                />
+                <>Reload Employees</>
+              </button>
+            </div>
+            {employees.length === 0 ? (
+              <div className='w-full h-full flex justify-center items-center'>
+                <p>No employees found</p>
+              </div>
+            ) : (
+              <div className='grid grid-cols-1 md:grid-cols-4 lg:grid-cols-5 max-h-screen overflow-auto'>
+                {employees.map((employee) => (
+                  <label
+                    key={employee._id.toString()}
+                    htmlFor={`employee-${employee._id}`}
+                    className='flex items-center gap-2 border-[.5px] p-1 px-2 border-gray-200 lowercase hover:bg-gray-100 text-gray-700'
+                  >
+                    <input
+                      type='checkbox'
+                      id={`employee-${employee._id}`}
+                      checked={formData.allowedCandidates.some((id) =>
+                        id.equals(new mongoose.Types.ObjectId(employee._id))
+                      )}
+                      onChange={() =>
+                        handleCheckboxChange(employee._id.toString())
+                      }
+                    />
+                    {employee.name} ({employee.code})
+                  </label>
+                ))}
+              </div>
+            )}
           </div>
-          {employees.length === 0 ? (
-            <div className='w-full h-full flex justify-center items-center'>
-              <p>No employees found</p>
-            </div>
-          ) : (
-            <div className='grid grid-cols-1 md:grid-cols-4 lg:grid-cols-5 max-h-screen overflow-auto'>
-              {employees.map((employee) => (
-                <label
-                  key={employee._id.toString()}
-                  htmlFor={`employee-${employee._id}`}
-                  className='flex items-center gap-2 border-[.5px] p-1 px-2 border-gray-200 lowercase hover:bg-gray-100 text-gray-700'
-                >
-                  <input
-                    type='checkbox'
-                    id={`employee-${employee._id}`}
-                    checked={formData.allowedCandidates.some((id) =>
-                      id.equals(new mongoose.Types.ObjectId(employee._id))
-                    )}
-                    onChange={() =>
-                      handleCheckboxChange(employee._id.toString())
-                    }
-                  />
-                  {employee.name} ({employee.code})
-                </label>
-              ))}
-            </div>
-          )}
-        </div>
+        ) : (
+          <div className='flex flex-col gap-3 border-[1px] border-gray-200 rounded p-2'>
+            <h2 className='font-semibold'>Select Participants:</h2>
+            <p className='text-gray-500'>
+              All allowed candidate for pre-training-exam will be allowed for
+              post-training-exam
+            </p>
+          </div>
+        )}
 
         <button
           disabled={loadingStates.creatingTraining}
@@ -404,9 +469,10 @@ const Question = ({
               <input
                 type='radio'
                 name={`question-${questionIndex}-text`}
-                // checked={(
-                //   watch(`questions.${questionIndex}.correctAnswers`) || []
-                // ).includes(optionIndex)}
+                checked={
+                  watch(`questions.${questionIndex}.correctAnswer`) ===
+                  optionIndex
+                }
                 onChange={() => handleCorrectAnswerChange(optionIndex)}
               />
               <input
