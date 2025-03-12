@@ -285,16 +285,18 @@ const CreateTraining = ({
         <div className='flex flex-col gap-1 border-[1px] border-gray-200 p-2 rounded'>
           <div className='w-full justify-between items-center'>
             <h2 className='font-semibold'>Create Questions:</h2>
-            <button
-              type='button'
-              onClick={fetchPreTrainingExamQuestion}
-              className=' bg-blue-500 text-white p-1 rounded flex justify-center items-center gap-1 px-3 py-1 border-[1px] border-blue-400 ml-0 md:ml-auto'
-            >
-              <>Use Pre-Training Exam Questions</>
-              {loadingStates.loadingPreTrainingExamQuestion && (
-                <Loader2Icon className='animate-spin' />
-              )}
-            </button>
+            {presetAlreadyProvided && (
+              <button
+                type='button'
+                onClick={fetchPreTrainingExamQuestion}
+                className=' bg-blue-500 text-white p-1 rounded flex justify-center items-center gap-1 px-3 py-1 border-[1px] border-blue-400 ml-0 md:ml-auto'
+              >
+                <>Use Pre-Training Exam Questions</>
+                {loadingStates.loadingPreTrainingExamQuestion && (
+                  <Loader2Icon className='animate-spin' />
+                )}
+              </button>
+            )}
           </div>
           {questionFields.map((question, questionIndex) => (
             <div key={question.id}>

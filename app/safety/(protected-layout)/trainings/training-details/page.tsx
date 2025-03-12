@@ -61,7 +61,7 @@ const TrainingDetails = ({
     (exam) => exam.examType === 'post-training-exam'
   );
 
-  const preTrainingExamLink = postTrainingExam
+  const preTrainingExamLink = preTrainingExam
     ? `${process.env.NEXT_PUBLIC_BASE_URL}/safety/training-exam/${trainingId}/${preTrainingExam.examType}`
     : 'Unable to generate link';
   const postTrainingExamLink = postTrainingExam
