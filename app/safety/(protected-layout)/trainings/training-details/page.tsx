@@ -139,7 +139,7 @@ const TrainingDetails = ({
               </table>
             </div>
           </div>
-          <div className=' flex flex-col gap-4 py-2 border-[1px] border-gray-400 rounded p-3'>
+          <div className=' flex flex-col gap-4 py-2 border-[1px] border-gray-300 shadow rounded p-3'>
             <h2 className='font-semibold border-b-[1px] pb-1 border-gray-200 text-blue-500'>
               Exams:
             </h2>
@@ -188,14 +188,14 @@ const TrainingDetails = ({
                       const queryString = new URLSearchParams(query).toString();
                       return `/safety/trainings/training-details/exam-details?${queryString}`;
                     })()}
-                    className='flex gap-2 justify-center ml-auto items-center  hover:bg-blue-500 hover:text-white text-blue-500 border-[1px] border-blue-400 text-nowrap rounded py-1 px-3'
+                    className='flex gap-2 justify-center ml-auto items-center  hover:bg-blue-700 bg-blue-500 text-white  text-nowrap rounded py-1 px-3'
                   >
                     See exam details
                   </Link>
                 </div>
                 <div className='flex flex-col gap-1'>
                   <h2 className='font-semibold'>Questions:</h2>
-                  <div className='flex flex-col gap-2'>
+                  <div className='flex flex-col gap-3'>
                     {preTrainingExam.questions.map((question, qno) => (
                       <div
                         key={question.text}
@@ -213,9 +213,10 @@ const TrainingDetails = ({
                               {question.options.map((option, opNo) => (
                                 <span
                                   key={option.text}
-                                  className={`flex justify-center items-center gap-1 border-[1px] border-gray-300 rounded px-3 py-1 capitalize ${
-                                    opNo === question.correctAnswer &&
-                                    'bg-blue-500 text-white'
+                                  className={`flex justify-center items-center gap-1 border-[1px] rounded-full px-3 py-1 capitalize ${
+                                    opNo === question.correctAnswer
+                                      ? ' border-blue-500 text-blue-500'
+                                      : ' border-gray-300'
                                   }`}
                                 >
                                   <p>{option.text}</p>
@@ -295,14 +296,14 @@ const TrainingDetails = ({
                       const queryString = new URLSearchParams(query).toString();
                       return `/safety/trainings/training-details/exam-details?${queryString}`;
                     })()}
-                    className='flex gap-2 justify-center ml-auto items-center  hover:bg-blue-500 hover:text-white text-blue-500 border-[1px] border-blue-400 text-nowrap rounded py-1 px-3'
+                    className='flex gap-2 justify-center ml-auto items-center  hover:bg-blue-700 bg-blue-500 text-white  text-nowrap rounded py-1 px-3'
                   >
                     See exam details
                   </Link>
                 </div>
                 <div className='flex flex-col gap-1'>
                   <h2 className='font-semibold'>Questions:</h2>
-                  <div className='flex flex-col gap-2'>
+                  <div className='flex flex-col gap-3'>
                     {postTrainingExam.questions.map((question, qno) => (
                       <div
                         key={question.text}
@@ -320,9 +321,10 @@ const TrainingDetails = ({
                               {question.options.map((option, opNo) => (
                                 <span
                                   key={option.text}
-                                  className={`flex justify-center items-center gap-1 border-[1px] border-gray-300 rounded px-3 py-1 capitalize ${
-                                    opNo === question.correctAnswer &&
-                                    'bg-blue-500 text-white'
+                                  className={`flex justify-center items-center gap-1 border-[1px] rounded-full px-3 py-1 capitalize ${
+                                    opNo === question.correctAnswer
+                                      ? ' border-blue-500 text-blue-500'
+                                      : ' border-gray-300'
                                   }`}
                                 >
                                   <p>{option.text}</p>
