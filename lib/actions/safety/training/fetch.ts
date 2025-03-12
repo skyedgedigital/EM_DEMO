@@ -10,6 +10,7 @@ import {
   ITraining,
   TrainingModel,
   TrainingExamAttemptModel,
+  ITrainingExamAttempt,
 } from '@/lib/models/Safety/training.model';
 import mongoose from 'mongoose';
 
@@ -328,6 +329,7 @@ export const fetchCompletedTrainings = async (): Promise<
 
 type ITrainingExamWithAttempts = ITrainingExam & {
   totalCandidatesAttempted: number;
+  _id: mongoose.Types.ObjectId;
 };
 
 export interface ITrainingDetailWithExamsResponse {
@@ -403,18 +405,86 @@ export const fetchTrainingDetailWithExamsById = async (
   }
 };
 
-interface ExamAttemptDetailsResponse {
-  candidate: { code: string; name: string }[];
-  exam: ITrainingExam;
-  responses: {
-    selectedAnswer: number;
-  }[];
-  score: number;
-}
+// export interface IExamAttemptDetailsResponse {
+//   candidate: { code: string; name: string }[];
+//   exam: ITrainingExam;
+//   responses: {
+//     selectedAnswer: number;
+//   }[];
+//   score: number;
+// }
 
+// export const fetchExamAttemptDetails = async (
+//   examId: string
+// ): Promise<ApiResponse<IExamAttemptDetailsResponse[]>> => {
+//   try {
+//     const dbConnection = await handleDBConnection();
+//     if (!dbConnection.success) return dbConnection;
+
+//     if (!examId) {
+//       throw new Error('Provide valid examId');
+//     }
+
+//     const attempts = await TrainingExamAttemptModel.find({
+//       exam: examId,
+//     })
+//       .populate('exam')
+//       .populate({ path: 'candidate', select: 'code name' });
+//     if (!attempts) {
+//       throw new Error('No attempts found for this exam');
+//     }
+
+//     return JSON.parse(
+//       JSON.stringify({
+//         success: true,
+//         status: 200,
+//         message: 'Attempts fetched successfully!',
+//         data: attempts,
+//         error: null,
+//       })
+//     );
+//   } catch (error) {
+//     return JSON.parse(
+//       JSON.stringify({
+//         success: false,
+//         status: 400,
+//         message: error.message || 'Something went wrong!',
+//         data: null,
+//         error: error,
+//       })
+//     );
+//   }
+// };
+
+// export interface IExamAllAttemptsResponse {
+//   exam: ITrainingExam;
+//   submittedAttempts: (ITrainingExamAttempt & {
+//     _id: mongoose.Types.ObjectId;
+//     createdAt: Date;
+//   })[];
+// }
+type TSubmittedAttemptsResponse = {
+  _id: mongoose.Types.ObjectId;
+  createdAt: Date;
+  candidate: {
+    _id: mongoose.Types.ObjectId;
+    code: IEmployeeData['code'];
+    name: IEmployeeData['name'];
+  };
+  responses: ITrainingExamAttempt['responses'];
+  score: ITrainingExamAttempt['score'];
+};
+type TExamResponse = ITrainingExam & {
+  _id: mongoose.Types.ObjectId;
+  createdAt: Date;
+};
+export interface IExamAllAttemptsResponse {
+  exam: TExamResponse;
+  submittedAttempts: TSubmittedAttemptsResponse[];
+}
 export const fetchExamAttemptDetails = async (
   examId: string
-): Promise<ApiResponse<ExamAttemptDetailsResponse[]>> => {
+): Promise<ApiResponse<IExamAllAttemptsResponse>> => {
   try {
     const dbConnection = await handleDBConnection();
     if (!dbConnection.success) return dbConnection;
@@ -423,21 +493,34 @@ export const fetchExamAttemptDetails = async (
       throw new Error('Provide valid examId');
     }
 
-    const attempts = await TrainingExamAttemptModel.find({
-      exam: examId,
-    })
-      .populate('exam')
-      .populate({ path: 'candidate', select: 'code name' });
+    const exam: TExamResponse = await TrainingExamModel.findById(examId).lean();
+    if (!exam) {
+      throw new Error('Invalid Exam Id!');
+    }
+    console.log('Found Exam', exam);
+
+    const attempts: TSubmittedAttemptsResponse[] =
+      await TrainingExamAttemptModel.find({
+        exam: examId,
+      })
+        .populate({ path: 'candidate', select: 'code name' })
+        .lean();
+    console.log('Attempts', attempts);
+
     if (!attempts) {
-      throw new Error('No attempts found for this exam');
+      throw new Error('No Attempts for this exam has been submitted');
     }
 
+    const result: IExamAllAttemptsResponse = {
+      exam: exam,
+      submittedAttempts: attempts,
+    };
     return JSON.parse(
       JSON.stringify({
         success: true,
         status: 200,
         message: 'Attempts fetched successfully!',
-        data: attempts,
+        data: result,
         error: null,
       })
     );

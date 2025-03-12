@@ -180,11 +180,9 @@ const TrainingDetails = ({
                   <Link
                     target='_blank'
                     href={(() => {
-                      const query: { trainingId: string; examType: ExamTypes } =
-                        {
-                          trainingId: trainingId || null,
-                          examType: 'pre-training-exam',
-                        };
+                      const query: { examId: string } = {
+                        examId: preTrainingExam._id.toString(),
+                      };
                       const queryString = new URLSearchParams(query).toString();
                       return `/safety/trainings/training-details/exam-details?${queryString}`;
                     })()}
@@ -215,8 +213,8 @@ const TrainingDetails = ({
                                   key={option.text}
                                   className={`flex justify-center items-center gap-1 border-[1px] rounded-full px-3 py-1 capitalize ${
                                     opNo === question.correctAnswer
-                                      ? ' border-blue-500 text-blue-500'
-                                      : ' border-gray-300'
+                                      ? ' border-green-700 text-green-700'
+                                      : ' border-gray-300 text-gray-600'
                                   }`}
                                 >
                                   <p>{option.text}</p>
@@ -288,11 +286,9 @@ const TrainingDetails = ({
                   <Link
                     target='_blank'
                     href={(() => {
-                      const query: { trainingId: string; examType: ExamTypes } =
-                        {
-                          trainingId: trainingId || null,
-                          examType: 'post-training-exam',
-                        };
+                      const query: { examId: string } = {
+                        examId: postTrainingExam._id.toString(),
+                      };
                       const queryString = new URLSearchParams(query).toString();
                       return `/safety/trainings/training-details/exam-details?${queryString}`;
                     })()}
@@ -323,8 +319,8 @@ const TrainingDetails = ({
                                   key={option.text}
                                   className={`flex justify-center items-center gap-1 border-[1px] rounded-full px-3 py-1 capitalize ${
                                     opNo === question.correctAnswer
-                                      ? ' border-blue-500 text-blue-500'
-                                      : ' border-gray-300'
+                                      ? ' border-green-700 text-green-700'
+                                      : ' border-gray-300 text-gray-600'
                                   }`}
                                 >
                                   <p>{option.text}</p>
