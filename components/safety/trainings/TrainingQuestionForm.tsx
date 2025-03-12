@@ -139,7 +139,7 @@ const TrainingQuestionsForms = ({
       {JSON.stringify(employee)}
       ------------------------------------------ <br />
       */}
-      ATTEMPTED ANSWER:-{JSON.stringify(attemptedAnswers)}
+      {/* ATTEMPTED ANSWER:-{JSON.stringify(attemptedAnswers)} */}
       {employee && (
         <div className='w-full flex flex-col gap-2 border-[1px] border-gray-200 rounded shadow-sm p-3'>
           <h1 className='text-blue-500 font-semibold'>Candidate Details:</h1>
@@ -174,7 +174,7 @@ const TrainingQuestionsForms = ({
               </div>
               <div className='w-full'>
                 <label className='text-sm text-gray-500'>Exam Date:</label>
-                <p>{exam?.targetDate?.toString()}</p>
+                <p>{new Date(exam?.targetDate).toLocaleDateString()}</p>
               </div>
             </div>
             <div className='flex flex-col gap-6'>

@@ -3,7 +3,7 @@ import { ITrainingDetailWithExamsResponse } from '@/lib/actions/safety/training/
 import { trainingActions } from '@/lib/actions/safety/training/trainingActions';
 import { ExamTypes } from '@/lib/models/Safety/training.model';
 import { ExclamationTriangleIcon } from '@radix-ui/react-icons';
-import { Loader2Icon, RefreshCcw } from 'lucide-react';
+import { Copy, Loader2Icon, RefreshCcw } from 'lucide-react';
 import Link from 'next/link';
 import React, { useEffect, useState } from 'react';
 import toast from 'react-hot-toast';
@@ -60,6 +60,25 @@ const TrainingDetails = ({
   const postTrainingExam = trainingDetails?.exams.find(
     (exam) => exam.examType === 'post-training-exam'
   );
+
+  const preTrainingExamLink = postTrainingExam
+    ? `${process.env.NEXT_PUBLIC_BASE_URL}/safety/training-exam/${trainingId}/${preTrainingExam.examType}`
+    : 'Unable to generate link';
+  const postTrainingExamLink = postTrainingExam
+    ? `${process.env.NEXT_PUBLIC_BASE_URL}/safety/training-exam/${trainingId}/${postTrainingExam.examType}`
+    : 'Unable to generate link';
+
+  const copyToClipboard = async (link: string) => {
+    try {
+      await navigator.clipboard.writeText(link);
+      toast.success('Link copied to clipboard!');
+    } catch (err) {
+      console.error('Failed to copy link: ', err);
+      toast.error('Failed to copy link');
+    }
+  };
+  console.log('TDetails');
+
   return (
     <section>
       <h1 className='font-bold text-blue-500 border-b-2 border-blue-500 text-center py-2 mb-4'>
@@ -145,36 +164,49 @@ const TrainingDetails = ({
             </h2>
 
             {preTrainingExam ? (
-              <div className='flex flex-col gap-1 border-b-[1px] pb-4 border-gray-200 mt-4'>
+              <div className='flex flex-col gap-4 border-b-[1px] pb-4 border-gray-200 mt-4'>
+                <div className='flex justify-between items-center w-full'>
+                  <div className=' flex justify-center items-center gap-1'>
+                    <label className='text-sm text-gray-600'>Exam Type:</label>
+                    <p className='font-semibold'>Pre Training Exam</p>
+                  </div>
+                  <div className='flex justify-start items-center gap-2'>
+                    <p className='text-sm text-gray-500'>Exam Link:</p>
+                    <p className='text-blue-500'>{preTrainingExamLink}</p>
+                    <button
+                      onClick={() => copyToClipboard(preTrainingExamLink)}
+                      className='text-blue-500  border-[1px] hover:border-blue-400 py-1 px-2 rounded flex justify-center items-center gap-1'
+                    >
+                      <Copy className='  w-[20px]' />
+                      {/* <>copy link</> */}
+                    </button>
+                  </div>
+                </div>
                 <div className='flex justify-between items-start w-full'>
-                  <div className='w-full flex justify-start items-center gap-6'>
-                    <div className=' flex justify-center items-center gap-1'>
-                      <label className='text-sm text-gray-600'>
-                        Exam Type:
-                      </label>
-                      <p className='font-semibold'>Pre Training Exam</p>
-                    </div>
-                    <div className=' flex justify-center items-center gap-1'>
-                      <label className='text-sm text-gray-600'>
-                        Responsibility:
-                      </label>
-                      <p>{preTrainingExam?.responsibility}</p>
-                    </div>
-                    <div className=' flex justify-center items-center gap-1'>
-                      <label className='text-sm text-gray-600'>
-                        Dated for:
-                      </label>
-                      <p>
-                        {new Date(
-                          preTrainingExam.targetDate
-                        ).toLocaleDateString()}
-                      </p>
-                    </div>
-                    <div className=' flex justify-center items-center gap-1'>
-                      <label className='text-sm text-gray-600'>
-                        Total Candidate Appeared:
-                      </label>
-                      <p>{preTrainingExam.totalCandidatesAttempted}</p>
+                  <div className='flex flex-col gap-3 '>
+                    <div className='w-full flex justify-start items-center gap-6'>
+                      <div className=' flex justify-center items-center gap-1'>
+                        <label className='text-sm text-gray-600'>
+                          Responsibility:
+                        </label>
+                        <p>{preTrainingExam?.responsibility}</p>
+                      </div>
+                      <div className=' flex justify-center items-center gap-1'>
+                        <label className='text-sm text-gray-600'>
+                          Dated for:
+                        </label>
+                        <p>
+                          {new Date(
+                            preTrainingExam.targetDate
+                          ).toLocaleDateString()}
+                        </p>
+                      </div>
+                      <div className=' flex justify-center items-center gap-1'>
+                        <label className='text-sm text-gray-600'>
+                          Total Candidate Appeared:
+                        </label>
+                        <p>{preTrainingExam.totalCandidatesAttempted}</p>
+                      </div>
                     </div>
                   </div>
                   <Link
@@ -251,36 +283,49 @@ const TrainingDetails = ({
               </div>
             )}
             {postTrainingExam ? (
-              <div className='flex flex-col gap-3 pb-4 mt-4'>
+              <div className='flex flex-col gap-4 pb-4 mt-4'>
+                <div className='flex justify-between items-center w-full'>
+                  <div className=' flex justify-center items-center gap-1'>
+                    <label className='text-sm text-gray-600'>Exam Type:</label>
+                    <p className='font-semibold'>Post Training Exam</p>
+                  </div>
+                  <div className='flex justify-start items-center gap-2'>
+                    <p className='text-sm text-gray-500'>Exam Link:</p>
+                    <p className='text-blue-500'> {postTrainingExamLink}</p>
+                    <button
+                      onClick={() => copyToClipboard(postTrainingExamLink)}
+                      className='text-blue-500  border-[1px] hover:border-blue-400 py-1 px-2 rounded flex justify-center items-center gap-1'
+                    >
+                      <Copy className='  w-[20px]' />
+                      {/* <>copy link</> */}
+                    </button>
+                  </div>
+                </div>
                 <div className='flex justify-between items-start w-full'>
-                  <div className='w-full flex justify-start items-center gap-6'>
-                    <div className=' flex justify-center items-center gap-1'>
-                      <label className='text-sm text-gray-600'>
-                        Exam Type:
-                      </label>
-                      <p className='font-semibold'>Post Training Exam</p>
-                    </div>
-                    <div className=' flex justify-center items-center gap-1'>
-                      <label className='text-sm text-gray-600'>
-                        Responsibility:
-                      </label>
-                      <p>{postTrainingExam?.responsibility}</p>
-                    </div>
-                    <div className=' flex justify-center items-center gap-1'>
-                      <label className='text-sm text-gray-600'>
-                        Dated for:
-                      </label>
-                      <p>
-                        {new Date(
-                          postTrainingExam.targetDate
-                        ).toLocaleDateString()}
-                      </p>
-                    </div>
-                    <div className=' flex justify-center items-center gap-1'>
-                      <label className='text-sm text-gray-600'>
-                        Total Candidate Appeared:
-                      </label>
-                      <p>{postTrainingExam.totalCandidatesAttempted}</p>
+                  <div className='flex flex-col gap-3 '>
+                    <div className='w-full flex justify-start items-center gap-6'>
+                      <div className=' flex justify-center items-center gap-1'>
+                        <label className='text-sm text-gray-600'>
+                          Responsibility:
+                        </label>
+                        <p>{postTrainingExam?.responsibility}</p>
+                      </div>
+                      <div className=' flex justify-center items-center gap-1'>
+                        <label className='text-sm text-gray-600'>
+                          Dated for:
+                        </label>
+                        <p>
+                          {new Date(
+                            postTrainingExam.targetDate
+                          ).toLocaleDateString()}
+                        </p>
+                      </div>
+                      <div className=' flex justify-center items-center gap-1'>
+                        <label className='text-sm text-gray-600'>
+                          Total Candidate Appeared:
+                        </label>
+                        <p>{postTrainingExam.totalCandidatesAttempted}</p>
+                      </div>
                     </div>
                   </div>
                   <Link
