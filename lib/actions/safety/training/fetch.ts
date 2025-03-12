@@ -536,3 +536,46 @@ export const fetchExamAttemptDetails = async (
     );
   }
 };
+
+export const fetchExamQuestionsByExamId = async (
+  examId: string
+): Promise<ApiResponse<{ questions: ITrainingExam['questions'][] }>> => {
+  try {
+    const dbConnection = await handleDBConnection();
+    if (!dbConnection.success) return dbConnection;
+
+    if (!examId) {
+      throw new Error('Provide valid examId');
+    }
+
+    const questions = await TrainingExamModel.findById(examId).select(
+      'questions'
+    );
+
+    if (!questions) {
+      throw new Error('Exam not found!');
+    }
+
+    return JSON.parse(
+      JSON.stringify({
+        success: true,
+        status: 200,
+        message: 'Questions fetched successfully!',
+        data: questions,
+        error: null,
+      })
+    );
+  } catch (error) {
+    return JSON.parse(
+      JSON.stringify({
+        success: false,
+        status: 400,
+        message:
+          `${error.message}, you can still continue adding questions on your own` ||
+          'Something went wrong!, , you can still continue adding questions on your own',
+        data: null,
+        error: error,
+      })
+    );
+  }
+};
