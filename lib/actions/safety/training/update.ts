@@ -1,7 +1,13 @@
-import { ApiResponse } from "@/interfaces/APIresponses.interface";
-import handleDBConnection from "@/lib/database";
-import { ITraining, ITrainingExam, TrainingExamModel, TrainingModel } from "@/lib/models/Safety/training.model";
-import mongoose from "mongoose";
+'use server';
+import { ApiResponse } from '@/interfaces/APIresponses.interface';
+import handleDBConnection from '@/lib/database';
+import {
+  ITraining,
+  ITrainingExam,
+  TrainingExamModel,
+  TrainingModel,
+} from '@/lib/models/Safety/training.model';
+import mongoose from 'mongoose';
 
 export const updateExam = async (
   trainer: mongoose.Types.ObjectId,
