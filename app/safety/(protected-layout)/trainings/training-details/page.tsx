@@ -2,11 +2,16 @@
 import { ITrainingDetailWithExamsResponse } from '@/lib/actions/safety/training/fetch';
 import { trainingActions } from '@/lib/actions/safety/training/trainingActions';
 import { ExamTypes } from '@/lib/models/Safety/training.model';
+import { storage } from '@/utils/fireBase/config';
 import { ExclamationTriangleIcon } from '@radix-ui/react-icons';
+import { getDownloadURL, ref, uploadBytesResumable } from 'firebase/storage';
 import { Copy, Loader2Icon, RefreshCcw } from 'lucide-react';
+import mongoose from 'mongoose';
+import { useSession } from 'next-auth/react';
 import Link from 'next/link';
 import React, { useEffect, useState } from 'react';
 import toast from 'react-hot-toast';
+import { FaSpinner } from 'react-icons/fa6';
 
 const TrainingDetails = ({
   searchParams,
@@ -48,7 +53,7 @@ const TrainingDetails = ({
       }));
     }
   };
-
+  console.log('TRAINING DETAILS', trainingDetails);
   useEffect(() => {
     fetchTrainingDetails();
   }, [trainingId]);
@@ -128,34 +133,45 @@ const TrainingDetails = ({
       )}
       {trainingDetails && (
         <div className='w-full  mt-4 flex flex-col gap-4 p-4'>
-          <div className='w-full max-h-screen flex flex-col gap-2 '>
-            <h2 className='font-semibold border-b-[1px] border-gray-200 pb-1 text-blue-500'>
-              Allowed Candidates:
-            </h2>
-            <div className='overflow-x-auto w-full'>
-              <table className='border-collapse'>
-                <thead>
-                  <tr>
-                    <th className='px-4 py-2 text-left'>Sl.</th>
-                    <th className='px-4 py-2 text-left'>Employee Code</th>
-                    <th className='px-4 py-2 text-left'>Employee Name</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {trainingDetails.allowedCandidates.map((candidate, i) => (
-                    <tr
-                      key={candidate.code}
-                      className={`${
-                        i % 2 === 0 ? 'bg-gray-100' : ''
-                      } hover:bg-gray-50`}
-                    >
-                      <td className='px-4 py-2'>{i + 1}</td>
-                      <td className='px-4 py-2'>{candidate.code}</td>
-                      <td className='px-4 py-2'>{candidate.name}</td>
+          <div className='w-full max-h-screen flex gap-12'>
+            <div className='flex flex-col gap-2'>
+              <h2 className='font-semibold border-b-[1px] border-gray-200 pb-1 text-blue-500'>
+                Allowed Candidates:
+              </h2>
+              <div className='overflow-x-auto w-full'>
+                <table className='border-collapse'>
+                  <thead>
+                    <tr>
+                      <th className='px-4 py-2 text-left'>Sl.</th>
+                      <th className='px-4 py-2 text-left'>Employee Code</th>
+                      <th className='px-4 py-2 text-left'>Employee Name</th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
+                  </thead>
+                  <tbody>
+                    {trainingDetails.allowedCandidates.map((candidate, i) => (
+                      <tr
+                        key={candidate.code}
+                        className={`${
+                          i % 2 === 0 ? 'bg-gray-100' : ''
+                        } hover:bg-gray-50`}
+                      >
+                        <td className='px-4 py-2'>{i + 1}</td>
+                        <td className='px-4 py-2'>{candidate.code}</td>
+                        <td className='px-4 py-2'>{candidate.name}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+            <div className='flex flex-col gap-2'>
+              <h2 className='font-semibold border-b-[1px] border-gray-200 pb-1 text-blue-500'>
+                Attendance Sheet:
+              </h2>
+              <AttendanceSheetUpload
+                trainingId={trainingId}
+                attendanceSheetURL={trainingDetails.attendanceSheetURL}
+              />
             </div>
           </div>
           <div className=' flex flex-col gap-4 py-2 border-[1px] border-gray-300 shadow rounded p-3'>
@@ -409,3 +425,187 @@ const TrainingDetails = ({
 };
 
 export default TrainingDetails;
+
+const AttendanceSheetUpload = ({ trainingId, attendanceSheetURL }) => {
+  const session = useSession();
+  const [uploading, setUploading] = useState<boolean>(false);
+  const [file, setFile] = useState(null);
+  const [progress, setProgress] = useState(0);
+  const [trainerId, setTrainerId] = useState<mongoose.Types.ObjectId>(null);
+
+  useEffect(() => {
+    if (session && session?.data?.user._id) {
+      setTrainerId(new mongoose.Types.ObjectId(session?.data?.user?._id));
+    }
+  }, [session]);
+
+  const handleFileChange = (e) => {
+    setFile(e.target.files[0]);
+  };
+
+  const handleRemoveFile = () => {
+    setFile(null);
+    setProgress(0);
+  };
+
+  const handleSheetUpload = async (
+    file: File,
+    storagePath: string,
+    fileName: string
+  ): Promise<string> => {
+    try {
+      // Step 1: Convert the file to a Blob
+      const blob = new Blob([file], { type: file.type });
+
+      // Step 2: Upload the Blob to Firebase Storage
+
+      const storageRef = ref(storage, `${storagePath}/${fileName}`);
+      const uploadTask = uploadBytesResumable(storageRef, blob);
+      const downloadURL = await new Promise<string>((resolve, reject) => {
+        uploadTask.on(
+          'state_changed',
+          (snapshot) => {
+            const progress =
+              (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+            console.log(`Upload is ${progress}% done`);
+          },
+          (error) => {
+            console.error('Error uploading PDF to Firebase:', error);
+            reject(error);
+          },
+          async () => {
+            try {
+              const url = await getDownloadURL(uploadTask.snapshot.ref);
+              resolve(url);
+            } catch (error) {
+              console.error('Error getting download URL:', error);
+              reject(error);
+            }
+          }
+        );
+      });
+
+      toast.success('PDF uploaded successfully!');
+      return downloadURL;
+    } catch (error) {
+      console.error('Error uploading PDF:', error);
+      toast.error('Failed to upload PDF. Please try again.');
+      throw error;
+    }
+  };
+  const handleUpload = async () => {
+    if (!file) {
+      toast.error('No file selected');
+      return;
+    }
+    if (!trainerId) {
+      toast.error('Failed to load trainer id, Please refresh');
+      return;
+    }
+    try {
+      setUploading(true);
+      const downloadURL: string = await handleSheetUpload(
+        file,
+        `safety/training/${trainingId}/attendanceSheet`, // Firebase Storage path
+        `${trainingId}-att-sheet` // Unique file name
+      );
+      console.log('downloadURL', downloadURL);
+      if (downloadURL) {
+        toast.success('Attendance Photo uploaded');
+        const { data, message, error, status, success } =
+          await trainingActions.UPDATE.updateTraining({
+            trainer: trainerId,
+            trainingId,
+            updates: {
+              attendanceSheetURL: downloadURL,
+            },
+          });
+
+        if (success) {
+          toast.success(message);
+        }
+        if (!success) {
+          toast.error(message);
+        }
+      }
+      // console.log(data, Error, Message, Status, Success);
+    } catch (error) {
+      toast.error(
+        JSON.stringify(error.message || error) ||
+          `Failed to upload attendance ${trainingId} image`
+      );
+    } finally {
+      setUploading(false);
+    }
+  };
+
+  const handleDelete = async (id: any) => {
+    // const resp = await weeklyAuditAction.DELETE.deleteSiteSecurityUploads(id);
+    // if (resp.success) {
+    //   toast.success('Deleted,Refresh to view Changes');
+    //   //   setResults(prev => prev.filter(item => item.id !== id));
+    // } else {
+    //   toast.error('Failed');
+    // }
+  };
+
+  return (
+    <form className=' '>
+      <div className='w-full flex flex-col items-start justify-center gap-2 p-2'>
+        <label>Select attendance sheet to upload:</label>
+        <input
+          // disabled={!canEditAllDetails}
+          type='file'
+          onChange={handleFileChange}
+          className='border border-gray-300 rounded p-2 mb-4 w-full'
+        />
+        {/* {file && (
+          <div className='mb-4 flex items-center'>
+            <span className='mr-4 text-green-600'>{file.name}</span>
+            <button
+              onClick={handleRemoveFile}
+              className='bg-red-500 text-white text-nowrap p-2 rounded hover:bg-red-700'
+            >
+              Remove File
+            </button>
+          </div>
+        )} */}
+        <button
+          type='submit'
+          onClick={(e: React.FormEvent) => {
+            e.preventDefault();
+            handleUpload();
+          }}
+          className='bg-blue-500 text-white px-2 py-1 rounded hover:bg-blue-700 flex justify-center items-center gap-2'
+        >
+          {uploading ? (
+            <>
+              <FaSpinner />
+              Uploading {progress}
+            </>
+          ) : (
+            'Upload'
+          )}
+        </button>
+      </div>
+      <div className='w-full justify-center items-center flex my-6 gap-2 flex-col'>
+        {!attendanceSheetURL && (
+          <span className='text-red-400 flex justify-center items-center gap-2'>
+            <ExclamationTriangleIcon className='w-[20px] h-[20px]' />{' '}
+            <p>No Attendance Sheet Were Uploaded</p>
+          </span>
+        )}
+
+        {attendanceSheetURL && (
+          <Link
+            target='_blank'
+            href={''}
+            className='border-[1px] border-blue-500 text-blue-500 px-2 py-1 rounded flex justify-center items-center gap-2'
+          >
+            See Uploaded Site File
+          </Link>
+        )}
+      </div>
+    </form>
+  );
+};

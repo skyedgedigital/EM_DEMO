@@ -15,6 +15,7 @@ export interface ITraining {
   title: string;
   trainer: mongoose.Types.ObjectId;
   allowedCandidates: mongoose.Types.ObjectId[];
+  attendanceSheetURL: string;
 }
 
 export interface ITrainingExam {
@@ -70,6 +71,10 @@ const TrainingSchema: mongoose.Schema<ITraining> = new mongoose.Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: 'Employee',
       required: true,
+    },
+    attendanceSheetURL: {
+      type: String,
+      default: '',
     },
   },
   {

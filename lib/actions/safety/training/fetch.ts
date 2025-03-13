@@ -341,6 +341,7 @@ export interface ITrainingDetailWithExamsResponse {
   }[];
   exams: ITrainingExamWithAttempts[];
   createdAt: Date;
+  attendanceSheetURL: ITraining['attendanceSheetURL'];
 }
 
 export const fetchTrainingDetailWithExamsById = async (

@@ -1,10 +1,5 @@
 import { checkEmployeeTrainingExamEligibility } from './checks';
-import {
-  createExamAttempt,
-  createTrainingExamWithQuestions,
-  updateExam,
-  updateTraining,
-} from './create';
+import { createExamAttempt, createTrainingExamWithQuestions } from './create';
 import {
   fetchRequiredDetailsForATrainingExam,
   fetchExamByTrainingIdAndExamType,
@@ -16,6 +11,7 @@ import {
   fetchExamQuestionsByExamId,
   // fetchSelectedInfosOfExamByExamId,
 } from './fetch';
+import { updateExam, updateTraining } from './update';
 
 export const trainingActions = {
   CREATE: {
