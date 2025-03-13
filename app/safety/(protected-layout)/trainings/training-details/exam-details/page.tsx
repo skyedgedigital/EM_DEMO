@@ -161,7 +161,9 @@ const TrainingExamDetailsPage = ({
                     <th className='px-4 py-2 text-left'>Employee Code</th>
                     <th className='px-4 py-2 text-left'>Employee Name</th>
                     {examDetails.exam.questions.map((_, qno) => (
-                      <th className='px-4 py-2 text-left'>Ans.{qno + 1}</th>
+                      <th key={_.text} className='px-4 py-2 text-left'>
+                        Ans.{qno + 1}
+                      </th>
                     ))}
                     <th className='px-4 py-2 text-left'>Scored</th>
                     <th className='px-4 py-2 text-left'>Attempted On</th>
@@ -169,7 +171,10 @@ const TrainingExamDetailsPage = ({
                 </thead>
                 <tbody>
                   {examDetails.submittedAttempts.map((ans, i) => (
-                    <tr className={`${i % 2 == 0 && 'bg-gray-100'}`}>
+                    <tr
+                      key={ans._id.toString()}
+                      className={`${i % 2 == 0 && 'bg-gray-100'}`}
+                    >
                       <td className='px-4 py-2 text-left'>{i + 1}</td>
                       <td className='px-4 py-2 text-left'>
                         {ans.candidate.code}
@@ -179,6 +184,7 @@ const TrainingExamDetailsPage = ({
                       </td>
                       {ans.responses.map((resp, ansNo) => (
                         <td
+                          key={ansNo}
                           className={`px-4 py-2 text-left ${
                             examDetails.exam.questions[ansNo].correctAnswer !==
                               resp.selectedAnswer && 'text-red-500'
