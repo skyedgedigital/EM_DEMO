@@ -355,6 +355,14 @@ export const fetchTrainingDetailWithExamsById = async (
       throw new Error('Provide valid trainingId');
     }
 
+    if (!mongoose.models.EmployeeData) {
+      const { EmployeeDataSchema } = await import(
+        '@/lib/models/HR/EmployeeData.model'
+      );
+      mongoose.model('EmployeeData', EmployeeDataSchema);
+      console.log('Forcibly registered EmployeeData model');
+    }
+
     const training = await TrainingModel.findOne({ _id: trainingId })
       .populate({
         path: 'allowedCandidates',
