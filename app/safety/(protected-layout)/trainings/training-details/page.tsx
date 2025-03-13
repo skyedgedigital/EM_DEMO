@@ -66,12 +66,14 @@ const TrainingDetails = ({
     (exam) => exam.examType === 'post-training-exam'
   );
 
-  const preTrainingExamLink = preTrainingExam
-    ? `${process.env.NEXT_PUBLIC_BASE_URL}/safety/training-exam/${trainingId}/${preTrainingExam.examType}`
-    : 'Unable to generate link';
-  const postTrainingExamLink = postTrainingExam
-    ? `${process.env.NEXT_PUBLIC_BASE_URL}/safety/training-exam/${trainingId}/${postTrainingExam.examType}`
-    : 'Unable to generate link';
+  const preTrainingExamLink =
+    preTrainingExam && window
+      ? `${window.location.origin}/safety/training-exam/${trainingId}/${preTrainingExam.examType}`
+      : 'Unable to generate link';
+  const postTrainingExamLink =
+    postTrainingExam && window
+      ? `${window.location.origin}/safety/training-exam/${trainingId}/${postTrainingExam.examType}`
+      : 'Unable to generate link';
 
   const copyToClipboard = async (link: string) => {
     try {
