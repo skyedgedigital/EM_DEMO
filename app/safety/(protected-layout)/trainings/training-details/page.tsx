@@ -468,6 +468,7 @@ const AttendanceSheetUpload = ({ trainingId, attendanceSheetURL }) => {
             const progress =
               (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
             console.log(`Upload is ${progress}% done`);
+            setProgress(progress);
           },
           (error) => {
             console.error('Error uploading PDF to Firebase:', error);
@@ -552,14 +553,15 @@ const AttendanceSheetUpload = ({ trainingId, attendanceSheetURL }) => {
   return (
     <form className=' '>
       <div className='w-full flex flex-col items-start justify-center gap-2 p-2'>
-        <label>Select attendance sheet to upload:</label>
-        <input
-          // disabled={!canEditAllDetails}
-          type='file'
-          onChange={handleFileChange}
-          className='border border-gray-300 rounded p-2 mb-4 w-full'
-        />
-        {/* {file && (
+        <div className='flex flex-col gap-2'>
+          <label>Select attendance sheet to upload:</label>
+          <input
+            // disabled={!canEditAllDetails}
+            type='file'
+            onChange={handleFileChange}
+            className='border border-gray-300 rounded p-2 mb-4 w-full'
+          />
+          {/* {file && (
           <div className='mb-4 flex items-center'>
             <span className='mr-4 text-green-600'>{file.name}</span>
             <button
@@ -570,23 +572,35 @@ const AttendanceSheetUpload = ({ trainingId, attendanceSheetURL }) => {
             </button>
           </div>
         )} */}
-        <button
-          type='submit'
-          onClick={(e: React.FormEvent) => {
-            e.preventDefault();
-            handleUpload();
-          }}
-          className='bg-blue-500 text-white px-2 py-1 rounded hover:bg-blue-700 flex justify-center items-center gap-2'
-        >
-          {uploading ? (
-            <>
-              <FaSpinner />
-              Uploading {progress}
-            </>
-          ) : (
-            'Upload'
+          <button
+            disabled={uploading}
+            type='submit'
+            onClick={(e: React.FormEvent) => {
+              e.preventDefault();
+              handleUpload();
+            }}
+            className='bg-blue-500 disabled:bg-blue-400 text-white px-2 w-full py-1 rounded hover:bg-blue-700 flex justify-center items-center gap-2'
+          >
+            {uploading ? (
+              <>
+                Uploading {progress.toFixed(0)}%
+                <Loader2Icon className='animate-spin' />
+              </>
+            ) : (
+              'Upload'
+            )}
+          </button>
+          {attendanceSheetURL && (
+            <Link
+              target='_blank'
+              href={attendanceSheetURL}
+              className='border-[1px] border-blue-500 mt-2 text-blue-500 px-2 py-1 rounded flex justify-center items-center gap-2'
+            >
+              See uploaded attendance sheet
+            </Link>
           )}
-        </button>
+        </div>
+        <div className='flex flex-col gap-2'></div>
       </div>
       <div className='w-full justify-center items-center flex my-6 gap-2 flex-col'>
         {!attendanceSheetURL && (
@@ -594,16 +608,6 @@ const AttendanceSheetUpload = ({ trainingId, attendanceSheetURL }) => {
             <ExclamationTriangleIcon className='w-[20px] h-[20px]' />{' '}
             <p>No Attendance Sheet Were Uploaded</p>
           </span>
-        )}
-
-        {attendanceSheetURL && (
-          <Link
-            target='_blank'
-            href={''}
-            className='border-[1px] border-blue-500 text-blue-500 px-2 py-1 rounded flex justify-center items-center gap-2'
-          >
-            See Uploaded Site File
-          </Link>
         )}
       </div>
     </form>
