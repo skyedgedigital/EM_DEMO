@@ -80,29 +80,29 @@ export const BillInvoiceColumns: ColumnDef<Invoice>[] = [
       );
     },
   },
-  {
-    accessorKey: 'chalans',
-    header: ({ column }) => {
-      return (
-        <Button
-          variant='ghost'
-          //   onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
-        >
-          Issued for Chalan(s)
-          {/* <ArrowUpDown className='ml-2 h-4 w-4' /> */}
-        </Button>
-      );
-    },
-    cell: ({ row }) => {
-      const invoice = row.original;
-      console.log('aagya og pog', invoice);
-      const chalans = Array.isArray(invoice.chalans)
-        ? invoice.chalans.join(', ')
-        : '';
+  // {
+  //   accessorKey: 'chalans',
+  //   header: ({ column }) => {
+  //     return (
+  //       <Button
+  //         variant='ghost'
+  //         //   onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
+  //       >
+  //         Issued for Chalan(s)
+  //         {/* <ArrowUpDown className='ml-2 h-4 w-4' /> */}
+  //       </Button>
+  //     );
+  //   },
+  //   cell: ({ row }) => {
+  //     const invoice = row.original;
+  //     console.log('aagya og pog', invoice);
+  //     const chalans = Array.isArray(invoice.chalans)
+  //       ? invoice.chalans.join(', ')
+  //       : '';
 
-      return <span>{chalans}</span>;
-    },
-  },
+  //     return <span>{chalans}</span>;
+  //   },
+  // },
   {
     accessorKey: 'chalans',
     header: ({ column }) => {
@@ -199,7 +199,10 @@ export const BillInvoiceColumns: ColumnDef<Invoice>[] = [
             >
               View Chalans Involved
             </DropdownMenuItem> */}
-            <DropdownMenuItem onClick={() => invoiceDeleteHandler(invoice._id)}>
+            <DropdownMenuItem
+              onClick={() => invoiceDeleteHandler(invoice._id)}
+              className='text-red-500'
+            >
               Delete Invoice
             </DropdownMenuItem>
           </DropdownMenuContent>
