@@ -26,7 +26,7 @@ const BillingInvoiceSchema: mongoose.Schema<IBillingInvoice> =
       type: String,
       trim: true,
     },
-    //   chalans: [String],
+    bills: [String],
     pdfLink: {
       type: String,
       trim: true,
@@ -35,9 +35,9 @@ const BillingInvoiceSchema: mongoose.Schema<IBillingInvoice> =
       type: String,
       trim: true,
     },
-    //   mergedItems: {
-    //     type: String,
-    //   },
+    mergedItems: {
+      type: String,
+    },
     TaxNumber: {
       type: String,
     },

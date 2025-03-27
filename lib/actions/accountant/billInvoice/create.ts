@@ -1,3 +1,4 @@
+'use server';
 // THIS FUNCTION FUNCTIONALITY SEQUENCE
 // - TAKING ARRAY OF CHALAN NUMBERS AND CHECKING ANY IF INVOICE ALREADY EXISTS
 // - FETCHING ALL CHALANS
@@ -60,7 +61,7 @@ export const createBillInvoice = async (
       invoiceId: sortedChalanNumbers,
       invoiceNumber: `SE/24-25/${invoiceNumber}`,
       mergedItems: JSON.stringify(mergedItems),
-      chalans: billNumbers,
+      bills: billNumbers,
     });
 
     const invoiceSaved = await invoiceObj.save();
@@ -70,7 +71,7 @@ export const createBillInvoice = async (
     return {
       success: true,
       status: 200,
-      message: 'Bill saved succesfully',
+      message: 'Bill invoice saved successfully',
       data: JSON.stringify(invoiceSaved),
       error: null,
     };

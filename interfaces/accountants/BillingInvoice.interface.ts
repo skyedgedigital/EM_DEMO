@@ -6,13 +6,13 @@ interface IBillingInvoice extends Document {
   InvoiceData?: string;
   SesNo?: string;
   DoNo?: string;
-//   chalans?: Types.ObjectId[];
+  bills?:string;
   pdfLink: string;
   summaryLink: string;
   createdAt: Date;
   updatedAt: Date;
   invoiceId: string;
-//   mergedItems: string;
+  mergedItems: string;
   TaxNumber?: string;
 }
 

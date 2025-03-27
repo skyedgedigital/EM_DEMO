@@ -4,10 +4,6 @@ import { Button } from '../ui/button';
 import { MdOutlineFileDownload } from 'react-icons/md';
 import toast from 'react-hot-toast';
 import Image from 'next/image';
-import {
-  uploadInvoiceToFireBase,
-  uploadSummaryToFireBase,
-} from '@/lib/actions/chalan/invoice';
 import jsPDF from 'jspdf';
 import { parseISO, format } from 'date-fns';
 import { getDownloadURL, ref, uploadBytesResumable } from 'firebase/storage';
@@ -59,8 +55,8 @@ const BillingInvoice = ({
 
   // mergedItems:any
 }) => {
-  console.log('WON', workOrder);
-  console.log('items', items);
+  // console.log('WON', workOrder);
+  // console.log('items', items);
   // BILL NUMBER SORTED AND JOINED, THIS WILL BE BILL INVOICE ID
   const selectedBillNumbers = [submittedBillData.billNumber];
   const invoiceId = selectedBillNumbers.sort().join(',').trim();
@@ -327,10 +323,11 @@ const BillingInvoice = ({
               const downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
               console.log('PDF available at', downloadURL);
 
-              const pdfResult = await uploadInvoiceToFireBase(
-                invoiceId,
-                downloadURL
-              );
+              const pdfResult =
+                await billingInvoiceActions.UPLOAD.uploadBillingInvoiceToFireBase(
+                  invoiceId,
+                  downloadURL
+                );
 
               if (pdfResult.success) {
                 toast.success('Invoice Pdf Saved');
@@ -395,10 +392,11 @@ const BillingInvoice = ({
               const downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
               console.log('Summary PDF available at', downloadURL);
 
-              const pdfResult = await uploadSummaryToFireBase(
-                invoiceId,
-                downloadURL
-              );
+              const pdfResult =
+                await billingInvoiceActions.UPLOAD.uploadBillingSummaryToFireBase(
+                  invoiceId,
+                  downloadURL
+                );
 
               if (pdfResult.success) {
                 toast.success('Summary Pdf Saved');
