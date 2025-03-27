@@ -490,7 +490,9 @@ const generateContinuousTaxInvoiceNumber = async (): Promise<
     if (!dbConnection.success) return dbConnection;
 
     const allTaxInvoiceNumbers = (
-      await Invoice.find().select('TaxNumber')
+      await Invoice.find({
+        $and: [{ TaxNumber: { $ne: null } }, { TaxNumber: { $ne: '' } }],
+      })
     ).toSorted((a, b) => {
       if (a.TaxNumber && b.TaxNumber)
         return (

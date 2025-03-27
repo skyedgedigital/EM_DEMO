@@ -385,7 +385,7 @@ const generateContinuousBillInvoiceNumber = async (): Promise<
     };
   }
 };
-const generateContinuousTaxBillInvoiceNumber = async (): Promise<
+const generateContinuousBillTaxInvoiceNumber = async (): Promise<
   ApiResponse<any>
 > => {
   try {
@@ -393,7 +393,9 @@ const generateContinuousTaxBillInvoiceNumber = async (): Promise<
     if (!dbConnection.success) return dbConnection;
 
     const allTaxInvoiceNumbers = (
-      await BillingInvoice.find().select('TaxNumber')
+      await BillingInvoice.find({
+        $and: [{ TaxNumber: { $ne: null } }, { TaxNumber: { $ne: '' } }],
+      })
     ).toSorted((a, b) => {
       if (a.TaxNumber && b.TaxNumber)
         return (
@@ -412,12 +414,17 @@ const generateContinuousTaxBillInvoiceNumber = async (): Promise<
       };
     }
     console.log('ALL SORTED TAX INVOICE NUMBER', allTaxInvoiceNumbers);
-    const latestTaxInvoiceNumber =
-      Number(
-        allTaxInvoiceNumbers?.[allTaxInvoiceNumbers.length - 1].TaxNumber.split(
-          '/'
-        )[2]
-      ) + 1;
+    let latestTaxInvoiceNumber: number;
+    if (allTaxInvoiceNumbers.length === 0) {
+      latestTaxInvoiceNumber = 1;
+    } else {
+      latestTaxInvoiceNumber =
+        Number(
+          allTaxInvoiceNumbers?.[
+            allTaxInvoiceNumbers.length - 1
+          ].TaxNumber.split('/')[2]
+        ) + 1;
+    }
     console.log('latest invoice number', latestTaxInvoiceNumber);
     if (!latestTaxInvoiceNumber) {
       return {
@@ -452,7 +459,7 @@ const deleteBillInvoiceById = async (id: string) => {
     if (!dbConnection.success) return dbConnection;
     const invoiceExist = await BillingInvoice.find({ _id: id });
     if (!invoiceExist) {
-      revalidatePath('/fleetmanager/invoice-management');
+      // revalidatePath('/accountant/invoices');
       return {
         success: false,
         status: 200,
@@ -461,9 +468,9 @@ const deleteBillInvoiceById = async (id: string) => {
         error: null,
       };
     }
-
+    // NEED TO ADD DELETE INVOICE IMAGES/PDF FROM FIREBASE
     await BillingInvoice.deleteOne({ _id: id });
-    revalidatePath('/fleetmanager/invoice-management');
+    revalidatePath('/accountant/invoices');
     return {
       success: true,
       status: 204,
@@ -524,5 +531,5 @@ export {
   generateContinuousBillInvoiceNumber,
   deleteBillInvoiceById,
   getLastTwoBillInvoiceNumbers,
-  generateContinuousTaxBillInvoiceNumber,
+  generateContinuousBillTaxInvoiceNumber,
 };

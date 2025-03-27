@@ -3,7 +3,7 @@ import {
   checkIfBillingInvoiceExists,
   deleteBillInvoiceById,
   generateContinuousBillInvoiceNumber,
-  generateContinuousTaxBillInvoiceNumber,
+  generateContinuousBillTaxInvoiceNumber,
   getAllBillingInvoices,
   getBillingInvoiceByInvoiceId,
   getLastTwoBillInvoiceNumbers,
@@ -21,7 +21,7 @@ export const billingInvoiceActions = {
     getBillingInvoiceByInvoiceId,
     getAllBillingInvoices,
     getLatestBillInvoiceNumber: generateContinuousBillInvoiceNumber,
-    generateContinuousTaxBillInvoiceNumber,
+    getLatestBillTaxInvoiceNumber: generateContinuousBillTaxInvoiceNumber,
     getLastTwoBillInvoiceNumbers,
   },
   CHECK: {

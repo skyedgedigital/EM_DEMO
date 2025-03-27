@@ -262,7 +262,13 @@ const Sidebar = forwardRef<HTMLDivElement, Props>(
               {
                 title: 'Billings',
                 href: '/accountant/billings',
-                icon: Eye,
+                icon: FileText,
+                variant: 'ghost',
+              },
+              {
+                title: 'Invoices',
+                href: '/accountant/invoices',
+                icon: FileStack,
                 variant: 'ghost',
               },
               {
