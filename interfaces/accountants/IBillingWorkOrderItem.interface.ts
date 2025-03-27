@@ -1,7 +1,7 @@
 import mongoose from 'mongoose';
 import { IBillingWorkOrder } from './BillingWorkOrder.interface';
 
-export interface IBillingItem extends mongoose.Document {
+export interface IBillingWorkOrderItem extends mongoose.Document {
   itemNumber: number;
   itemName?: string;
   hsnNo?: string;

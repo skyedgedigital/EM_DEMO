@@ -1,9 +1,8 @@
 'use server';
 
 import handleDBConnection from '@/lib/database';
-import BillingItem from '@/lib/models/accountants/BillingItems.model';
+import BillingWorkOrderItem from '@/lib/models/accountants/BillingWorkOrderItems.model';
 import BillingWorkOrder from '@/lib/models/accountants/BillingWorkOrder.model';
-import mongoose from 'mongoose';
 
 const fetchAllBillingItemsOfBillingWorkOrder = async (workOrderNumber) => {
   const dbConnection = await handleDBConnection();
@@ -20,7 +19,7 @@ const fetchAllBillingItemsOfBillingWorkOrder = async (workOrderNumber) => {
     });
 
     const WorkOrderId = getWorkOrder._id;
-    const result = await BillingItem.find({
+    const result = await BillingWorkOrderItem.find({
       workOrder: WorkOrderId,
     });
     console.log('okay boss');
@@ -47,20 +46,20 @@ const fetchBillingItemByItemNumber = async (itemNumber: number) => {
   const dbConnection = await handleDBConnection();
   if (!dbConnection.success) return dbConnection;
   try {
-    const resp = await BillingItem.findOne({
+    const resp = await BillingWorkOrderItem.findOne({
       itemNumber: itemNumber,
     });
     if (!resp) {
       return {
         success: false,
         status: 404,
-        message: `BillingItem With Number ${itemNumber} not found`,
+        message: `BillingWorkOrderItem With Number ${itemNumber} not found`,
       };
     }
     return {
       success: true,
       status: 200,
-      message: `BillingItem Fetched with ItemNumber ${itemNumber}`,
+      message: `BillingWorkOrderItem Fetched with ItemNumber ${itemNumber}`,
       data: resp,
     };
   } catch (err) {
@@ -77,20 +76,20 @@ const fetchBillingItemByItemId = async (itemNumber: string) => {
   const dbConnection = await handleDBConnection();
   if (!dbConnection.success) return dbConnection;
   try {
-    const resp = await BillingItem.findById({
+    const resp = await BillingWorkOrderItem.findById({
       _id: itemNumber,
     });
     if (!resp) {
       return {
         success: false,
         status: 404,
-        message: `BillingItem With Number ${itemNumber} not found`,
+        message: `BillingWorkOrderItem With Number ${itemNumber} not found`,
       };
     }
     return {
       success: true,
       status: 200,
-      message: `BillingItem Fetched with ItemNumber ${itemNumber}`,
+      message: `BillingWorkOrderItem Fetched with ItemNumber ${itemNumber}`,
       data: JSON.stringify(resp),
     };
   } catch (err) {
@@ -107,7 +106,7 @@ const fetchHsnNumberByBillingItemId = async (itemId: string) => {
   const dbConnection = await handleDBConnection();
   if (!dbConnection.success) return dbConnection;
   try {
-    const resp = await BillingItem.findOne({
+    const resp = await BillingWorkOrderItem.findOne({
       _id: itemId,
     });
     return {

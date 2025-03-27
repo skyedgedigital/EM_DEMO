@@ -1,7 +1,7 @@
 'use server';
 
 import handleDBConnection from '@/lib/database';
-import BillingItem from '@/lib/models/accountants/BillingItems.model';
+import BillingWorkOrderItem from '@/lib/models/accountants/BillingWorkOrderItems.model';
 import BillingWorkOrder from '@/lib/models/accountants/BillingWorkOrder.model';
 
 const createBillingItem = async (itemData: any, workOrderNumber: string) => {
@@ -20,7 +20,7 @@ const createBillingItem = async (itemData: any, workOrderNumber: string) => {
     }
     const workOrderDocId = workOrderDoc._id;
     console.log(workOrderDocId);
-    const ifExists = await BillingItem.find({
+    const ifExists = await BillingWorkOrderItem.find({
       workOrder: workOrderDocId,
       itemNumber: itemData.itemNumber,
     });
@@ -33,7 +33,7 @@ const createBillingItem = async (itemData: any, workOrderNumber: string) => {
       };
     }
 
-    const obj = new BillingItem({
+    const obj = new BillingWorkOrderItem({
       ...itemData,
       workOrder: workOrderDocId,
     });
@@ -43,7 +43,7 @@ const createBillingItem = async (itemData: any, workOrderNumber: string) => {
     return {
       success: true,
       status: 200,
-      message: 'BillingItem Added with given BillingWorkOrder',
+      message: 'BillingWorkOrderItem Added with given BillingWorkOrder',
       data: result,
     };
   } catch (err) {

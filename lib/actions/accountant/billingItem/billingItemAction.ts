@@ -4,10 +4,11 @@ import {
   fetchAllBillingItemsOfBillingWorkOrder,
   fetchHsnNumberByBillingItemId,
   fetchBillingItemByItemNumber,
+  fetchBillingItemByItemId,
 } from './fetch';
 import { updateBillingItem } from './update';
 
-const itemAction = {
+const billingItemActions = {
   CREATE: {
     createBillingItem: createBillingItem,
   },
@@ -16,6 +17,7 @@ const itemAction = {
       fetchAllBillingItemsOfBillingWorkOrder,
     fetchBillingItemByItemNumber: fetchBillingItemByItemNumber,
     fetchHsnNoByBillingItemId: fetchHsnNumberByBillingItemId,
+    fetchBillingItemByItemId,
   },
   DELETE: {
     deleteBillingItemByItemNumber: deleteBillingItemByItemNumber,
@@ -25,4 +27,4 @@ const itemAction = {
   },
 };
 
-export default itemAction;
+export default billingItemActions;

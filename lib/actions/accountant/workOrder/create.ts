@@ -1,6 +1,6 @@
 'use server';
 import handleDBConnection from '@/lib/database';
-import BillingItem from '@/lib/models/accountants/BillingItems.model';
+import BillingWorkOrderItem from '@/lib/models/accountants/BillingWorkOrderItems.model';
 import BillingWorkOrder from '@/lib/models/accountants/BillingWorkOrder.model';
 
 const createBillingWorkOrder = async (
@@ -43,7 +43,7 @@ const createBillingWorkOrder = async (
     console.log('yerhe objects biya', itemsObjects);
     const itemsSaved = await Promise.all(
       itemsObjects.map(async (itemObj: any) => {
-        const newItem = new BillingItem(itemObj);
+        const newItem = new BillingWorkOrderItem(itemObj);
         console.log('Item Obj', newItem);
         await newItem.save();
       })

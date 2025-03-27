@@ -1,14 +1,13 @@
 import React from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import workOrderAction from '@/lib/actions/workOrder/workOrderAction';
 import { DataTable } from '@/components/data-table';
 import { columns } from '@/components/fleet-manager/WorkOrderColumns';
-import itemAction from '@/lib/actions/item/itemAction';
 import AddItem from '@/components/fleet-manager/AddItem';
 import CreateBillingWorkOrder from '@/components/accountant/CreateBillingWorkOrder';
 import EditBillingWorkOrder from '@/components/accountant/EditBillingWorkOrder';
 import billingWorkOrderActions from '@/lib/actions/accountant/workOrder/billWorkOrderActions';
 import { IBillingWorkOrder } from '@/interfaces/accountants/BillingWorkOrder.interface';
+import billingItemActions from '@/lib/actions/accountant/billingItem/billingItemAction';
 
 const BillingWorkOrder: React.FC<{}> = async () => {
   let workOrders: IBillingWorkOrder[] = [];
@@ -30,9 +29,10 @@ const BillingWorkOrder: React.FC<{}> = async () => {
         let items = [];
         try {
           const filter = JSON.stringify(workOrder?.workOrderNumber);
-          const itemsRes = await itemAction.FETCH.fetchAllItemOfWorkOrder(
-            filter
-          );
+          const itemsRes =
+            await billingItemActions.FETCH.fetchAllBillingItemOfBillingWorkOrder(
+              filter
+            );
           if (itemsRes?.success) {
             items = JSON.parse(itemsRes?.data);
           }

@@ -2,7 +2,7 @@
 
 import { IBillingWorkOrder } from '@/interfaces/accountants/BillingWorkOrder.interface';
 import { ApiResponse } from '@/interfaces/APIresponses.interface';
-import handleDBConnection, { connectToDB } from '@/lib/database';
+import handleDBConnection from '@/lib/database';
 import BillingWorkOrder from '@/lib/models/accountants/BillingWorkOrder.model';
 
 const fetchAllBillingWorkOrders = async (): Promise<
@@ -33,7 +33,7 @@ const fetchAllBillingWorkOrders = async (): Promise<
 
 const fetchBillingWorkOrderByWorkOrderNumber = async (
   workOrderNumber: string
-) => {
+): Promise<ApiResponse<IBillingWorkOrder>> => {
   const dbConnection = await handleDBConnection();
   if (!dbConnection.success) return dbConnection;
   try {
@@ -41,11 +41,14 @@ const fetchBillingWorkOrderByWorkOrderNumber = async (
       workOrderNumber: workOrderNumber,
     });
     if (!findWorkOrderExists) {
-      return {
-        success: false,
-        status: 404,
-        message: 'No BillingWorkOrder With This Number Exists',
-      };
+      // return {
+      //   success: false,
+      //   status: 404,
+      //   message: 'No BillingWorkOrder With This Number Exists',
+      //   error: null,
+      //   data: null,
+      // };
+      throw new Error('Work order did not found');
     }
     const resp = await BillingWorkOrder.findOne({
       workOrderNumber: workOrderNumber,
@@ -54,14 +57,16 @@ const fetchBillingWorkOrderByWorkOrderNumber = async (
       success: true,
       status: 200,
       message: `Data of BillingWorkOrder ${workOrderNumber}`,
-      data: resp,
+      data: await JSON.parse(JSON.stringify(resp)),
+      error: null,
     };
   } catch (err) {
     return {
       success: false,
       status: 500,
-      message: 'Internal Server Error',
+      message: 'Unexpected Error Occur',
       error: JSON.stringify(err),
+      data: null,
     };
   }
 };

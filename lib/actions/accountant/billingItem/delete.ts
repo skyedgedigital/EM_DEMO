@@ -1,29 +1,29 @@
 'use server';
 
 import handleDBConnection from '@/lib/database';
-import BillingItem from '@/lib/models/accountants/BillingItems.model';
+import BillingWorkOrderItem from '@/lib/models/accountants/BillingWorkOrderItems.model';
 
 const deleteBillingItemByItemNumber = async (itemNumber: number) => {
   const dbConnection = await handleDBConnection();
   if (!dbConnection.success) return dbConnection;
   try {
-    const ifExists = await BillingItem.findOne({
+    const ifExists = await BillingWorkOrderItem.findOne({
       itemNumber: itemNumber,
     });
     if (!ifExists) {
       return {
         success: false,
-        message: `BillingItem with number ${itemNumber} not found`,
+        message: `BillingWorkOrderItem with number ${itemNumber} not found`,
         status: 404,
       };
     }
-    await BillingItem.findOneAndDelete({
+    await BillingWorkOrderItem.findOneAndDelete({
       itemNumber: itemNumber,
     });
     return {
       success: true,
       status: 200,
-      message: `BillingItem with Number ${itemNumber} deleted`,
+      message: `BillingWorkOrderItem with Number ${itemNumber} deleted`,
     };
   } catch (err) {
     return {

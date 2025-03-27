@@ -1,7 +1,7 @@
-'use server'
+'use server';
 
-import handleDBConnection from "@/lib/database";
-import BillingItem from "@/lib/models/accountants/BillingItems.model";
+import handleDBConnection from '@/lib/database';
+import BillingWorkOrderItem from '@/lib/models/accountants/BillingWorkOrderItems.model';
 
 const updateBillingItem = async (itemId: any, updates: any) => {
   const dbConnection = await handleDBConnection();
@@ -10,7 +10,7 @@ const updateBillingItem = async (itemId: any, updates: any) => {
     const filter = {
       _id: itemId,
     };
-    const updatedItem = await BillingItem.findOneAndUpdate(filter, updates, {
+    const updatedItem = await BillingWorkOrderItem.findOneAndUpdate(filter, updates, {
       new: true,
     });
     return {
