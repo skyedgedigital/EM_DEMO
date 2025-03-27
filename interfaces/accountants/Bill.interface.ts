@@ -24,4 +24,8 @@ export interface IBill extends mongoose.Document {
   verified: boolean;
   items: IBillingItem[];
   totalCost: number;
+  signed?: boolean;
+  createdAt?: Date;
+  updatedAt?: Date;
+  invoiceCreated?: boolean;
 }

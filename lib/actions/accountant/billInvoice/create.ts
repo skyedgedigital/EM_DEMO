@@ -62,6 +62,7 @@ export const createBillInvoice = async (
       invoiceNumber: `SE/24-25/${invoiceNumber}`,
       mergedItems: JSON.stringify(mergedItems),
       bills: billNumbers,
+      
     });
 
     const invoiceSaved = await invoiceObj.save();

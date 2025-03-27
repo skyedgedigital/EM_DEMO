@@ -47,7 +47,7 @@ const BillSchema: mongoose.Schema<IBill> = new Schema({
   },
   invoiceCreated: {
     type: Boolean,
-    default: false,
+    default: true,
   },
   items: [
     {
