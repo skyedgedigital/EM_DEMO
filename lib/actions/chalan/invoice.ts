@@ -444,12 +444,17 @@ const generateContinuousInvoiceNumber = async (): Promise<ApiResponse<any>> => {
       };
     }
     console.log('ALL SORTED INVOICE NUMBER', allInvoiceNumbers);
-    const latestInvoiceNumber =
-      Number(
-        allInvoiceNumbers?.[allInvoiceNumbers.length - 1].invoiceNumber.split(
-          '/'
-        )[2]
-      ) + 1;
+    let latestInvoiceNumber: number;
+    if (allInvoiceNumbers.length === 0) {
+      latestInvoiceNumber = 1;
+    } else {
+      latestInvoiceNumber =
+        Number(
+          allInvoiceNumbers?.[allInvoiceNumbers.length - 1].invoiceNumber.split(
+            '/'
+          )[2]
+        ) + 1;
+    }
     console.log('latest invoice number', latestInvoiceNumber);
     if (!latestInvoiceNumber) {
       return {
