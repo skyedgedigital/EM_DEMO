@@ -170,7 +170,8 @@ const CreateBillForm = () => {
     name: 'items',
     control: form.control,
   });
-
+  const formData = form.watch();
+  // console.log()
   const onSubmit: SubmitHandler<BillFormFields> = async (
     submittedBillData: BillFormFields
   ) => {
@@ -241,20 +242,21 @@ const CreateBillForm = () => {
         await billsActions.PREPARE.prepareMergedBillItems(
           submittedBillData as unknown as IBill
         );
-      const mergedItems = await JSON.parse(data);
+      const mergedItems = data;
       // console.log('mergedItems received in create invoice', mergedItems);
       const items: IItemsInBillingInvoice[] = [];
       let totalCost = 0;
       for (const itemId in mergedItems) {
         const itemCost = mergedItems[itemId];
-        totalCost += itemCost;
+        totalCost += itemCost.itemCost;
         const res = await billingItemActions.FETCH.fetchBillingItemByItemId(
           itemId
         );
-        const item = await JSON.parse(res.data);
+        const item = res.data;
 
         console.warn('The Items', item);
-        const { itemNumber, itemName, itemPrice, workOrder } = item;
+        const { itemNumber, itemName, itemPrice, workOrder, serviceNumber } =
+          item;
         items.push({
           itemId, // Use the key as the itemId property
           itemCost, // Use the value as the itemCost property
@@ -262,6 +264,7 @@ const CreateBillForm = () => {
           itemPrice,
           itemName,
           workOrder,
+          serviceNumber,
         });
       }
       console.log('Items to be sent', items);
@@ -294,14 +297,16 @@ const CreateBillForm = () => {
       );
       setDataForBillingInvoice(DisplayableInvoice);
       if (DisplayableInvoice) {
-        const element: HTMLElement | null =
-          document.getElementById('bill-invoice');
-        if (element) {
-          element.scrollIntoView({
-            behavior: 'smooth',
-            block: 'center',
-          });
-        }
+        setTimeout(() => {
+          const element: HTMLElement | null =
+            document.getElementById('bill-invoice');
+          if (element) {
+            element.scrollIntoView({
+              behavior: 'smooth',
+              block: 'center',
+            });
+          }
+        }, 250);
       }
 
       console.log('bill submitted', submittedBillData);
@@ -381,7 +386,7 @@ const CreateBillForm = () => {
         );
 
       if (res.success) {
-        const parsed = await JSON.parse(res.data);
+        const parsed = res.data;
         const items = res.data ? parsed : [];
         console.log('Billing items', items);
         setSelectedWorkOrderObjectItemsOptionsArray(items);
@@ -766,7 +771,24 @@ const CreateBillForm = () => {
                     <FormItem className=' flex-col flex gap-1 flex-1'>
                       <FormLabel>Item</FormLabel>
                       <Select
-                        onValueChange={field.onChange}
+                        onValueChange={(value) => {
+                          // Update the item field
+                          field.onChange(value);
+
+                          // Find the selected item
+                          const selectedItem =
+                            selectedWorkOrderObjectItemOptionsArray.find(
+                              (item) => item._id.toString() === value
+                            );
+
+                          // If item found and has serviceNumber, update it
+                          if (selectedItem?.serviceNumber) {
+                            form.setValue(
+                              `items.${index}.serviceNumber`,
+                              selectedItem.serviceNumber.toString()
+                            );
+                          }
+                        }}
                         value={field.value}
                       >
                         <SelectTrigger>
@@ -791,7 +813,19 @@ const CreateBillForm = () => {
                     </FormItem>
                   )}
                 />
-
+                <FormField
+                  control={form.control}
+                  name={`items.${index}.serviceNumber`}
+                  render={({ field }) => (
+                    <FormItem className='flex-col flex gap-1 flex-1'>
+                      <FormLabel>Service Number</FormLabel>
+                      <FormControl>
+                        <Input {...field} readOnly className='bg-gray-100' />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
                 <FormField
                   control={form.control}
                   name={`items.${index}.vehicleNumber`}
@@ -937,15 +971,31 @@ const CreateBillForm = () => {
             >
               Add Item
             </Button>
-            <Button type='submit' className=' bg-green-500 w-40 '>
-              {creatingBillInvoice ? (
-                <>
-                  <Loader2Icon className='animate-spin' /> Creating Invoice
-                </>
-              ) : (
-                <>Create Invoice</>
-              )}
-            </Button>
+            <div className='flex flex-col md:flex-row gap-2'>
+              <Button
+                onClick={() => {
+                  form.reset();
+                  setDataForBillingInvoice(null);
+                }}
+                type='button'
+                className=' text-blue-500 bg-white hover:bg-gray-200 w-40 border-[1px] border-blue-500 rounded'
+              >
+                Reset Form
+              </Button>
+              <Button
+                disabled={creatingBillInvoice}
+                type='submit'
+                className=' bg-green-600 hover:bg-green-700 w-40 '
+              >
+                {creatingBillInvoice ? (
+                  <>
+                    <Loader2Icon className='animate-spin' /> Creating Invoice
+                  </>
+                ) : (
+                  <>Create Invoice</>
+                )}
+              </Button>
+            </div>
           </div>
         </form>
       </Form>

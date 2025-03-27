@@ -3,8 +3,12 @@
 import handleDBConnection from '@/lib/database';
 import BillingWorkOrderItem from '@/lib/models/accountants/BillingWorkOrderItems.model';
 import BillingWorkOrder from '@/lib/models/accountants/BillingWorkOrder.model';
+import { ApiResponse } from '@/interfaces/APIresponses.interface';
+import { IBillingWorkOrderItem } from '@/interfaces/accountants/IBillingWorkOrderItem.interface';
 
-const fetchAllBillingItemsOfBillingWorkOrder = async (workOrderNumber) => {
+const fetchAllBillingItemsOfBillingWorkOrder = async (
+  workOrderNumber
+): Promise<ApiResponse<IBillingWorkOrderItem[]>> => {
   const dbConnection = await handleDBConnection();
   if (!dbConnection.success) return dbConnection;
   try {
@@ -28,7 +32,8 @@ const fetchAllBillingItemsOfBillingWorkOrder = async (workOrderNumber) => {
       success: true,
       status: 200,
       message: `Fetched Data of all Items from BillingWorkOrder ${workOrderNumber}`,
-      data: JSON.stringify(result),
+      data: JSON.parse(JSON.stringify(result)),
+      error: null,
     };
   } catch (err) {
     console.log(err);
@@ -38,6 +43,7 @@ const fetchAllBillingItemsOfBillingWorkOrder = async (workOrderNumber) => {
       status: 500,
       message: 'Unexpected Error Occurred, Please Try Later',
       error: err.message || 'Unknown error occurred',
+      data: null,
     };
   }
 };
@@ -72,7 +78,9 @@ const fetchBillingItemByItemNumber = async (itemNumber: number) => {
   }
 };
 
-const fetchBillingItemByItemId = async (itemNumber: string) => {
+const fetchBillingItemByItemId = async (
+  itemNumber: string
+): Promise<ApiResponse<IBillingWorkOrderItem>> => {
   const dbConnection = await handleDBConnection();
   if (!dbConnection.success) return dbConnection;
   try {
@@ -84,13 +92,16 @@ const fetchBillingItemByItemId = async (itemNumber: string) => {
         success: false,
         status: 404,
         message: `BillingWorkOrderItem With Number ${itemNumber} not found`,
+        error: null,
+        data: null,
       };
     }
     return {
       success: true,
       status: 200,
       message: `BillingWorkOrderItem Fetched with ItemNumber ${itemNumber}`,
-      data: JSON.stringify(resp),
+      data: JSON.parse(JSON.stringify(resp)),
+      error: null,
     };
   } catch (err) {
     return {
@@ -98,6 +109,7 @@ const fetchBillingItemByItemId = async (itemNumber: string) => {
       status: 500,
       message: 'Unexpected Error Occurred, Please Try Later',
       error: err.message || 'Unknown error occurred',
+      data: null,
     };
   }
 };

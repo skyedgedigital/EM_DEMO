@@ -9,5 +9,5 @@ export interface IBillingWorkOrderItem extends mongoose.Document {
   workOrder: mongoose.PopulatedDoc<IBillingWorkOrder>;
   createdAt: Date;
   updatedAt: Date;
-  serviceNumber: String;
+  serviceNumber: string;
 }

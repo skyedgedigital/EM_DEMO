@@ -24,12 +24,13 @@ const todayDate = () => {
   return date;
 };
 export interface IItemsInBillingInvoice {
-  itemCost: { hours: number; itemCost: number; units: IBillingItem['unit'] };
+  itemCost: { hours: number; itemCost: number; unit: IBillingItem['unit'] };
   itemId: string;
   itemName: string;
   itemNumber: number;
   itemPrice: number;
   workOrder: string;
+  serviceNumber: string;
 }
 [];
 const BillingInvoice = ({
@@ -168,7 +169,7 @@ const BillingInvoice = ({
     // return '';
   };
 
-  console.warn('The Items Recieved', items);
+  console.log('The Items Recieved', items);
   const contentArray: any = [];
   let new_total_hours = 0;
   Object.keys(dateMapping).forEach((key, i) => {
@@ -805,6 +806,9 @@ const BillingInvoice = ({
                       HSN/SAC
                     </th>
                     <th className='border-[1px] border-black pl-2 pb-3 '>
+                      Service No.
+                    </th>
+                    <th className='border-[1px] border-black pl-2 pb-3 '>
                       Description of Goods Service
                     </th>
                     {/* <th className='border-[1px] border-black pl-2 pb-3 '>Qty.</th>
@@ -844,6 +848,10 @@ const BillingInvoice = ({
                         </td>
                         <td className='border-[1px] border-black pl-2 pb-3 '>
                           {item?.hsnNo}
+                          {/* {console.warn(item.hsnNo)} */}
+                        </td>
+                        <td className='border-[1px] border-black pl-2 pb-3 '>
+                          {item?.serviceNumber}
                           {/* {console.warn(item.hsnNo)} */}
                         </td>
                         <td className='border-[1px] border-black pl-2 pb-3 '>

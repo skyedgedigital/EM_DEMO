@@ -1,20 +1,23 @@
 'use server';
 
 import { ApiResponse } from '@/interfaces/APIresponses.interface';
-import { IBill } from '@/interfaces/accountants/Bill.interface';
+import { IBill, IBillingItem } from '@/interfaces/accountants/Bill.interface';
 
 interface MergedItems {
   itemCost: number;
-  unit: string;
+  unit: IBillingItem['unit'];
   hours: number;
 }
 
+export interface IPrepareMergedBillItemsResponse {
+  [itemId: string]: MergedItems;
+}
 const prepareMergedBillItems = async (
   submittedBill: IBill
-): Promise<ApiResponse<any>> => {
+): Promise<ApiResponse<IPrepareMergedBillItemsResponse>> => {
   try {
     // MERGED ITEMS KO RAKHNE WALA ARRAY
-    const mergedItems: { [itemId: string]: MergedItems } = {};
+    const mergedItems: IPrepareMergedBillItemsResponse = {};
 
     // chalans.forEach((chalan) => {
     // Iterate over items in the current chalan
@@ -42,7 +45,7 @@ const prepareMergedBillItems = async (
     // });
     console.log('MERGED ITEMS', mergedItems);
     return {
-      data: JSON.stringify(mergedItems),
+      data: JSON.parse(JSON.stringify(mergedItems)),
       error: null,
       status: 200,
       success: true,

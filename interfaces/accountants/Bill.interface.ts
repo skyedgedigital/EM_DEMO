@@ -9,6 +9,7 @@ export interface IBillingItem {
   startTime: string;
   endTime: string;
   _id?: mongoose.Types.ObjectId | string;
+  serviceNumber: string;
 }
 export interface IBill extends mongoose.Document {
   workOrder: mongoose.Schema.Types.ObjectId;

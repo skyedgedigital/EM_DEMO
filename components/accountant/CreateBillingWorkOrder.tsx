@@ -7,7 +7,12 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { Button } from '../ui/button';
 import { Calendar } from '@/components/ui/calendar';
 import { format } from 'date-fns';
-import { Calendar as CalendarIcon, CircleX } from 'lucide-react';
+import {
+  Calendar as CalendarIcon,
+  CircleX,
+  Loader2,
+  Loader2Icon,
+} from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Textarea } from '@/components/ui/textarea';
 
@@ -66,7 +71,7 @@ const workOrderSchema = z.object({
   items: z
     .array(
       z.object({
-        serviceNumber: z.string().default(''),
+        serviceNumber: z.string().min(1, 'Service no is required'),
         itemName: z.string().trim().min(1, 'Required'),
         itemPrice: zodInputStringPipe(
           z.number().positive('Value must be greater than 0')
@@ -109,6 +114,7 @@ const CreateBillingWorkOrder = () => {
   const onSubmit: SubmitHandler<FormFields> = async (data: FormFields) => {
     try {
       // console.log(data.items);
+      setCreating(true);
       let selectedValues = [];
       selected.forEach((ele) => {
         selectedValues.push(ele.value);
@@ -149,6 +155,8 @@ const CreateBillingWorkOrder = () => {
     } catch (error) {
       toast.error(error.message);
       console.error('Internal Server Error:', error);
+    } finally {
+      setCreating(false);
     }
   };
 
@@ -513,8 +521,18 @@ const CreateBillingWorkOrder = () => {
           >
             Add Item
           </Button>
-          <Button type='submit' className=' bg-green-500 w-40 '>
-            Submit
+          <Button
+            disabled={creating}
+            type='submit'
+            className=' bg-green-500 w-40 '
+          >
+            {creating ? (
+              <>
+                <Loader2Icon className='animate-spin' /> Creating Work Order
+              </>
+            ) : (
+              <>Create Work Order</>
+            )}
           </Button>
         </div>
       </form>

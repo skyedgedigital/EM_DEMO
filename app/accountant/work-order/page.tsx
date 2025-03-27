@@ -8,6 +8,8 @@ import EditBillingWorkOrder from '@/components/accountant/EditBillingWorkOrder';
 import billingWorkOrderActions from '@/lib/actions/accountant/workOrder/billWorkOrderActions';
 import { IBillingWorkOrder } from '@/interfaces/accountants/BillingWorkOrder.interface';
 import billingItemActions from '@/lib/actions/accountant/billingItem/billingItemAction';
+import { IBillingWorkOrderItem } from '@/interfaces/accountants/IBillingWorkOrderItem.interface';
+import { BillingWorkOrderColumns } from '@/components/accountant/BillingWorkOrderColumns';
 
 const BillingWorkOrder: React.FC<{}> = async () => {
   let workOrders: IBillingWorkOrder[] = [];
@@ -26,7 +28,7 @@ const BillingWorkOrder: React.FC<{}> = async () => {
     // Use Promise.all to fetch items in parallel
     workOrdersWithItems = await Promise.all(
       workOrders.map(async (workOrder) => {
-        let items = [];
+        let items: IBillingWorkOrderItem[] = [];
         try {
           const filter = JSON.stringify(workOrder?.workOrderNumber);
           const itemsRes =
@@ -34,7 +36,7 @@ const BillingWorkOrder: React.FC<{}> = async () => {
               filter
             );
           if (itemsRes?.success) {
-            items = JSON.parse(itemsRes?.data);
+            items = itemsRes.data;
           }
         } catch (error) {
           console.error(
@@ -85,7 +87,7 @@ const BillingWorkOrder: React.FC<{}> = async () => {
       </TabsContent>
       <TabsContent value='viewWorkOrders'>
         <DataTable
-          columns={columns}
+          columns={BillingWorkOrderColumns}
           data={workOrdersWithItems}
           filterValue='workOrderNumber'
         />
