@@ -8,7 +8,7 @@ import {
 } from './fetch';
 import { updateBillingItem } from './update';
 
-const billingItemActions = {
+const billingWorkOrderItemAction = {
   CREATE: {
     createBillingItem: createBillingItem,
   },
@@ -27,4 +27,4 @@ const billingItemActions = {
   },
 };
 
-export default billingItemActions;
+export default billingWorkOrderItemAction;

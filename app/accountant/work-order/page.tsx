@@ -7,9 +7,10 @@ import CreateBillingWorkOrder from '@/components/accountant/CreateBillingWorkOrd
 import EditBillingWorkOrder from '@/components/accountant/EditBillingWorkOrder';
 import billingWorkOrderActions from '@/lib/actions/accountant/workOrder/billWorkOrderActions';
 import { IBillingWorkOrder } from '@/interfaces/accountants/BillingWorkOrder.interface';
-import billingItemActions from '@/lib/actions/accountant/billingItem/billingItemAction';
+import billingItemActions from '@/lib/actions/accountant/billingItem/billingWorkOrderItemAction';
 import { IBillingWorkOrderItem } from '@/interfaces/accountants/IBillingWorkOrderItem.interface';
 import { BillingWorkOrderColumns } from '@/components/accountant/BillingWorkOrderColumns';
+import AddBillingWorkOrderItem from '@/components/accountant/AddBillingWorkOrderItem';
 
 const BillingWorkOrder: React.FC<{}> = async () => {
   let workOrders: IBillingWorkOrder[] = [];
@@ -82,7 +83,7 @@ const BillingWorkOrder: React.FC<{}> = async () => {
       <TabsContent value='editWorkOrder'>
         <div className='flex flex-col gap-6'>
           <EditBillingWorkOrder />
-          <AddItem />
+          <AddBillingWorkOrderItem />
         </div>
       </TabsContent>
       <TabsContent value='viewWorkOrders'>
