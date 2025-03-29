@@ -1,8 +1,8 @@
-'use server';
+"use server";
 
-import { ApiResponse } from '@/interfaces/APIresponses.interface';
-import handleDBConnection from '@/lib/database';
-import WorkOrderHr from '@/lib/models/HR/workOrderHr.model';
+import { ApiResponse } from "@/interfaces/APIresponses.interface";
+import handleDBConnection from "@/lib/database";
+import WorkOrderHr, { IWorkOrderHr } from "@/lib/models/HR/workOrderHr.model";
 
 const createWorkOrderHr = async (
   dataString: string
@@ -12,7 +12,7 @@ const createWorkOrderHr = async (
     if (!dbConnection.success) return dbConnection;
     const dataObj = await JSON.parse(dataString);
     // console.log('dataObj', dataObj);
-    const splittedValidTo = dataObj.validTo.split('-');
+    const splittedValidTo = dataObj.validTo.split("-");
     const lapseTill = `${Number(splittedValidTo[0]) + 1}-${
       splittedValidTo[1]
     }-${splittedValidTo[2]}`;
@@ -26,7 +26,7 @@ const createWorkOrderHr = async (
       return {
         success: false,
         status: 400,
-        message: 'Valid Till date must be greater than Valid From date ',
+        message: "Valid Till date must be greater than Valid From date ",
         error: null,
         data: null,
       };
@@ -38,7 +38,7 @@ const createWorkOrderHr = async (
     const resp = await obj.save();
     return {
       success: true,
-      message: 'Work Order Added',
+      message: "Work Order Added",
       data: JSON.stringify(resp),
       status: 200,
       error: null,
@@ -47,7 +47,7 @@ const createWorkOrderHr = async (
     return {
       success: false,
       status: 500,
-      message: 'Internal Server Error',
+      message: "Internal Server Error",
       error: JSON.stringify(err),
       data: null,
     };
@@ -61,7 +61,7 @@ const deleteWorkOrderHr = async (id: any) => {
     const resp = await WorkOrderHr.findByIdAndDelete(id);
     return {
       success: true,
-      message: 'Work Order Deleted',
+      message: "Work Order Deleted",
       data: JSON.stringify(resp),
       status: 200,
     };
@@ -69,7 +69,7 @@ const deleteWorkOrderHr = async (id: any) => {
     return {
       success: false,
       status: 500,
-      message: 'Internal Server Error',
+      message: "Internal Server Error",
       error: JSON.stringify(err),
     };
   }
@@ -82,7 +82,7 @@ const fetchAllWorkOrderHr = async () => {
     const resp = await WorkOrderHr.find({}).sort({ workOrderNumber: 1 });
     return {
       success: true,
-      message: 'Work Orders Retrieved',
+      message: "Work Orders Retrieved",
       data: JSON.stringify(resp),
       status: 200,
     };
@@ -90,17 +90,22 @@ const fetchAllWorkOrderHr = async () => {
     return {
       success: false,
       status: 500,
-      message: 'Internal Server Error',
+      message: "Internal Server Error",
       error: JSON.stringify(err),
     };
   }
 };
 
-const fetchAllValidWorkOrderHr = async (): Promise<ApiResponse<any>> => {
+const fetchAllValidWorkOrderHr = async (
+  selectedFields: (keyof IWorkOrderHr)[] = []
+): Promise<ApiResponse<any>> => {
   try {
     const dbConnection = await handleDBConnection();
     if (!dbConnection.success) return dbConnection;
-    const resp = await WorkOrderHr.find({}).sort({ workOrderNumber: 1 });
+    console.log("SELECTED FIELDS", selectedFields);
+    const resp = await WorkOrderHr.find()
+      .select(["lapseTill", ...selectedFields].join(" "))
+      .sort({ workOrderNumber: 1 });
     // console.log('valid workorder', resp);
 
     if (!resp) {
@@ -108,7 +113,7 @@ const fetchAllValidWorkOrderHr = async (): Promise<ApiResponse<any>> => {
         success: false,
         status: 500,
         message:
-          'Unexpected error occurred, Failed to fetch workorders, Please make sure you have stable internet connection',
+          "Unexpected error occurred, Failed to fetch workorders, Please make sure you have stable internet connection",
         error: null,
         data: null,
       };
@@ -125,7 +130,7 @@ const fetchAllValidWorkOrderHr = async (): Promise<ApiResponse<any>> => {
     // console.log('valid res', validWOs, validWOs.length);
     return {
       success: true,
-      message: 'Work Orders Retrieved',
+      message: "Work Orders Retrieved",
       data: JSON.stringify(validWOs),
       status: 200,
       error: null,
@@ -134,7 +139,7 @@ const fetchAllValidWorkOrderHr = async (): Promise<ApiResponse<any>> => {
     return {
       success: false,
       status: 500,
-      message: 'Internal Server Error',
+      message: "Internal Server Error",
       error: JSON.stringify(err),
       data: null,
     };
@@ -148,7 +153,7 @@ const fetchSingleWorkOrderHr = async (filter: string) => {
     const resp = await WorkOrderHr.findOne(JSON.parse(filter));
     return {
       success: true,
-      message: 'Work Order Retrieved',
+      message: "Work Order Retrieved",
       data: JSON.stringify(resp),
       status: 200,
     };
@@ -156,7 +161,7 @@ const fetchSingleWorkOrderHr = async (filter: string) => {
     return {
       success: false,
       status: 500,
-      message: 'Internal Server Error',
+      message: "Internal Server Error",
       error: JSON.stringify(err),
     };
   }
@@ -170,14 +175,14 @@ const getTotalWorkOrder = async () => {
     return {
       success: true,
       status: 200,
-      message: 'Fetched Count',
+      message: "Fetched Count",
       data: resp.length,
     };
   } catch (err) {
     return {
       success: false,
       status: 500,
-      message: 'Internal Server Error',
+      message: "Internal Server Error",
     };
   }
 };
@@ -191,7 +196,7 @@ const updateWorkOrderHr = async (
     if (!dbConnection.success) return dbConnection;
     const dataObj = await JSON.parse(dataString);
     // console.log('dataObj', dataObj);
-    const splittedValidTo = dataObj.validTo.split('-');
+    const splittedValidTo = dataObj.validTo.split("-");
     const lapseTill = `${Number(splittedValidTo[0]) + 1}-${
       splittedValidTo[1]
     }-${splittedValidTo[2]}`;
@@ -206,7 +211,7 @@ const updateWorkOrderHr = async (
       return {
         success: false,
         status: 400,
-        message: 'Valid Till date must be greater than Valid From date ',
+        message: "Valid Till date must be greater than Valid From date ",
         error: null,
         data: null,
       };
@@ -217,7 +222,7 @@ const updateWorkOrderHr = async (
       return {
         success: false,
         status: 400,
-        message: 'Did not found workorder in Database to edit',
+        message: "Did not found workorder in Database to edit",
         error: null,
         data: null,
       };
@@ -225,20 +230,20 @@ const updateWorkOrderHr = async (
     const updatedWo = await WorkOrderHr.findByIdAndUpdate(_id, dataObj, {
       new: true,
     });
-    console.log('updated workorder', updatedWo);
+    console.log("updated workorder", updatedWo);
     if (!updatedWo) {
       return {
         success: false,
         status: 404,
         message:
-          'Unexpected error occurred, Failed to update workorder, Please try later',
+          "Unexpected error occurred, Failed to update workorder, Please try later",
         error: null,
         data: null,
       };
     }
     return {
       success: true,
-      message: 'Work Order updated successfully',
+      message: "Work Order updated successfully",
       data: JSON.stringify(updatedWo),
       status: 200,
       error: null,
@@ -248,7 +253,7 @@ const updateWorkOrderHr = async (
       success: false,
       status: 500,
       message:
-        'Unexpected error occurred in DB, Failed to update, please try later',
+        "Unexpected error occurred in DB, Failed to update, please try later",
       error: JSON.stringify(err),
       data: null,
     };

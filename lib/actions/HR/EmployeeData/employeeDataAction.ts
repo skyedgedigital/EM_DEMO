@@ -1,10 +1,10 @@
-import { autoGenEmpCode } from './autoGenerateEmpCode';
+import { autoGenEmpCode } from "./autoGenerateEmpCode";
 import {
   createEmployeeData,
   createEmployeeDataBulk,
   uploadEmployeeDataPhotos,
-} from './create';
-import { deleteEmployeeData } from './delete';
+} from "./create";
+import { deleteEmployeeData } from "./delete";
 import {
   fetchEmployeeByCode,
   fetchEmployeeById,
@@ -16,15 +16,16 @@ import {
   fetchEmployeesWithWorkorderHr,
   fetchAllEmployeesSelectedFieldInfos,
   fetchEmployeeSelectedFieldByCode,
-} from './fetch';
+  fetchEmployeesBySelectedHRWorkOrderID,
+} from "./fetch";
 import {
   fetchEmployeesJoined,
   fetchEmployeesResigned,
   fetchEmpNames,
   fetchEmpsJoinedOrLeftWithinDateRange,
-} from './fetchData';
-import { getNotification } from './notification';
-import { updateEmployeeData } from './update';
+} from "./fetchData";
+import { getNotification } from "./notification";
+import { updateEmployeeData } from "./update";
 
 const EmployeeDataAction = {
   CREATE: {
@@ -55,6 +56,7 @@ const EmployeeDataAction = {
     fetchEmpsResigned: fetchEmployeesResigned,
     fetchAllEmployeesSelectedFieldInfos,
     fetchEmployeeSelectedFieldByCode,
+    fetchEmployeesBySelectedHRWorkOrderID,
   },
 };
 
