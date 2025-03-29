@@ -46,7 +46,7 @@ export const fetchCurrentVersionOfAllToolboxTalk = async (): Promise<
       success: true,
       status: 200,
       message: 'data fetched successfully',
-      data,
+      data: await JSON.parse(JSON.stringify(data)),
       error: null,
     };
   } catch (error) {

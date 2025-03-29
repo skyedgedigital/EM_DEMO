@@ -22,6 +22,7 @@ import { createToolboxTalk } from '@/lib/actions/safety/toolboxtalk/create';
 import { IEnterpriseBase } from '@/interfaces/enterprise.interface';
 import { fetchEnterpriseInfo } from '@/lib/actions/enterprise';
 import { FaSpinner } from 'react-icons/fa6';
+import { ArrowLeft, ArrowRightIcon } from 'lucide-react';
 
 const toolboxTalkDefault: IToolboxTalk = {
   documentNo: '',
@@ -99,6 +100,14 @@ const toolboxTalkDefault: IToolboxTalk = {
   ],
 };
 
+const tabNames: ['add', 'attendance', 'feedback', 'stripe', 'site'] = [
+  'add',
+  'attendance',
+  'feedback',
+  'stripe',
+  'site',
+];
+
 interface IToolBoxTalkHome {
   receivedToolBoxTalk?: IToolboxTalk | null;
   canEditImportantDetails?: boolean;
@@ -111,7 +120,9 @@ const ToolBoxTalkHome = ({
 }: IToolBoxTalkHome) => {
   console.log('ToolBoxTalkHome');
   const session = useSession();
-  const [activeTab, setActiveTab] = useState('add');
+  const [activeTab, setActiveTab] = useState<
+    (typeof tabNames)[number] | 'view'
+  >(tabNames[0]);
   const [fetchedToolBoxData, setFetchedToolBoxData] = useState<IToolboxTalk>(
     receivedToolBoxTalk || toolboxTalkDefault
   );
@@ -136,6 +147,19 @@ const ToolBoxTalkHome = ({
   const siteUrlRef = useRef(null);
   const stripPointsRef = useRef(null);
 
+  const tabSwitcher = (direction: 'prev' | 'next') => {
+    const currentActiveIndex = tabNames.findIndex((tab) => tab === activeTab);
+
+    if (direction === 'prev') {
+      if (currentActiveIndex > 0) {
+        setActiveTab(tabNames[currentActiveIndex - 1]);
+      }
+    } else {
+      if (currentActiveIndex < tabNames.length - 1) {
+        setActiveTab(tabNames[currentActiveIndex + 1]);
+      }
+    }
+  };
   useEffect(() => {
     if (session && session?.data?.user._id) {
       // console.log('LAWDA', session, session.data.user._id);
@@ -196,7 +220,7 @@ const ToolBoxTalkHome = ({
     fetchWorkOrderHr();
   }, []);
 
-  const handleTabClick = (tab) => {
+  const handleTabClick = (tab: (typeof tabNames)[number] | 'view') => {
     setActiveTab(tab);
   };
 
@@ -413,9 +437,9 @@ const ToolBoxTalkHome = ({
 
           <li className='me-2'>
             <button
-              onClick={() => handleTabClick('att')}
+              onClick={() => handleTabClick('attendance')}
               className={`inline-block p-4 rounded-t-lg ${
-                activeTab === 'att'
+                activeTab === 'attendance'
                   ? 'text-green-600 bg-gray-100'
                   : 'hover:text-gray-600 hover:bg-gray-50 dark:hover:bg-gray-800 dark:hover:text-gray-300'
               }`}
@@ -437,9 +461,9 @@ const ToolBoxTalkHome = ({
           </li>
           <li className='me-2'>
             <button
-              onClick={() => handleTabClick('strip')}
+              onClick={() => handleTabClick('stripe')}
               className={`inline-block p-4 rounded-t-lg ${
-                activeTab === 'strip'
+                activeTab === 'stripe'
                   ? 'text-green-600 bg-gray-100'
                   : 'hover:text-gray-600 hover:bg-gray-50 dark:hover:bg-gray-800 dark:hover:text-gray-300'
               }`}
@@ -482,17 +506,17 @@ const ToolBoxTalkHome = ({
           } flex justify-center items-center my-1 flex-col gap-1 mx-8`}
         >
           {!canEditAllDetails && !canEditImportantDetails && (
-            <p className='bg-blue-500 text-white py-1 px-3 rounded'>
+            <p className='bg-blue-50 text-blue-700 py-1 px-3 rounded'>
               View Only
             </p>
           )}
           {canEditAllDetails && !canEditImportantDetails && (
-            <p className='bg-blue-500 text-white py-1 px-3 rounded'>
+            <p className='bg-blue-50 text-blue-700 py-1 px-3 rounded'>
               Edit Details
             </p>
           )}
           {canEditAllDetails && canEditImportantDetails && (
-            <p className='bg-blue-500 text-white py-1 px-3 rounded'>
+            <p className='bg-blue-50 text-blue-700 py-1 px-3 rounded'>
               Create New Document
             </p>
           )}
@@ -517,7 +541,7 @@ const ToolBoxTalkHome = ({
             />
           )}
           {activeTab === 'view' && <ViewToolBoxTalk />}
-          {activeTab === 'att' && (
+          {activeTab === 'attendance' && (
             <AttendanceUploads
               updateAttendance={updateAttendance}
               effectiveDate={fetchedToolBoxData.effectiveDate}
@@ -541,7 +565,7 @@ const ToolBoxTalkHome = ({
               canEditAllDetails={canEditAllDetails}
             />
           )}
-          {activeTab === 'strip' && (
+          {activeTab === 'stripe' && (
             <StripUploads
               ref={stripPointsRef}
               canEditAllDetails={canEditAllDetails}
@@ -586,12 +610,37 @@ const ToolBoxTalkHome = ({
             />
           )}
         </div>
-        <div className='w-full flex flex-col justify-center items-center'>
+        <div className='w-full flex flex-col md:flex-row gap-2 justify-center '>
+          <div
+            className={`flex gap-2 justify-center items-center h-fit ${
+              activeTab === 'view' && 'hidden'
+            }`}
+          >
+            <button
+              disabled={activeTab === 'add'}
+              type='button'
+              onClick={() => tabSwitcher('prev')}
+              className={`flex justify-center items-center gap-2 px-2 py-1 border-[1px] border-blue-400 rounded bg-white text-blue-500 text-nowrap text-sm font-semibold mb-1 disabled:text-gray-400 disabled:border-gray-400`}
+            >
+              <ArrowLeft />
+              <>Previous</>
+            </button>
+            <button
+              disabled={activeTab === 'site'}
+              onClick={() => tabSwitcher('next')}
+              type='button'
+              className={`flex justify-center items-center gap-2 px-2 py-1 border-[1px] border-blue-400 rounded bg-white text-blue-500 text-nowrap text-sm font-semibold mb-1 disabled:text-gray-400 disabled:border-gray-400`}
+            >
+              <>Next</>
+              <ArrowRightIcon />
+            </button>
+          </div>
           {activeTab !== 'view' &&
+            activeTab === 'site' &&
             (canEditAllDetails || canEditImportantDetails) && (
               <button
                 onClick={handleSave}
-                className='bg-green-500 rounded px-4 py-1 mb-10 text-white font-semibold shadow hover:scale-[101%] flex justify-center items-center gap-2'
+                className='bg-green-500  rounded px-4 py-1 mb-10 text-white font-semibold shadow hover:scale-[101%] flex justify-center items-center gap-2'
               >
                 {saving ? (
                   <>

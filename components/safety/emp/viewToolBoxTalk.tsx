@@ -116,7 +116,7 @@ const ViewToolBoxTalk = () => {
                 </tr>
               </thead>
               <tbody className='bg-white divide-y divide-gray-200'>
-                {allToolBoxTalkDocs.map((ele) => (
+                {allToolBoxTalkDocs?.map((ele) => (
                   <tr key={ele.documentNo} className='hover:bg-gray-100'>
                     <td className='px-6 py-4 whitespace-nowrap'>
                       {ele.documentNo}
@@ -128,7 +128,7 @@ const ViewToolBoxTalk = () => {
                       {ele.currentVersion}
                     </td>
                     <td className='px-6 py-4 whitespace-nowrap'>
-                      {ele.effectiveDate.toLocaleDateString()}
+                      {new Date(ele.effectiveDate).toLocaleDateString()}
                     </td>
                     <td className='px-6 py-4 whitespace-nowrap'>
                       <Link
