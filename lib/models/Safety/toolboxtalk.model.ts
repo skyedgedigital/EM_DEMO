@@ -14,7 +14,7 @@ export const RecordStatusNames = [
 ] as const;
 export type RecordStatusNamesTypes = (typeof RecordStatusNames)[number];
 
-export const StripColorsNames = ['orange', 'blue', 'purple', 'green'] as const;
+export const StripColorsNames = ['orange', 'red', 'purple', 'green'] as const;
 export type StripColorNameTypes = (typeof StripColorsNames)[number];
 interface IRecord {
   actionBy: string;
@@ -111,7 +111,7 @@ const PointSchema: mongoose.Schema<IStripPoint> = new mongoose.Schema({
   color: {
     type: String,
     enum: StripColorsNames,
-    default: 'blue',
+    default: 'orange',
   },
   point: {
     type: String,

@@ -248,7 +248,7 @@ const StripUploads = forwardRef(
               disabled={uploadingPointFile || !canEditAllDetails}
               type='button'
               onClick={() =>
-                append({ point: '', color: 'blue', pointFileUrl: '' })
+                append({ point: '', color: 'orange', pointFileUrl: '' })
               }
               className='bg-blue-500 disabled:bg-blue-400 text-white p-2 hover:bg-blue-700 w-fit px-3 py-2 rounded text-nowrap'
             >

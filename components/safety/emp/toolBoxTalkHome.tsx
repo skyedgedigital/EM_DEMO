@@ -68,7 +68,7 @@ const toolboxTalkDefault: IToolboxTalk = {
         },
       ],
       records: [],
-      points: [{ point: '', color: 'blue' }],
+      points: [{ point: '', color: 'orange' }],
       uploadDate: new Date(),
       suggestion: '',
       feedback: [
@@ -468,7 +468,7 @@ const ToolBoxTalkHome = ({
                   : 'hover:text-gray-600 hover:bg-gray-50 dark:hover:bg-gray-800 dark:hover:text-gray-300'
               }`}
             >
-              Strip
+              Stripe
             </button>
           </li>
 
