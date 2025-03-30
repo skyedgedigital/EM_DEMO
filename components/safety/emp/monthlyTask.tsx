@@ -1,27 +1,83 @@
 import React, { useState, useEffect } from 'react';
-import { format, startOfMonth, endOfMonth, startOfWeek, endOfWeek, addDays, addMonths, subMonths, isSameMonth, isSameDay } from 'date-fns';
-import MonthlyAction from '@/lib/actions/SafetyEmp/monthly/MonthlyAction';
-import { Trash } from 'lucide-react';
+import {
+  format,
+  startOfMonth,
+  endOfMonth,
+  startOfWeek,
+  endOfWeek,
+  addDays,
+  addMonths,
+  subMonths,
+  isSameMonth,
+  isSameDay,
+} from 'date-fns';
+import MonthlyAction from '@/lib/actions/SafetyEmp/monthly/MonthlyTaskAction';
+import { ArrowLeft, ArrowRight, Trash } from 'lucide-react';
 import toast from 'react-hot-toast';
+import { IMonthlyTaskResponse } from '@/lib/actions/SafetyEmp/monthly/fetch';
+import MonthlyTaskAction from '@/lib/actions/SafetyEmp/monthly/MonthlyTaskAction';
 
+type FormattedEvents = {
+  [dateKey: string]: IMonthlyTaskResponse[];
+};
 const MonthlyTask = () => {
   const [currentMonth, setCurrentMonth] = useState(new Date());
   const [selectedDate, setSelectedDate] = useState(new Date());
-  const [events, setEvents] = useState({});
+  const [specifiedDate, setSpecifiedDate] = useState<string>(null);
+  const [events, setEvents] = useState<FormattedEvents>({});
 
   useEffect(() => {
     const fetchMonthlyEvents = async () => {
       try {
-        const resp = await MonthlyAction.FETCH.fetchMonthlyEvent();
-        const eventsData = JSON.parse(resp.data);
-        const formattedEvents = {};
-        eventsData.forEach(({ day, month, year, event, _id }) => {
-          const dateKey = `${year}-${month}-${day}`;
-          if (!formattedEvents[dateKey]) {
-            formattedEvents[dateKey] = [];
+        const resp = await MonthlyAction.FETCH.fetchMonthlyTask();
+        if (!resp.success) {
+          console.error('Failed to fetch events:', resp.error);
+          return;
+        }
+
+        const eventsData = resp.data;
+        console.log('Raw event data:', eventsData);
+
+        const formattedEvents: FormattedEvents = {};
+
+        eventsData.forEach(
+          ({
+            eventDate,
+            eventName,
+            eventDescription,
+            _id,
+            status,
+            assignedTo,
+          }) => {
+            try {
+              // Handle potential date string issues
+              const dateObj = new Date(eventDate);
+              if (isNaN(dateObj.getTime())) {
+                console.error('Invalid date:', eventDate);
+                return;
+              }
+
+              const dateKey = format(dateObj, 'yyyy-MM-dd');
+              console.log('Processing:', eventName, 'for date:', dateKey);
+
+              if (!formattedEvents[dateKey]) {
+                formattedEvents[dateKey] = [];
+              }
+              formattedEvents[dateKey].push({
+                eventName,
+                _id,
+                assignedTo,
+                eventDate,
+                eventDescription,
+                status,
+              });
+            } catch (e) {
+              console.error('Error processing event:', e);
+            }
           }
-          formattedEvents[dateKey].push({ event, _id });
-        });
+        );
+
+        console.log('Formatted events:', formattedEvents);
         setEvents(formattedEvents);
       } catch (error) {
         console.error('Error fetching monthly events:', error);
@@ -32,13 +88,15 @@ const MonthlyTask = () => {
 
   const handleDelete = async (eventId) => {
     try {
-      const resp = await MonthlyAction.DELETE.deleteMonthlyEvent(eventId);
+      const resp = await MonthlyAction.DELETE.deleteMonthlyTask(eventId);
       if (resp.success) {
         toast.success('Event Removed');
         // Update events state after deletion
         const updatedEvents = { ...events };
         Object.keys(updatedEvents).forEach((dateKey) => {
-          updatedEvents[dateKey] = updatedEvents[dateKey].filter((event) => event._id !== eventId);
+          updatedEvents[dateKey] = updatedEvents[dateKey].filter(
+            (event) => event._id !== eventId
+          );
         });
         setEvents(updatedEvents);
       } else {
@@ -50,99 +108,67 @@ const MonthlyTask = () => {
     }
   };
 
-  // const renderHeader = () => {
-  //   const month = format(currentMonth, 'MM');
-  //   const year = format(currentMonth, 'yyyy');
+  const renderHeader = () => {
+    const month = format(currentMonth, 'MM');
+    const year = format(currentMonth, 'yyyy');
 
-  //   return (
-  //     <div className="flex justify-between items-center my-4">
-  //       <div className="flex items-center">
-  //         <button onClick={prevMonth} className="px-2 text-xl">
-  //           &lt;
-  //         </button>
-  //       </div>
-  //       <div className="flex items-center">
-  //         <select
-  //           className="mr-2 p-1 border rounded"
-  //           value={parseInt(month)}
-  //           onChange={(e) => setCurrentMonth(new Date(parseInt(year), parseInt(e.target.value) - 1))}
-  //         >
-  //           {Array.from({ length: 12 }).map((_, i) => (
-  //             <option key={i} value={i + 1}>
-  //               {format(new Date(2020, i), 'MMMM')}
-  //             </option>
-  //           ))}
-  //         </select>
-  //         <input
-  //           type="number"
-  //           className="p-1 border rounded"
-  //           value={year}
-  //           onChange={(e) => setCurrentMonth(new Date(parseInt(e.target.value), parseInt(month) - 1))}
-  //         />
-  //       </div>
-  //       <div className="flex items-center">
-  //         <button onClick={nextMonth} className="px-2 text-xl">
-  //           &gt;
-  //         </button>
-  //       </div>
-  //     </div>
-  //   );
-  // };
-const renderHeader = () => {
-  const month = format(currentMonth, 'MM');
-  const year = format(currentMonth, 'yyyy');
+    // Generate an array of years (from current year - 10 to current year + 10)
+    const currentYear = new Date().getFullYear();
+    const years = Array.from({ length: 21 }, (_, i) => currentYear - 10 + i);
 
-  // Generate an array of years (from current year - 10 to current year + 10)
-  const currentYear = new Date().getFullYear();
-  const years = Array.from({ length: 21 }, (_, i) => currentYear - 10 + i);
-
-  return (
-    <div className='flex justify-between items-center my-4'>
-      <div className='flex items-center'>
-        <button onClick={prevMonth} className='px-2 text-xl'>
-          &lt;
-        </button>
+    return (
+      <div className='flex justify-center gap-3 items-center my-4'>
+        <div className='flex items-center justify-center gap-3'>
+          <button
+            onClick={prevMonth}
+            className='px-4 text-xl border-[1px] p-1 rounded hover:bg-gray-100'
+          >
+            <ArrowLeft className='text-blue-500' />
+          </button>
+        </div>
+        <div className='flex items-center gap-2'>
+          <select
+            className='p-1 border rounded'
+            value={parseInt(month)}
+            onChange={(e) =>
+              setCurrentMonth(
+                new Date(parseInt(year), parseInt(e.target.value) - 1)
+              )
+            }
+          >
+            {Array.from({ length: 12 }).map((_, i) => (
+              <option key={i} value={i + 1}>
+                {format(new Date(2020, i), 'MMMM')}
+              </option>
+            ))}
+          </select>
+          <select
+            className='p-1 border rounded'
+            value={parseInt(year)}
+            onChange={(e) =>
+              setCurrentMonth(
+                new Date(parseInt(e.target.value), parseInt(month) - 1)
+              )
+            }
+          >
+            {years.map((year) => (
+              <option key={year} value={year}>
+                {year}
+              </option>
+            ))}
+          </select>
+        </div>
+        <div className='flex items-center'>
+          <button
+            onClick={nextMonth}
+            className='px-4 text-xl border-[1px] p-1 rounded hover:bg-gray-100'
+          >
+            <ArrowRight className='text-blue-500' />
+          </button>
+        </div>
       </div>
-      <div className='flex items-center gap-2'>
-        <select
-          className='p-1 border rounded'
-          value={parseInt(month)}
-          onChange={(e) =>
-            setCurrentMonth(
-              new Date(parseInt(year), parseInt(e.target.value) - 1)
-            )
-          }
-        >
-          {Array.from({ length: 12 }).map((_, i) => (
-            <option key={i} value={i + 1}>
-              {format(new Date(2020, i), 'MMMM')}
-            </option>
-          ))}
-        </select>
-        <select
-          className='p-1 border rounded'
-          value={parseInt(year)}
-          onChange={(e) =>
-            setCurrentMonth(
-              new Date(parseInt(e.target.value), parseInt(month) - 1)
-            )
-          }
-        >
-          {years.map((year) => (
-            <option key={year} value={year}>
-              {year}
-            </option>
-          ))}
-        </select>
-      </div>
-      <div className='flex items-center'>
-        <button onClick={nextMonth} className='px-2 text-xl'>
-          &gt;
-        </button>
-      </div>
-    </div>
-  );
-};
+    );
+  };
   const renderDays = () => {
     const days = [];
     const dateFormat = 'iiii';
@@ -150,12 +176,12 @@ const renderHeader = () => {
 
     for (let i = 0; i < 7; i++) {
       days.push(
-        <div className="flex-1 text-center font-medium" key={i}>
+        <div className='flex-1 text-center font-medium' key={i}>
           {format(addDays(startDate, i), dateFormat)}
         </div>
       );
     }
-    return <div className="flex">{days}</div>;
+    return <div className='flex'>{days}</div>;
   };
 
   const renderCells = () => {
@@ -174,62 +200,151 @@ const renderHeader = () => {
         formattedDate = format(day, 'd');
         const cloneDay = day;
         const dateKey = format(day, 'yyyy-MM-dd');
+
         days.push(
           <div
             key={day.toString()}
-            className={`p-2 w-24 h-24 border ${
-              !isSameMonth(day, monthStart) ? 'bg-gray-100' : isSameDay(day, selectedDate) ? 'bg-blue-200' : ''
+            className={`p-1 flex flex-col w-24 h-24 border-[1px] ${
+              !isSameMonth(day, monthStart)
+                ? 'bg-gray-100'
+                : isSameDay(day, selectedDate)
+                ? 'bg-blue-200'
+                : ''
             }`}
+            onClick={() => setSpecifiedDate(dateKey)}
           >
-            <span className="block text-center">{formattedDate}</span>
-            <div className="text-xs mt-2 overflow-y-auto max-h-12">
+            <span className='block text-left pl-1 w-fit h-fit'>
+              {formattedDate}
+            </span>
+            <div className='text-xs overflow-y-auto flex-grow'>
               {events[dateKey] &&
-                events[dateKey].map(({ event, _id }, index) => (
-                  <div key={index} className="flex items-center justify-between bg-gray-200 rounded px-1 mt-1">
-                    <span>{event}</span>
-                    <button
-                      className="text-red-500"
-                      onClick={() => handleDelete(_id)}
+                events[dateKey].map(
+                  (
+                    {
+                      eventName,
+                      eventDescription,
+                      _id,
+                      assignedTo,
+                      status,
+                      eventDate,
+                    },
+                    index
+                  ) => (
+                    <div
+                      key={index}
+                      className={`hover:scale-105 hover:cursor-pointer transition-all flex flex-col gap-1 items-center justify-between rounded p-1 mt-1 border-[1px] ${
+                        status === 'pending' && 'border-red-500 bg-red-100'
+                      } ${
+                        status === 'in progress' &&
+                        'border-yellow-500 bg-yellow-100'
+                      } ${
+                        status === 'completed' &&
+                        'border-green-700 bg-green-100'
+                      }`}
+                      // onClick={(e) => {
+                      //   e.stopPropagation();
+                      //   setSelectedEvent({
+                      //     eventName,
+                      //     eventDescription,
+                      //     _id,
+                      //     assignedTo,
+                      //     status,
+                      //     eventDate,
+                      //   });
+                      //   console.log('Event clicked:', eventName);
+                      // }}
                     >
-                      <Trash className="w-3 h-3" />
-                    </button>
-                  </div>
-                ))}
+                      <p>{eventName}</p>
+                    </div>
+                  )
+                )}
             </div>
           </div>
         );
         day = addDays(day, 1);
       }
-      rows.push(<div className="flex">{days}</div>);
+      rows.push(
+        <div className='flex' key={day.toString()}>
+          {days}
+        </div>
+      );
       days = [];
     }
     return <div>{rows}</div>;
   };
-
-  const onDateClick = (day) => {
-    setSelectedDate(day);
-    const eventText = prompt('Enter event:');
-    if (eventText) {
-      const dateKey = format(day, 'yyyy-MM-dd');
-      const updatedEvents = { ...events };
-      if (!updatedEvents[dateKey]) {
-        updatedEvents[dateKey] = [];
-      }
-      updatedEvents[dateKey].push({ event: eventText });
-      setEvents(updatedEvents);
-    }
-  };
-
   const nextMonth = () => setCurrentMonth(addMonths(currentMonth, 1));
   const prevMonth = () => setCurrentMonth(subMonths(currentMonth, 1));
 
   return (
-    <div className="max-w-2xl mx-auto p-4">
-      {renderHeader()}
-      {renderDays()}
-      {renderCells()}
-    </div>
+    <section className='border-2 border-blue-600 flex flex-col lg:flex-row gap-2 '>
+      <div className='w-full lg:w-1/2 mx-auto p-4 border-2 border-green-500'>
+        {renderHeader()}
+        {renderDays()}
+        {renderCells()}
+      </div>
+      {/* <div className={` transition-all lg:${specifiedDate ? 'w-1/2' : 'w-0'}`}> */}
+      {specifiedDate && (
+        <AllTaskDetailsOnSpecifiedDate
+          className='w-full mx-auto p-4 border-2 border-green-500'
+          specifiedDate={specifiedDate}
+        />
+      )}
+      {/* </div> */}
+    </section>
   );
 };
 
 export default MonthlyTask;
+
+const AllTaskDetailsOnSpecifiedDate = ({
+  specifiedDate = '',
+  className = '',
+}: {
+  specifiedDate: string;
+  className: string;
+}) => {
+  const [allEventsOnSelectedDate, setAllEventsOnSelectedDate] =
+    useState<IMonthlyTaskResponse[]>(null);
+  console.log('SELECTED EVENT', allEventsOnSelectedDate);
+  const [loadingStates, setLoadingStates] = useState<{
+    loadingMonthlyTasks: boolean;
+  }>({
+    loadingMonthlyTasks: true,
+  });
+
+  const fetchAllEventsOnSelectedDate = async (specifiedDate: string) => {
+    try {
+      setLoadingStates((prev) => ({ ...prev, loadingMonthlyTasks: true }));
+      const { data, status, success, message, error } =
+        await MonthlyTaskAction.FETCH.fetchMonthlyTaskOnSpecificDate(
+          specifiedDate
+        );
+
+      if (success) {
+        setAllEventsOnSelectedDate(data);
+        toast.success(message);
+      }
+      if (!success) {
+        toast.error(message);
+      }
+    } catch (error) {
+      toast.error(
+        error?.message ||
+          JSON.stringify(error) ||
+          'Unexpected error occurred, Failed to fetch tasks, Please try later'
+      );
+    } finally {
+      setLoadingStates((prev) => ({ ...prev, loadingMonthlyTasks: false }));
+    }
+  };
+
+  useEffect(() => {
+    if (!specifiedDate) return;
+    fetchAllEventsOnSelectedDate(specifiedDate);
+  }, [specifiedDate]);
+  return (
+    <section className={className}>
+      {specifiedDate} {JSON.stringify(allEventsOnSelectedDate)}{' '}
+    </section>
+  );
+};
