@@ -24,6 +24,7 @@ import { IEnterpriseBase } from '@/interfaces/enterprise.interface';
 import logo from '@/public/assets/dark-logo.png';
 import Link from 'next/link';
 import { ExclamationTriangleIcon } from '@radix-ui/react-icons';
+import { CheckCircle } from 'lucide-react';
 
 type IFromIToolboxTalkFields = Pick<
   IToolboxTalk,
@@ -268,12 +269,19 @@ const SiteUploads = forwardRef(
         </div>
         <div className='w-full flex items-center justify-center gap-2 p-2'>
           <div className='flex gap-2 w-1/2'>
-            <input
-              disabled={!canEditAllDetails}
-              type='file'
-              onChange={handleFileChange}
-              className='border border-gray-300 rounded p-2 mb-4 w-full'
-            />
+            <div className='flex justify-center items-center gap-1'>
+              <span className='flex flex-col justify-center items-start'>
+                <label htmlFor='siteFile'>Site file:</label>
+                <input
+                  id='siteFile'
+                  disabled={!canEditAllDetails}
+                  type='file'
+                  onChange={handleFileChange}
+                  className='border border-gray-300 rounded p-2 mb-4 w-full'
+                />
+              </span>
+              {siteFileURL && <CheckCircle className='text-green-500' />}
+            </div>
             {file && (
               <div className='mb-4 flex items-center'>
                 <span className='mr-4 text-green-600'>{file.name}</span>

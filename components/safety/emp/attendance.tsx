@@ -24,6 +24,7 @@ import { FaSpinner } from 'react-icons/fa6';
 import { IEnterpriseBase } from '@/interfaces/enterprise.interface';
 import logo from '@/public/assets/dark-logo.png';
 import Link from 'next/link';
+import { CheckCircle } from 'lucide-react';
 
 type IFromIToolboxTalkFields = Pick<
   IToolboxTalk,
@@ -302,14 +303,19 @@ const AttendanceUploads = forwardRef(
             />
           </div>
           <div className='flex gap-2 w-full flex-col'>
-            <label htmlFor='attendance'>Attendances Photo:(required)</label>
-            <input
-              disabled={!canEditAllDetails}
-              id='attendance'
-              type='file'
-              onChange={handleFileChange}
-              className='border border-gray-300 rounded p-2 mb-4 w-full'
-            />
+            <div className='flex justify-center items-center gap-1'>
+              <span className='flex flex-col justify-center items-start'>
+                <label htmlFor='attendance'>Attendances Photo:(required)</label>
+                <input
+                  disabled={!canEditAllDetails}
+                  id='attendance'
+                  type='file'
+                  onChange={handleFileChange}
+                  className='border border-gray-300 rounded p-2 mb-4 w-full'
+                />
+              </span>
+              {attendanceFileURL && <CheckCircle className='text-green-500' />}
+            </div>
             {file && (
               <div className='mb-4 flex items-center'>
                 <span className='mr-4 text-green-600'>{file.name}</span>

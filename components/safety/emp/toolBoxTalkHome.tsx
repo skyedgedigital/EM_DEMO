@@ -68,7 +68,7 @@ const toolboxTalkDefault: IToolboxTalk = {
         },
       ],
       records: [],
-      points: [{ point: '', color: 'orange' }],
+      points: [{ point: '', color: 'orange', stripeNo: null, location: '' }],
       uploadDate: new Date(),
       suggestion: '',
       feedback: [
@@ -512,7 +512,7 @@ const ToolBoxTalkHome = ({
           )}
           {canEditAllDetails && !canEditImportantDetails && (
             <p className='bg-blue-50 text-blue-700 py-1 px-3 rounded'>
-              Edit Details
+              Create new version
             </p>
           )}
           {canEditAllDetails && canEditImportantDetails && (

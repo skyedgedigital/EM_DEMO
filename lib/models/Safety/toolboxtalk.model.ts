@@ -28,6 +28,8 @@ export interface IStripPoint {
   point: string;
   color?: StripColorNameTypes;
   pointFileUrl?: string;
+  stripeNo: number;
+  location?: string;
 }
 
 export interface IAttendance {
@@ -120,6 +122,12 @@ const PointSchema: mongoose.Schema<IStripPoint> = new mongoose.Schema({
   pointFileUrl: {
     type: String,
     default: '',
+  },
+  stripeNo: {
+    type: Number,
+  },
+  location: {
+    type: String,
   },
 });
 

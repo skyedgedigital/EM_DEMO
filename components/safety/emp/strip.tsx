@@ -159,22 +159,36 @@ const StripUploads = forwardRef(
     };
 
     return (
-      <section className=' w-full md:w-[90%] lg:w-[80%] mx-auto flex flex-col gap-3 my-5 border-[1px] border-gray-300 p-4 rounded-md shadow-sm'>
+      <section className=' w-full  mx-auto flex flex-col gap-3 my-5 border-[1px] border-gray-300 p-4 rounded-md shadow-sm'>
         <h2 className='text-lg font-semibold text-blue-500'>
           All Raised Points
         </h2>
 
         <form className='flex flex-col gap-2' onChange={debouncePointUpdate}>
-          {fields.map(({ id, color, point }, index) => (
+          {fields.map(({ id, color, point, stripeNo, location }, index) => (
             <div
               key={id}
               className='flex flex-col md:flex-row justify-start items-end gap-6 border-b-[1px] border-gray-200 py-2 '
             >
-              <span className='flex flex-col gap-1 flex-grow w-full md:w-auto'>
-                <label className='text-gray-500' htmlFor={`point${index}`}>
-                  Point {index + 1}
+              <span className='flex flex-col gap-1 flex-grow w-full md:w-auto md:max-w-[80px]'>
+                <label className='text-gray-500' htmlFor={`stripeNo${index}`}>
+                  Stripe No:
                 </label>
                 <input
+                  id={`stripeNo${index}`}
+                  type='number'
+                  disabled={!canEditAllDetails}
+                  defaultValue={stripeNo}
+                  className='border-[1px] border-gray-400 text-gray-600 bg-gray-50 p-1 rounded w-full '
+                  {...register(`stripPoints.${index}.stripeNo`)}
+                />
+              </span>
+              <span className='flex flex-col gap-1 flex-grow w-full md:w-auto'>
+                <label className='text-gray-500' htmlFor={`point${index}`}>
+                  Description
+                </label>
+                <input
+                  id={`point${index}`}
                   type='text'
                   disabled={!canEditAllDetails}
                   defaultValue={point}
@@ -182,7 +196,7 @@ const StripUploads = forwardRef(
                   {...register(`stripPoints.${index}.point`)}
                 />
               </span>
-              <span className='flex flex-col gap-1 items-start w-full md:w-[30%] lg:w-[20%]'>
+              <span className='flex flex-col gap-1 items-start w-full md:max-w-[150px]'>
                 <label className='text-gray-500' htmlFor={`color${index}`}>
                   Priority Colour
                 </label>
@@ -203,6 +217,19 @@ const StripUploads = forwardRef(
                     style={{ width: 24, height: 24 }}
                   />
                 </span>
+              </span>
+              <span className='flex flex-col gap-1 flex-grow w-full md:w-auto'>
+                <label className='text-gray-500' htmlFor={`location${index}`}>
+                  Location
+                </label>
+                <input
+                  id={`location${index}`}
+                  type='text'
+                  disabled={!canEditAllDetails}
+                  defaultValue={location}
+                  className='border-[1px] border-gray-400 text-gray-600 bg-gray-50 p-1 rounded w-full '
+                  {...register(`stripPoints.${index}.location`)}
+                />
               </span>
               <span className='flex flex-col gap-1 items-start w-full md:w-[30%] lg:w-[20%]'>
                 <label className='text-gray-500' htmlFor={`file${index}`}>
@@ -248,7 +275,13 @@ const StripUploads = forwardRef(
               disabled={uploadingPointFile || !canEditAllDetails}
               type='button'
               onClick={() =>
-                append({ point: '', color: 'orange', pointFileUrl: '' })
+                append({
+                  point: '',
+                  color: 'orange',
+                  pointFileUrl: '',
+                  stripeNo: null,
+                  location: '',
+                })
               }
               className='bg-blue-500 disabled:bg-blue-400 text-white p-2 hover:bg-blue-700 w-fit px-3 py-2 rounded text-nowrap'
             >

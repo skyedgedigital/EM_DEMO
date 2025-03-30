@@ -171,7 +171,7 @@ const AddToolBoxTalk = forwardRef(
                 </div>
                 <div className='w-full flex justify-start items-center gap-3 flex-grow p-1'>
                   <label htmlFor='contractorRepresentative'>
-                    Contractor Representative
+                    Contractor Representative:
                   </label>
                   <input
                     id='contractorRepresentative'
