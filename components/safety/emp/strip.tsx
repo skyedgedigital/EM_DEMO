@@ -185,7 +185,7 @@ const StripUploads = forwardRef(
               </span>
               <span className='flex flex-col gap-1 flex-grow w-full md:w-auto'>
                 <label className='text-gray-500' htmlFor={`point${index}`}>
-                  Description
+                  Description:
                 </label>
                 <input
                   id={`point${index}`}
@@ -195,10 +195,23 @@ const StripUploads = forwardRef(
                   className='border-[1px] border-gray-400 text-gray-600 bg-gray-50 p-1 rounded w-full '
                   {...register(`stripPoints.${index}.point`)}
                 />
+              </span>{' '}
+              <span className='flex flex-col gap-1 flex-grow w-full md:w-auto'>
+                <label className='text-gray-500' htmlFor={`location${index}`}>
+                  Location:
+                </label>
+                <input
+                  id={`location${index}`}
+                  type='text'
+                  disabled={!canEditAllDetails}
+                  defaultValue={location}
+                  className='border-[1px] border-gray-400 text-gray-600 bg-gray-50 p-1 rounded w-full '
+                  {...register(`stripPoints.${index}.location`)}
+                />
               </span>
               <span className='flex flex-col gap-1 items-start w-full md:max-w-[150px]'>
                 <label className='text-gray-500' htmlFor={`color${index}`}>
-                  Priority Colour
+                  Color code:
                 </label>
                 <span className='flex gap-1 items-center justify-center relative w-full'>
                   <select
@@ -218,22 +231,9 @@ const StripUploads = forwardRef(
                   />
                 </span>
               </span>
-              <span className='flex flex-col gap-1 flex-grow w-full md:w-auto'>
-                <label className='text-gray-500' htmlFor={`location${index}`}>
-                  Location
-                </label>
-                <input
-                  id={`location${index}`}
-                  type='text'
-                  disabled={!canEditAllDetails}
-                  defaultValue={location}
-                  className='border-[1px] border-gray-400 text-gray-600 bg-gray-50 p-1 rounded w-full '
-                  {...register(`stripPoints.${index}.location`)}
-                />
-              </span>
               <span className='flex flex-col gap-1 items-start w-full md:w-[30%] lg:w-[20%]'>
                 <label className='text-gray-500' htmlFor={`file${index}`}>
-                  Upload File
+                  Upload File:
                 </label>
                 <span className='flex flex-col gap-1 justify-start items-center'>
                   <span className='flex justify-center items-center gap-2'>

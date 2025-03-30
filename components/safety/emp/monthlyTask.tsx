@@ -50,45 +50,99 @@ const MonthlyTask = () => {
     }
   };
 
-  const renderHeader = () => {
-    const month = format(currentMonth, 'MM');
-    const year = format(currentMonth, 'yyyy');
+  // const renderHeader = () => {
+  //   const month = format(currentMonth, 'MM');
+  //   const year = format(currentMonth, 'yyyy');
 
-    return (
-      <div className="flex justify-between items-center my-4">
-        <div className="flex items-center">
-          <button onClick={prevMonth} className="px-2 text-xl">
-            &lt;
-          </button>
-        </div>
-        <div className="flex items-center">
-          <select
-            className="mr-2 p-1 border rounded"
-            value={parseInt(month)}
-            onChange={(e) => setCurrentMonth(new Date(parseInt(year), parseInt(e.target.value) - 1))}
-          >
-            {Array.from({ length: 12 }).map((_, i) => (
-              <option key={i} value={i + 1}>
-                {format(new Date(2020, i), 'MMMM')}
-              </option>
-            ))}
-          </select>
-          <input
-            type="number"
-            className="p-1 border rounded"
-            value={year}
-            onChange={(e) => setCurrentMonth(new Date(parseInt(e.target.value), parseInt(month) - 1))}
-          />
-        </div>
-        <div className="flex items-center">
-          <button onClick={nextMonth} className="px-2 text-xl">
-            &gt;
-          </button>
-        </div>
+  //   return (
+  //     <div className="flex justify-between items-center my-4">
+  //       <div className="flex items-center">
+  //         <button onClick={prevMonth} className="px-2 text-xl">
+  //           &lt;
+  //         </button>
+  //       </div>
+  //       <div className="flex items-center">
+  //         <select
+  //           className="mr-2 p-1 border rounded"
+  //           value={parseInt(month)}
+  //           onChange={(e) => setCurrentMonth(new Date(parseInt(year), parseInt(e.target.value) - 1))}
+  //         >
+  //           {Array.from({ length: 12 }).map((_, i) => (
+  //             <option key={i} value={i + 1}>
+  //               {format(new Date(2020, i), 'MMMM')}
+  //             </option>
+  //           ))}
+  //         </select>
+  //         <input
+  //           type="number"
+  //           className="p-1 border rounded"
+  //           value={year}
+  //           onChange={(e) => setCurrentMonth(new Date(parseInt(e.target.value), parseInt(month) - 1))}
+  //         />
+  //       </div>
+  //       <div className="flex items-center">
+  //         <button onClick={nextMonth} className="px-2 text-xl">
+  //           &gt;
+  //         </button>
+  //       </div>
+  //     </div>
+  //   );
+  // };
+const renderHeader = () => {
+  const month = format(currentMonth, 'MM');
+  const year = format(currentMonth, 'yyyy');
+
+  // Generate an array of years (from current year - 10 to current year + 10)
+  const currentYear = new Date().getFullYear();
+  const years = Array.from({ length: 21 }, (_, i) => currentYear - 10 + i);
+
+  return (
+    <div className='flex justify-between items-center my-4'>
+      <div className='flex items-center'>
+        <button onClick={prevMonth} className='px-2 text-xl'>
+          &lt;
+        </button>
       </div>
-    );
-  };
-
+      <div className='flex items-center gap-2'>
+        <select
+          className='p-1 border rounded'
+          value={parseInt(month)}
+          onChange={(e) =>
+            setCurrentMonth(
+              new Date(parseInt(year), parseInt(e.target.value) - 1)
+            )
+          }
+        >
+          {Array.from({ length: 12 }).map((_, i) => (
+            <option key={i} value={i + 1}>
+              {format(new Date(2020, i), 'MMMM')}
+            </option>
+          ))}
+        </select>
+        <select
+          className='p-1 border rounded'
+          value={parseInt(year)}
+          onChange={(e) =>
+            setCurrentMonth(
+              new Date(parseInt(e.target.value), parseInt(month) - 1)
+            )
+          }
+        >
+          {years.map((year) => (
+            <option key={year} value={year}>
+              {year}
+            </option>
+          ))}
+        </select>
+      </div>
+      <div className='flex items-center'>
+        <button onClick={nextMonth} className='px-2 text-xl'>
+          &gt;
+        </button>
+      </div>
+    </div>
+  );
+};
   const renderDays = () => {
     const days = [];
     const dateFormat = 'iiii';
