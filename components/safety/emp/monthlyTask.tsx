@@ -48,9 +48,11 @@ const MonthlyTask = () => {
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [specifiedDate, setSpecifiedDate] = useState<string>(null);
   const [events, setEvents] = useState<FormattedEvents>({});
+  const [isLoading, setIsLoading] = useState<boolean>(true);
 
   useEffect(() => {
     const fetchMonthlyEvents = async () => {
+      setIsLoading(true);
       try {
         const resp = await MonthlyAction.FETCH.fetchMonthlyTask();
         if (!resp.success) {
@@ -104,6 +106,8 @@ const MonthlyTask = () => {
         setEvents(formattedEvents);
       } catch (error) {
         console.error('Error fetching monthly events:', error);
+      } finally {
+        setIsLoading(false);
       }
     };
     fetchMonthlyEvents();
@@ -268,20 +272,20 @@ const MonthlyTask = () => {
     <section className='flex flex-col justify-center items-center lg:flex-row  h-screen'>
       {/* Calendar Section - Sticky */}
       <div className='w-full lg:w-1/2 mx-auto p-1 md:p-4 lg:p-8 pt-0 lg:border-r-[1px] border-gray-100 lg:h-screen lg:overflow-y-auto lg:sticky lg:top-0'>
-        <p className='text-sm text-gray-600 italic pb-1 w-full text-center p-1 rounded bg-blue-50 mb-1'>
-          Click on dates to see tasks
-        </p>
+        {isLoading && (
+          <span className='flex justify-center items-center gap-2 mb-2'>
+            <Loader2Icon className='w-[20px] h-[20px] animate-spin' />
+            <p className='text-nowrap text-sm'>Loading monthly tasks...</p>
+          </span>
+        )}
         {renderHeader()}
         {renderDays()}
         {renderCells()}
       </div>
 
-      {/* Task List Section - Scrollable */}
-      {specifiedDate && (
-        <div className='w-full lg:w-1/2 lg:h-screen overflow-y-auto'>
-          <AllTaskDetailsOnSpecifiedDate specifiedDate={specifiedDate} />
-        </div>
-      )}
+      <div className='w-full lg:w-1/2 lg:h-screen overflow-y-auto'>
+        <AllTaskDetailsOnSpecifiedDate specifiedDate={specifiedDate} />
+      </div>
     </section>
   );
 };
@@ -289,7 +293,7 @@ const MonthlyTask = () => {
 export default MonthlyTask;
 
 const AllTaskDetailsOnSpecifiedDate = ({
-  specifiedDate = '',
+  specifiedDate = null,
 }: {
   specifiedDate: string;
 }) => {
@@ -340,15 +344,19 @@ const AllTaskDetailsOnSpecifiedDate = ({
       {/* {specifiedDate} {JSON.stringify(allEventsOnSelectedDate)}{' '} */}
       <h2 className='text-lg flex gap-1 mb-3 '>
         <p className='text-gray-600'>All tasks on:</p>{' '}
-        <p>{new Date(specifiedDate).toLocaleDateString()}</p>
+        <p>
+          {specifiedDate
+            ? new Date(specifiedDate).toLocaleDateString()
+            : 'Click a date to see details'}
+        </p>
       </h2>
 
-      {loadingStates.loadingMonthlyTasks ? (
+      {loadingStates.loadingMonthlyTasks && specifiedDate ? (
         <div className='flex justify-center items-center p-2 gap-2'>
           <Loader2Icon className='animate-spin text-blue-500 w-[20px] h-[20px]' />
           <p>Loading tasks...</p>
         </div>
-      ) : allEventsOnSelectedDate.length === 0 ? (
+      ) : allEventsOnSelectedDate.length === 0 && specifiedDate ? (
         <div className='w-full flex justify-center items-center p-1'>
           No task on this day
         </div>
