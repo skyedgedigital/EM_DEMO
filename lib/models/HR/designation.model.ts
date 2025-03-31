@@ -1,6 +1,6 @@
 import mongoose, { Schema } from "mongoose";
 
-interface IDesignation {
+export interface IDesignation {
     designation:string;
     basic:string;
     OldBasic:string;

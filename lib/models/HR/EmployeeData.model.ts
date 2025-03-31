@@ -1,8 +1,8 @@
-import { IEmployeeData } from '@/interfaces/HR/EmployeeData.interface';
+import { IAdvanceRegister, IDamageRegister, IEmployeeData } from '@/interfaces/HR/EmployeeData.interface';
 import mongoose, { models, Schema } from 'mongoose';
 
 // Damage Register Schema
-const DamageRegisterSchema = new Schema({
+const DamageRegisterSchema = new Schema<IDamageRegister>({
   particularsOfDamageOrLoss: {
     type: String,
     required: true,
@@ -37,7 +37,7 @@ const DamageRegisterSchema = new Schema({
 });
 
 // Advance Register Schema
-const AdvanceRegisterSchema = new Schema({
+const AdvanceRegisterSchema = new Schema<IAdvanceRegister>({
   amountOfAdvanceGiven: {
     type: Number,
     required: true,
@@ -104,7 +104,7 @@ const WorkOrderHrSchema = new Schema({
 });
 
 // Main EmployeeData Schema
-const EmployeeDataSchema = new Schema({
+const EmployeeDataSchema = new Schema<IEmployeeData>({
   code: {
     type: String,
     required: true,
