@@ -66,11 +66,11 @@ export interface IEmployeeData extends Document {
   bonus: {
     year: number;
     status: boolean;
-  };
+  }[];
   leave: {
     year: number;
     status: boolean;
-  };
+  }[];
   basic: string;
   DA: string;
   CA: string;
