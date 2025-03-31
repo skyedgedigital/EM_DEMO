@@ -1,12 +1,20 @@
 'use server';
 import { ApiResponse } from '@/interfaces/APIresponses.interface';
+import { IEmployeeData } from '@/interfaces/HR/EmployeeData.interface';
 import handleDBConnection from '@/lib/database';
+import EmployeeData from '@/lib/models/HR/EmployeeData.model';
 import MonthlyTask, {
   IMonthlyTask,
 } from '@/lib/models/safetyPanel/emp/monthlyTask.model';
+import mongoose from 'mongoose';
 
-export interface IMonthlyTaskResponse extends IMonthlyTask {
+export interface IMonthlyTaskResponse {
+  eventDate: IMonthlyTask['eventDate'];
+  eventName: IMonthlyTask['eventName'];
+  status: IMonthlyTask['status'];
+  eventDescription: IMonthlyTask['eventDescription'];
   _id: string;
+  assignedTo: Partial<IEmployeeData>;
 }
 const fetchMonthlyTask = async (): Promise<
   ApiResponse<IMonthlyTaskResponse[]>
@@ -15,7 +23,7 @@ const fetchMonthlyTask = async (): Promise<
     const dbConnection = await handleDBConnection();
     if (!dbConnection.success) return dbConnection;
     const result = await MonthlyTask.find({});
-    console.log('ALL MONTHLY TASK', result);
+    // console.log('ALL MONTHLY TASK', result);
     return {
       success: true,
       status: 200,
@@ -45,7 +53,9 @@ const fetchMonthlyTaskOnSpecificDate = async (
     const date = new Date(specifiedDate);
     const tasks = await MonthlyTask.find({
       eventDate: date,
-    }).sort({ eventDate: -1 });
+    })
+      .populate('assignedTo', 'name code')
+      .sort({ eventDate: -1 });
     console.log('All tasks', tasks);
     if (!tasks) {
       throw new Error('Failed to fetch tasks for this date, Please try later');
@@ -64,7 +74,7 @@ const fetchMonthlyTaskOnSpecificDate = async (
       status: 200,
       message: 'All tasks fetched successfully',
       data: null,
-      error: error,
+      error: JSON.parse(JSON.stringify(error)),
     };
   }
 };

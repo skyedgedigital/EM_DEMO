@@ -12,10 +12,33 @@ import {
   isSameDay,
 } from 'date-fns';
 import MonthlyAction from '@/lib/actions/SafetyEmp/monthly/MonthlyTaskAction';
-import { ArrowLeft, ArrowRight, Trash } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Loader2Icon, Trash } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { IMonthlyTaskResponse } from '@/lib/actions/SafetyEmp/monthly/fetch';
 import MonthlyTaskAction from '@/lib/actions/SafetyEmp/monthly/MonthlyTaskAction';
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from '@/components/ui/accordion';
+import {
+  AlertDialog,
+  AlertDialogTrigger,
+  AlertDialogContent,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogAction,
+  AlertDialogCancel,
+} from '@/components/ui/alert-dialog';
+
+import { Button } from '@/components/ui/button';
+import {
+  EventStatusNames,
+  EventStatusTypes,
+} from '@/lib/models/safetyPanel/emp/monthlyTask.model';
 
 type FormattedEvents = {
   [dateKey: string]: IMonthlyTaskResponse[];
@@ -86,28 +109,6 @@ const MonthlyTask = () => {
     fetchMonthlyEvents();
   }, []);
 
-  const handleDelete = async (eventId) => {
-    try {
-      const resp = await MonthlyAction.DELETE.deleteMonthlyTask(eventId);
-      if (resp.success) {
-        toast.success('Event Removed');
-        // Update events state after deletion
-        const updatedEvents = { ...events };
-        Object.keys(updatedEvents).forEach((dateKey) => {
-          updatedEvents[dateKey] = updatedEvents[dateKey].filter(
-            (event) => event._id !== eventId
-          );
-        });
-        setEvents(updatedEvents);
-      } else {
-        toast.error('Failed to remove event');
-      }
-    } catch (error) {
-      console.error('Error deleting event:', error);
-      toast.error('Something went wrong');
-    }
-  };
-
   const renderHeader = () => {
     const month = format(currentMonth, 'MM');
     const year = format(currentMonth, 'yyyy');
@@ -117,7 +118,7 @@ const MonthlyTask = () => {
     const years = Array.from({ length: 21 }, (_, i) => currentYear - 10 + i);
 
     return (
-      <div className='flex justify-center gap-3 items-center my-4'>
+      <div className='flex justify-center gap-3 items-center mb-4 '>
         <div className='flex items-center justify-center gap-3'>
           <button
             onClick={prevMonth}
@@ -176,12 +177,12 @@ const MonthlyTask = () => {
 
     for (let i = 0; i < 7; i++) {
       days.push(
-        <div className='flex-1 text-center font-medium' key={i}>
+        <p className='flex-1 text-center font-normal text-sm' key={i}>
           {format(addDays(startDate, i), dateFormat)}
-        </div>
+        </p>
       );
     }
-    return <div className='flex'>{days}</div>;
+    return <div className='flex '>{days}</div>;
   };
 
   const renderCells = () => {
@@ -204,7 +205,7 @@ const MonthlyTask = () => {
         days.push(
           <div
             key={day.toString()}
-            className={`p-1 flex flex-col w-24 h-24 border-[1px] ${
+            className={`p-1 hover:scale-105 hover:bg-blue-50 transition-all hover:cursor-pointer flex flex-col w-24 h-24 border-[1px] ${
               !isSameMonth(day, monthStart)
                 ? 'bg-gray-100'
                 : isSameDay(day, selectedDate)
@@ -233,26 +234,14 @@ const MonthlyTask = () => {
                     <div
                       key={index}
                       className={`hover:scale-105 hover:cursor-pointer transition-all flex flex-col gap-1 items-center justify-between rounded p-1 mt-1 border-[1px] ${
-                        status === 'pending' && 'border-red-500 bg-red-100'
+                        status === 'pending' && 'border-red-200 bg-red-100'
                       } ${
                         status === 'in progress' &&
-                        'border-yellow-500 bg-yellow-100'
+                        'border-yellow-300 bg-yellow-100'
                       } ${
                         status === 'completed' &&
-                        'border-green-700 bg-green-100'
+                        'border-green-300 bg-green-100'
                       }`}
-                      // onClick={(e) => {
-                      //   e.stopPropagation();
-                      //   setSelectedEvent({
-                      //     eventName,
-                      //     eventDescription,
-                      //     _id,
-                      //     assignedTo,
-                      //     status,
-                      //     eventDate,
-                      //   });
-                      //   console.log('Event clicked:', eventName);
-                      // }}
                     >
                       <p>{eventName}</p>
                     </div>
@@ -270,26 +259,29 @@ const MonthlyTask = () => {
       );
       days = [];
     }
-    return <div>{rows}</div>;
+    return <div className=''>{rows}</div>;
   };
   const nextMonth = () => setCurrentMonth(addMonths(currentMonth, 1));
   const prevMonth = () => setCurrentMonth(subMonths(currentMonth, 1));
 
   return (
-    <section className='border-2 border-blue-600 flex flex-col lg:flex-row gap-2 '>
-      <div className='w-full lg:w-1/2 mx-auto p-4 border-2 border-green-500'>
+    <section className='flex flex-col justify-center items-center lg:flex-row  h-screen'>
+      {/* Calendar Section - Sticky */}
+      <div className='w-full lg:w-1/2 mx-auto p-1 md:p-4 lg:p-8 pt-0 lg:border-r-[1px] border-gray-100 lg:h-screen lg:overflow-y-auto lg:sticky lg:top-0'>
+        <p className='text-sm text-gray-600 italic pb-1 w-full text-center p-1 rounded bg-blue-50 mb-1'>
+          Click on dates to see tasks
+        </p>
         {renderHeader()}
         {renderDays()}
         {renderCells()}
       </div>
-      {/* <div className={` transition-all lg:${specifiedDate ? 'w-1/2' : 'w-0'}`}> */}
+
+      {/* Task List Section - Scrollable */}
       {specifiedDate && (
-        <AllTaskDetailsOnSpecifiedDate
-          className='w-full mx-auto p-4 border-2 border-green-500'
-          specifiedDate={specifiedDate}
-        />
+        <div className='w-full lg:w-1/2 lg:h-screen overflow-y-auto'>
+          <AllTaskDetailsOnSpecifiedDate specifiedDate={specifiedDate} />
+        </div>
       )}
-      {/* </div> */}
     </section>
   );
 };
@@ -298,14 +290,13 @@ export default MonthlyTask;
 
 const AllTaskDetailsOnSpecifiedDate = ({
   specifiedDate = '',
-  className = '',
 }: {
   specifiedDate: string;
-  className: string;
 }) => {
-  const [allEventsOnSelectedDate, setAllEventsOnSelectedDate] =
-    useState<IMonthlyTaskResponse[]>(null);
-  console.log('SELECTED EVENT', allEventsOnSelectedDate);
+  const [allEventsOnSelectedDate, setAllEventsOnSelectedDate] = useState<
+    IMonthlyTaskResponse[]
+  >([]);
+  // console.log('SELECTED EVENT', allEventsOnSelectedDate);
   const [loadingStates, setLoadingStates] = useState<{
     loadingMonthlyTasks: boolean;
   }>({
@@ -321,6 +312,7 @@ const AllTaskDetailsOnSpecifiedDate = ({
         );
 
       if (success) {
+        console.log('All events', data);
         setAllEventsOnSelectedDate(data);
         toast.success(message);
       }
@@ -342,9 +334,230 @@ const AllTaskDetailsOnSpecifiedDate = ({
     if (!specifiedDate) return;
     fetchAllEventsOnSelectedDate(specifiedDate);
   }, [specifiedDate]);
+
   return (
-    <section className={className}>
-      {specifiedDate} {JSON.stringify(allEventsOnSelectedDate)}{' '}
+    <section className='w-full mx-auto p-1 md:p-2 lg:p-4 lg:border-l-[1px] border-gray-100 overflow-y-auto'>
+      {/* {specifiedDate} {JSON.stringify(allEventsOnSelectedDate)}{' '} */}
+      <h2 className='text-lg flex gap-1 mb-3 '>
+        <p className='text-gray-600'>All tasks on:</p>{' '}
+        <p>{new Date(specifiedDate).toLocaleDateString()}</p>
+      </h2>
+
+      {loadingStates.loadingMonthlyTasks ? (
+        <div className='flex justify-center items-center p-2 gap-2'>
+          <Loader2Icon className='animate-spin text-blue-500 w-[20px] h-[20px]' />
+          <p>Loading tasks...</p>
+        </div>
+      ) : allEventsOnSelectedDate.length === 0 ? (
+        <div className='w-full flex justify-center items-center p-1'>
+          No task on this day
+        </div>
+      ) : (
+        <div className='w-full flex  items-center p-1'>
+          <Accordion type='multiple' className='w-full'>
+            {allEventsOnSelectedDate.map(
+              ({
+                eventDate,
+                eventName,
+                eventDescription,
+                status,
+                _id,
+                assignedTo,
+              }) => (
+                <>
+                  <AccordionItem key={_id} value={_id} className='w-full mb-3'>
+                    <AccordionTrigger className=' w-full hover:no-underline  rounded hover:bg-gray-100 px-2'>
+                      <div className='flex justify-between items-center w-full gap-4'>
+                        <div className='flex justify-start items-center gap-2 text-base'>
+                          <p className='text-gray-700 font-normal text-sm text-nowrap'>
+                            Task Name:
+                          </p>
+                          <p>{eventName}</p>
+                        </div>
+                        <p
+                          className={`p-1 mr-2 font-normal rounded-full px-3 text-white text-xs ${
+                            status === 'pending' && 'bg-red-500 '
+                          } ${status === 'in progress' && 'bg-yellow-500 '} ${
+                            status === 'completed' && 'bg-green-700 '
+                          }`}
+                        >
+                          {status}
+                        </p>
+                      </div>
+                    </AccordionTrigger>
+                    <AccordionContent className='w-full flex flex-col gap-4 px-3'>
+                      <IndividualTaskDetails
+                        eventDate={eventDate}
+                        eventDescription={eventDescription}
+                        _id={_id}
+                        assignedTo={assignedTo}
+                        specifiedDate={specifiedDate}
+                        fetchAllEventsOnSelectedDate={
+                          fetchAllEventsOnSelectedDate
+                        }
+                        status={status}
+                      />
+                    </AccordionContent>
+                  </AccordionItem>
+                </>
+              )
+            )}
+          </Accordion>
+        </div>
+      )}
     </section>
+  );
+};
+
+const IndividualTaskDetails = ({
+  eventDescription,
+  eventDate,
+  assignedTo,
+  _id,
+  specifiedDate,
+  fetchAllEventsOnSelectedDate,
+  status,
+}) => {
+  const [isDialogOpen, setDialogOpen] = useState(false);
+  const [selectedTaskId, setSelectedTaskId] = useState<string>(null);
+  const [selectedStatus, setSelectedStatus] =
+    useState<EventStatusTypes>(status);
+
+  const handleStatusUpdate = async () => {
+    if (!selectedStatus) {
+      return toast.error('Not a valid status to update');
+    }
+    try {
+      const { data, status, success, message, error } =
+        await MonthlyAction.UPDATE.updateMonthlyTaskStatusById(
+          _id,
+          selectedStatus
+        );
+
+      if (success) {
+        toast.success(message);
+        fetchAllEventsOnSelectedDate(specifiedDate);
+      }
+      if (!success) {
+        toast.error(message);
+      }
+    } catch (error) {
+      console.log('Update status error', error);
+      toast.error(
+        error?.message ||
+          JSON.stringify(error) ||
+          'Unexpected error occurred, Failed to update status, Please try later'
+      );
+    }
+  };
+  const handleDelete = async (taskId: string) => {
+    try {
+      const resp = await MonthlyAction.DELETE.deleteMonthlyTask(taskId);
+      if (resp.success) {
+        toast.success(resp.message);
+        // Update events state after deletion
+        fetchAllEventsOnSelectedDate(specifiedDate);
+      }
+      if (!resp.success) {
+        toast.error(resp.message);
+      }
+    } catch (error) {
+      console.error('Error deleting event:', error);
+      toast.error(
+        error?.message ||
+          JSON.stringify(error) ||
+          'Unexpected error occurred, Failed to delete task, Please try later'
+      );
+    }
+  };
+  return (
+    <>
+      <div className='flex flex-col gap-2 '>
+        <span className='flex justify-start items-center gap-1'>
+          <p className='text-gray-500 font-normal'>Description:</p>
+          <p>{eventDescription}</p>
+        </span>
+        <span className='flex justify-start items-center gap-1'>
+          <p className='text-gray-500 font-normal'>Task date:</p>
+          <p>{new Date(eventDate).toLocaleDateString()}</p>
+        </span>
+        <span className='flex justify-start items-center gap-1'>
+          <p className='text-gray-500 font-normal'>Assigned to:</p>
+          <p>
+            {assignedTo?.name} &nbsp;({assignedTo?.code})
+          </p>
+        </span>
+      </div>
+      <div className='flex flex-col md:flex-row justify-between items-end'>
+        <div className='flex justify-start items-end gap-2 mt-1'>
+          <div className=''>
+            <label
+              htmlFor='status'
+              className='block text-sm font-medium text-gray-700'
+            >
+              Status:
+            </label>
+            <select
+              value={selectedStatus}
+              id='status'
+              className='mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm'
+              onChange={(e) =>
+                setSelectedStatus(e.currentTarget.value as EventStatusTypes)
+              }
+            >
+              {' '}
+              {/* <option value={''}>All Employees</option> */}
+              {EventStatusNames?.map((status) => (
+                <option value={status} key={status}>
+                  {status}
+                </option>
+              ))}
+            </select>
+          </div>
+          <Button
+            onClick={handleStatusUpdate}
+            disabled={selectedStatus && status === selectedStatus}
+            variant='outline'
+            className=' border-blue-500 text-blue-500 disabled:border-gray-500 disabled:text-gray-500 hover:bg-blue-50 hover::cursor-pointer'
+          >
+            save
+          </Button>
+        </div>
+        <Button
+          variant='destructive'
+          className=' text-red-600 bg-white border-0 shadow-none hover:bg-red-100  transition-all'
+          onClick={() => {
+            setSelectedTaskId(_id);
+            setDialogOpen(true);
+          }}
+        >
+          Delete Task
+        </Button>
+      </div>
+      <AlertDialog open={isDialogOpen} onOpenChange={setDialogOpen}>
+        <AlertDialogTrigger asChild></AlertDialogTrigger>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle className='text-red-500'>
+              Confirm Delete
+            </AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to delete this task?
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel onClick={() => setDialogOpen(false)}>
+              Cancel
+            </AlertDialogCancel>
+            <AlertDialogAction
+              className=''
+              onClick={() => handleDelete(selectedTaskId)}
+            >
+              OK
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+    </>
   );
 };

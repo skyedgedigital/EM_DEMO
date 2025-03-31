@@ -137,8 +137,9 @@ const AddMonthlyTask = () => {
   }, [formState.errors]);
   return (
     <>
-      <div>{JSON.stringify(formData)}</div>
-      <h1 className='w-full text-center my-4 text-3xl'>Add Monthly Event</h1>
+      <h1 className='w-full text-center my-4 text-lg md:text-xl lg:text-2xl'>
+        Add Monthly Task
+      </h1>
       <form
         onSubmit={handleSubmit(onSubmit)}
         className='mx-auto mt-4 p-6 bg-white shadow-md rounded-md  flex flex-col gap-2'

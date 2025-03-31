@@ -1,4 +1,5 @@
-import mongoose, { Schema } from 'mongoose';
+import { IEmployeeData } from '@/interfaces/HR/EmployeeData.interface';
+import mongoose, { models, Schema } from 'mongoose';
 
 // Damage Register Schema
 const DamageRegisterSchema = new Schema({
@@ -268,14 +269,8 @@ EmployeeDataSchema.index(
   { unique: true }
 );
 
-// Model initialization
-let EmployeeData;
-
-if (mongoose.models.EmployeeData) {
-  EmployeeData = mongoose.model('EmployeeData');
-} else {
-  EmployeeData = mongoose.model('EmployeeData', EmployeeDataSchema);
-}
+const EmployeeData: mongoose.Model<IEmployeeData> =
+  models?.EmployeeData || mongoose.model('EmployeeData', EmployeeDataSchema);
 
 export { EmployeeDataSchema, DamageRegisterSchema, AdvanceRegisterSchema };
 export default EmployeeData;

@@ -1,7 +1,7 @@
 import { deleteMonthlyTask } from './delete';
 import { fetchMonthlyTask, fetchMonthlyTaskOnSpecificDate } from './fetch';
 import { createMonthlyTask } from './create';
-import { updateMonthlyTask } from './update';
+import { updateMonthlyTask, updateMonthlyTaskStatusById } from './update';
 
 const MonthlyTaskAction = {
   CREATE: {
@@ -12,6 +12,7 @@ const MonthlyTaskAction = {
   },
   UPDATE: {
     updateMonthlyTask,
+    updateMonthlyTaskStatusById,
   },
   FETCH: {
     fetchMonthlyTask,
