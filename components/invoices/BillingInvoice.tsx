@@ -16,6 +16,7 @@ import billingItemActions from '@/lib/actions/accountant/billingItem/billingWork
 import billingWorkOrderActions from '@/lib/actions/accountant/workOrder/billWorkOrderActions';
 import { IBill, IBillingItem } from '@/interfaces/accountants/Bill.interface';
 import { billingInvoiceActions } from '@/lib/actions/accountant/billInvoice/billInvoiceActions';
+import { getYearForInvoiceNaming } from '@/utils/getYearForInvoiceNaming';
 
 const todayDate = () => {
   let date = new Date().toLocaleDateString();
@@ -257,7 +258,7 @@ const BillingInvoice = ({
         const invoiceAlreadyExists =
           await billingInvoiceActions.CHECK.checkIfBillingInvoiceExists(
             selectedBillNumbers,
-            `SE/24-25/${invoiceNumber}`
+            `SE/${getYearForInvoiceNaming()}/${invoiceNumber}`
           );
         //invoiceAlreadyExists.success will be true if no invoice exists
         if (!invoiceAlreadyExists.success) {
@@ -749,8 +750,7 @@ const BillingInvoice = ({
                   <p>
                     {/* SE/{todayDate().split('/')[2].substring(2, 4)}-
                     {Number(todayDate().split('/')[2].substring(2, 4)) + 1}/ */}
-                    SE/24-25/
-                    {invoiceNumber}
+                    SE/{getYearForInvoiceNaming()}/{invoiceNumber}
                   </p>
                 </div>
                 <div className='flex gap-4 items-center'>

@@ -11,6 +11,7 @@
 import { IBill } from '@/interfaces/accountants/Bill.interface';
 import { ApiResponse } from '@/interfaces/APIresponses.interface';
 import BillingInvoice from '@/lib/models/accountants/BillingInvoice.model';
+import { getYearForInvoiceNaming } from '@/utils/getYearForInvoiceNaming';
 interface MergedItems {
   itemCost: number;
   unit: string;
@@ -59,10 +60,9 @@ export const createBillInvoice = async (
 
     const invoiceObj = new BillingInvoice({
       invoiceId: sortedChalanNumbers,
-      invoiceNumber: `SE/24-25/${invoiceNumber}`,
+      invoiceNumber: `SE/${getYearForInvoiceNaming()}/${invoiceNumber}`,
       mergedItems: JSON.stringify(mergedItems),
       bills: billNumbers,
-      
     });
 
     const invoiceSaved = await invoiceObj.save();
