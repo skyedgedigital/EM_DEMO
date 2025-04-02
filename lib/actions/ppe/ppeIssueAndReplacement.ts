@@ -76,18 +76,25 @@ const fetchNextRevNoByDocumentNumber = async (
     const dbConnection = await handleDBConnection();
     if (!dbConnection.success) return dbConnection;
     if (!docNo || docNo.trim().length === 0) {
-      throw new Error('invalid docNo');
+      // throw new Error('invalid docNo');
+      return {
+        success: true,
+        status: 200,
+        message: 'Successfully fetched next rev no',
+        data: await JSON.parse(JSON.stringify({ nextRevNo: 1 })),
+        error: null,
+      };
     }
 
     const currentRevNo = await PpeIssueAndReplacement.countDocuments({
-      id: docNo,
+      docNo,
     });
 
     return {
       success: true,
       status: 200,
-      message: 'Successfull',
-      data: { nextRevNo: currentRevNo + 1 },
+      message: 'Successfully fetched next rev no',
+      data: await JSON.parse(JSON.stringify({ nextRevNo: currentRevNo + 1 })),
       error: null,
     };
   } catch (error) {
