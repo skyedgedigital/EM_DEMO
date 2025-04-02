@@ -245,9 +245,11 @@ const MonthlyTask = () => {
                       } ${
                         status === 'completed' &&
                         'border-green-300 bg-green-100'
-                      }`}
+                      } overflow-hidden`}
                     >
-                      <p>{eventName}</p>
+                      <p className='text-nowrap text-start w-full'>
+                        {eventName}
+                      </p>
                     </div>
                   )
                 )}
@@ -373,8 +375,12 @@ const AllTaskDetailsOnSpecifiedDate = ({
                 assignedTo,
               }) => (
                 <>
-                  <AccordionItem key={_id} value={_id} className='w-full mb-3'>
-                    <AccordionTrigger className=' w-full hover:no-underline  rounded hover:bg-gray-100 px-2'>
+                  <AccordionItem
+                    key={_id}
+                    value={_id}
+                    className='w-full mb-3 border-b-[1px] border-gray-300'
+                  >
+                    <AccordionTrigger className=' w-full hover:no-underline hover:bg-gray-100 px-2 '>
                       <div className='flex justify-between items-center w-full gap-4'>
                         <div className='flex justify-start items-center gap-2 text-base'>
                           <p className='text-gray-700 font-normal text-sm text-nowrap'>
