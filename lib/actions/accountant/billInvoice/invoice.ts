@@ -33,7 +33,7 @@ const checkIfBillingInvoiceExists = async (
     }
     const message =
       result.invoiceId === sortedChalanNumbers
-        ? 'Billing Invoice already exists with this Invoice number'
+        ? 'Billing Invoice already exists with this Billing Number'
         : 'Billing Invoice number already exists';
     return {
       success: false,
