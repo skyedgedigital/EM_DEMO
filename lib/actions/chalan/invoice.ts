@@ -9,6 +9,7 @@ import stream from 'stream';
 import handleDBConnection from '@/lib/database';
 import { ApiResponse } from '@/interfaces/APIresponses.interface';
 import { revalidatePath } from 'next/cache';
+import { getYearForInvoiceNaming } from '@/utils/getYearForInvoiceNaming';
 
 const checkIfInvoiceExists = async (
   chalanNumbers: string[],
@@ -260,7 +261,7 @@ const updateInvoiceNumber = async (invoiceData): Promise<ApiResponse<any>> => {
     const currentYear = new Date().getFullYear();
 
     // Construct the new invoiceNumber in the format SE/currentYear/currentYear+1/invoiceNumber
-    const formattedInvoiceNumber = `SE/24-25/${invoiceNumber}`;
+    const formattedInvoiceNumber = `SE/${getYearForInvoiceNaming()}/${invoiceNumber}`;
 
     if (invoice) {
       // If the invoice exists, update SESNo and DONo

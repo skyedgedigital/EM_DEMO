@@ -16,11 +16,10 @@ import billingItemActions from '@/lib/actions/accountant/billingItem/billingWork
 import billingWorkOrderActions from '@/lib/actions/accountant/workOrder/billWorkOrderActions';
 import { IBill, IBillingItem } from '@/interfaces/accountants/Bill.interface';
 import { billingInvoiceActions } from '@/lib/actions/accountant/billInvoice/billInvoiceActions';
+import { getYearForInvoiceNaming } from '@/utils/getYearForInvoiceNaming';
 
 const todayDate = () => {
   let date = new Date().toLocaleDateString();
-  let x = date.split('/');
-  // return `${x[0]}/${x[1]}/${x[2]}`;
   return date;
 };
 export interface IItemsInBillingInvoice {
@@ -257,7 +256,7 @@ const BillingInvoice = ({
         const invoiceAlreadyExists =
           await billingInvoiceActions.CHECK.checkIfBillingInvoiceExists(
             selectedBillNumbers,
-            `SE/24-25/${invoiceNumber}`
+            `SE/${getYearForInvoiceNaming()}/${invoiceNumber}`
           );
         //invoiceAlreadyExists.success will be true if no invoice exists
         if (!invoiceAlreadyExists.success) {
@@ -425,11 +424,10 @@ const BillingInvoice = ({
   // const total = items.reduce((sum, item) => sum + item.itemCost.itemCost, 0);
   const total = itemCost;
   console.log('TOTAL', total);
-  const grandTotal = itemCost;
-  // const grandTotal = items.reduce((sum, item) => {
-  //   const itemCost = item.itemCost.itemCost || 0;
-  //   return sum + itemCost + 0.18 * itemCost;
-  // }, 0);
+  const grandTotal = items.reduce((sum, item) => {
+    const itemCost = item.itemCost.itemCost || 0;
+    return sum + itemCost + 0.18 * itemCost;
+  }, 0);
   const generateAndUploadInvoiceSummaryPDF = async (
     printOrDownload: string
   ) => {
@@ -749,8 +747,7 @@ const BillingInvoice = ({
                   <p>
                     {/* SE/{todayDate().split('/')[2].substring(2, 4)}-
                     {Number(todayDate().split('/')[2].substring(2, 4)) + 1}/ */}
-                    SE/24-25/
-                    {invoiceNumber}
+                    SE/{getYearForInvoiceNaming()}/{invoiceNumber}
                   </p>
                 </div>
                 <div className='flex gap-4 items-center'>
@@ -892,6 +889,7 @@ const BillingInvoice = ({
                       <td className='border-[1px] border-black pl-2 pb-3 '></td>
                       <td className='border-[1px] border-black pl-2 pb-3 '></td>
                       <td className='border-[1px] border-black pl-2 pb-3 '></td>
+                      <td className='border-[1px] border-black pl-2 pb-3 '></td>
 
                       {/* <td className='border-[1px] border-black pl-2 pb-3 '></td>
                     <td className='border-[1px] border-black pl-2 pb-3 '></td>
@@ -914,6 +912,7 @@ const BillingInvoice = ({
                     </tr>
                     {/* grand total row */}
                     <tr className='border-t-2 border-gray-600'>
+                      <td className='border-[1px] border-black pl-2 pb-3 '></td>
                       <td className='border-[1px] border-black pl-2 pb-3 '></td>
                       <td className='border-[1px] border-black pl-2 pb-3 '></td>
                       <td className='border-[1px] border-black pl-2 pb-3 '></td>

@@ -4,6 +4,7 @@ import handleDBConnection from '@/lib/database';
 import { ApiResponse } from '@/interfaces/APIresponses.interface';
 import { revalidatePath } from 'next/cache';
 import BillingInvoice from '@/lib/models/accountants/BillingInvoice.model';
+import { getYearForInvoiceNaming } from '@/utils/getYearForInvoiceNaming';
 
 const checkIfBillingInvoiceExists = async (
   billNumbers: string[],
@@ -32,7 +33,7 @@ const checkIfBillingInvoiceExists = async (
     }
     const message =
       result.invoiceId === sortedChalanNumbers
-        ? 'Billing Invoice already exists with this Invoice number'
+        ? 'Billing Invoice already exists with this Billing Number'
         : 'Billing Invoice number already exists';
     return {
       success: false,
@@ -158,7 +159,7 @@ const updateBillInvoiceNumber = async (
     const currentYear = new Date().getFullYear();
 
     // Construct the new invoiceNumber in the format SE/currentYear/currentYear+1/invoiceNumber
-    const formattedInvoiceNumber = `SE/24-25/${invoiceNumber}`;
+    const formattedInvoiceNumber = `SE/${getYearForInvoiceNaming()}/${invoiceNumber}`;
 
     if (invoice) {
       // If the invoice exists, update SESNo and DONo

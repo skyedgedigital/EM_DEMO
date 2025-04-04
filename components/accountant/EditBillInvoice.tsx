@@ -19,6 +19,7 @@ import { updateInvoice } from '@/lib/actions/chalan/invoice';
 import { Loader } from 'lucide-react';
 import chalanAction from '@/lib/actions/chalan/chalanAction';
 import { billingInvoiceActions } from '@/lib/actions/accountant/billInvoice/billInvoiceActions';
+import { getYearForInvoiceNaming } from '@/utils/getYearForInvoiceNaming';
 
 // Define your Zod schema for the invoice management form
 const invoiceManagementFormSchema = z.object({
@@ -74,7 +75,10 @@ const EditBillInvoice: React.FC<{}> = () => {
         await billingInvoiceActions.GET.getLatestBillTaxInvoiceNumber();
       if (resp.success) {
         // setTaxInvoiceNumber(await JSON.parse(resp.data));
-        form.setValue('TaxNumber', `SE/24-25/${await JSON.parse(resp.data)}`);
+        form.setValue(
+          'TaxNumber',
+          `SE/${getYearForInvoiceNaming()}/${await JSON.parse(resp.data)}`
+        );
       }
       if (!resp.success) {
         console.error('An Error Occurred');
