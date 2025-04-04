@@ -1,162 +1,314 @@
-import React, { useEffect, useState } from 'react';
-import { storage } from "@/utils/fireBase/config";
-import { ref, uploadBytesResumable, getDownloadURL } from 'firebase/storage';
-import toolBoxTalkAction from '@/lib/actions/SafetyEmp/daily/toolBoxTalk/toolBoxTalkAction';
-import toast from 'react-hot-toast';
+import React, { forwardRef, useImperativeHandle, useState } from 'react';
+import {
+  IStripPoint,
+  StripColorsNames,
+} from '../../../lib/models/Safety/toolboxtalk.model';
+import { useFieldArray, useForm } from 'react-hook-form';
+import { FaCircle } from 'react-icons/fa6';
+import { debounce } from 'lodash';
+import { storage } from '@/utils/fireBase/config';
+import {
+  ref as firebaseStorageRef,
+  uploadBytesResumable,
+  getDownloadURL,
+} from 'firebase/storage';
+import toast, { LoaderIcon } from 'react-hot-toast';
+import toolboxTalkActions from '@/lib/actions/safety/toolboxtalk/toolboxtalkActions';
+import { CheckCircle, Link2Icon } from 'lucide-react';
+import Link from 'next/link';
+import { MdCancel } from 'react-icons/md';
+import { ExclamationTriangleIcon } from '@radix-ui/react-icons';
 
-const StripUploads = () => {
-  const [fileName, setFileName] = useState('');
-  const [file, setFile] = useState(null);
-  const [progress, setProgress] = useState(0);
-  const [result, setResults] = useState([]);
-  const [date,setDate] = useState("")
+interface IStripsUploads {
+  stripPoints: IStripPoint[];
+  updateStripsPoints: () => void;
+  canEditImportantDetails?: boolean;
+  canEditAllDetails?: boolean;
+  documentNo: string;
+}
+const StripUploads = forwardRef(
+  (
+    {
+      stripPoints,
+      updateStripsPoints,
+      canEditAllDetails,
+      canEditImportantDetails,
+      documentNo,
+    }: IStripsUploads,
+    ref
+  ) => {
+    const [uploadingPointFile, setUploadingPointFile] =
+      useState<boolean>(false);
+    const { control, watch, register, setValue } = useForm<{
+      stripPoints: IStripPoint[];
+    }>({
+      defaultValues: { stripPoints },
+    });
 
-  useEffect(() => {
-    const fetchData = async () => {
-      const res = await toolBoxTalkAction.FETCH.fetchStripUploads();
-      setResults(JSON.parse(res.data));
-    };
-    fetchData();
-  }, []);
+    const { fields, append, remove } = useFieldArray({
+      control,
+      name: 'stripPoints',
+    });
 
-  const handleFileNameChange = (e) => {
-    setFileName(e.target.value);
-  };
+    const formData = watch();
 
-  const handleFileChange = (e) => {
-    setFile(e.target.files[0]);
-  };
+    useImperativeHandle(ref, () => ({
+      getUpdatedStripPoints: () => {
+        console.log('from strip point imperative', formData);
+        return formData;
+      },
+    }));
 
-  const handleRemoveFile = () => {
-    setFile(null);
-    setProgress(0);
-  };
+    const debouncePointUpdate = debounce(() => {
+      updateStripsPoints();
+      cancelDebounce();
+    }, 500);
 
-  const handleUpload = () => {
-    if (!file || !fileName) {
-      alert("Please enter a file name and choose a file.");
-      return;
-    }
+    const cancelDebounce = () => debouncePointUpdate.cancel();
 
-    const storageRef = ref(storage, `files/${fileName}`);
-    const uploadTask = uploadBytesResumable(storageRef, file);
+    const handleImageUpload = async (
+      file: File,
+      storagePath: string,
+      fileName: string
+    ): Promise<string> => {
+      try {
+        // Step 1: Convert the file to a Blob
+        const blob = new Blob([file], { type: file.type });
 
-    uploadTask.on('state_changed', 
-      (snapshot) => {
-        const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-        setProgress(progress);
-      }, 
-      (error) => {
-        console.error("Upload failed:", error);
-      }, 
-      async () => {
-        const downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
-        const obj = {
-          link: downloadURL,
-          name: fileName,
-          date:date
-        };
-        const resp = await toolBoxTalkAction.CREATE.createStripUpload(JSON.stringify(obj));
-        if (resp.success) {
-          toast.success("Upload Saved");
-          setResults(prev => [...prev, obj]);
-          handleRemoveFile();
-        } else {
-          toast.error("Upload Failed");
-        }
+        // Step 2: Upload the Blob to Firebase Storage
+
+        const storageRef = firebaseStorageRef(
+          storage,
+          `${storagePath}/${fileName}`
+        );
+        const uploadTask = uploadBytesResumable(storageRef, blob);
+        const downloadURL = await new Promise<string>((resolve, reject) => {
+          uploadTask.on(
+            'state_changed',
+            (snapshot) => {
+              const progress =
+                (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+              console.log(`Upload is ${progress}% done`);
+            },
+            (error) => {
+              console.error('Error uploading PDF to Firebase:', error);
+              reject(error);
+            },
+            async () => {
+              try {
+                const url = await getDownloadURL(uploadTask.snapshot.ref);
+                resolve(url);
+              } catch (error) {
+                console.error('Error getting download URL:', error);
+                reject(error);
+              }
+            }
+          );
+        });
+
+        toast.success('Image uploaded successfully!');
+        3;
+        return downloadURL;
+      } catch (error) {
+        console.error('Error uploading PDF:', error);
+        toast.error('Failed to upload PDF. Please try again.');
+        throw error;
       }
-    );
-  };
+    };
+    const handleFileChange = async (
+      e: React.ChangeEvent<HTMLInputElement>,
+      index: number
+    ) => {
+      const pointNo = index + 1;
+      if (!documentNo) {
+        return toast.error('Document no is must to upload file');
+      }
+      const file = e.target.files[0];
+      if (!file) return;
+      try {
+        setUploadingPointFile(true);
+        const { data, error, success, status, message } =
+          await toolboxTalkActions.FETCH.getNextToolboxTalkVersion(documentNo);
+        if (!success) {
+          return toast.error(
+            message ||
+              JSON.stringify(error) ||
+              'Filed to generate next version for new upload. Please try later'
+          );
+        }
+        const { nextVersion } = data;
+        console.log('next version', nextVersion);
+        const downloadURL = await handleImageUpload(
+          file,
+          `toolboxtalk/${documentNo}/${nextVersion}/stripPoints/pointNo${pointNo}`,
+          `point${pointNo}`
+        );
+        const updatedPoints = [...formData.stripPoints];
+        updatedPoints[index].pointFileUrl = downloadURL;
+        setValue('stripPoints', updatedPoints);
+        debouncePointUpdate();
+      } catch (error) {
+        console.log(error);
+        toast.error(
+          JSON.stringify(error) ||
+            `Failed to upload attendance ${documentNo} image`
+        );
+      } finally {
+        setUploadingPointFile(false);
+      }
+    };
 
-  const handleDelete = async (id:any) => {
-    const resp = await toolBoxTalkAction.DELETE.deleteStripUpload(id);
-    if (resp.success) {
-      toast.success("Deleted,Refresh to view Changes");
-    //   setResults(prev => prev.filter(item => item.id !== id));
-    } else {
-      toast.error("Failed");
-    }
-  };
+    return (
+      <section className=' w-full  mx-auto flex flex-col gap-3 my-5 border-[1px] border-gray-300 p-4 rounded-md shadow-sm'>
+        <h2 className='text-lg font-semibold text-blue-500'>
+          All Raised Points
+        </h2>
 
-  return (
-    <div className="p-6 max-w-4xl mx-auto">
-      <h2 className="text-2xl text-center mb-6">Upload Strip File</h2>
-      <div className="mb-6 bg-white p-4 rounded-lg shadow-md">
-        <input 
-          type="text" 
-          placeholder="Enter file name" 
-          value={fileName} 
-          onChange={handleFileNameChange} 
-          className="border border-gray-300 rounded p-2 mb-4 w-full"
-        />
-        <input 
-          type="date" 
-          placeholder="Enter file name" 
-          value={date} 
-          onChange={(e)=>setDate(e.target.value)} 
-          className="border border-gray-300 rounded p-2 mb-4 w-full"
-        />
-        <input 
-          type="file" 
-          onChange={handleFileChange} 
-          className="border border-gray-300 rounded p-2 mb-4 w-full"
-        />
-        {file && (
-          <div className="mb-4 flex items-center">
-            <span className="mr-4 text-green-600">{file.name}</span>
-            <button 
-              onClick={handleRemoveFile} 
-              className="bg-red-500 text-white p-2 rounded hover:bg-red-700"
+        <form className='flex flex-col gap-2' onChange={debouncePointUpdate}>
+          {fields.map(({ id, color, point, stripeNo, location }, index) => (
+            <div
+              key={id}
+              className='flex flex-col md:flex-row justify-start items-end gap-6 border-b-[1px] border-gray-200 py-2 '
             >
-              Remove File
+              <span className='flex flex-col gap-1 flex-grow w-full md:w-auto md:max-w-[80px]'>
+                <label className='text-gray-500' htmlFor={`stripeNo${index}`}>
+                  Stripe No:
+                </label>
+                <input
+                  id={`stripeNo${index}`}
+                  type='number'
+                  disabled={!canEditAllDetails}
+                  defaultValue={stripeNo}
+                  className='border-[1px] border-gray-400 text-gray-600 bg-gray-50 p-1 rounded w-full '
+                  {...register(`stripPoints.${index}.stripeNo`)}
+                />
+              </span>
+              <span className='flex flex-col gap-1 flex-grow w-full md:w-auto'>
+                <label className='text-gray-500' htmlFor={`point${index}`}>
+                  Description:
+                </label>
+                <input
+                  id={`point${index}`}
+                  type='text'
+                  disabled={!canEditAllDetails}
+                  defaultValue={point}
+                  className='border-[1px] border-gray-400 text-gray-600 bg-gray-50 p-1 rounded w-full '
+                  {...register(`stripPoints.${index}.point`)}
+                />
+              </span>{' '}
+              <span className='flex flex-col gap-1 flex-grow w-full md:w-auto'>
+                <label className='text-gray-500' htmlFor={`location${index}`}>
+                  Location:
+                </label>
+                <input
+                  id={`location${index}`}
+                  type='text'
+                  disabled={!canEditAllDetails}
+                  defaultValue={location}
+                  className='border-[1px] border-gray-400 text-gray-600 bg-gray-50 p-1 rounded w-full '
+                  {...register(`stripPoints.${index}.location`)}
+                />
+              </span>
+              <span className='flex flex-col gap-1 items-start w-full md:max-w-[150px]'>
+                <label className='text-gray-500' htmlFor={`color${index}`}>
+                  Color code:
+                </label>
+                <span className='flex gap-1 items-center justify-center relative w-full'>
+                  <select
+                    disabled={!canEditAllDetails}
+                    id={`color${index}`}
+                    defaultValue={color}
+                    className='border-[1px] border-gray-400 text-gray-600 bg-gray-50 p-1 rounded w-full'
+                    {...register(`stripPoints.${index}.color`)}
+                  >
+                    {StripColorsNames.map((color) => (
+                      <option key={color}>{color}</option>
+                    ))}
+                  </select>
+                  <FaCircle
+                    className={`text-${formData.stripPoints[index].color}-500 border-0 p-0 text-p`}
+                    style={{ width: 24, height: 24 }}
+                  />
+                </span>
+              </span>
+              <span className='flex flex-col gap-1 items-start w-full md:w-[30%] lg:w-[20%]'>
+                <label className='text-gray-500' htmlFor={`file${index}`}>
+                  Upload File:
+                </label>
+                <span className='flex flex-col gap-1 justify-start items-center'>
+                  <span className='flex justify-center items-center gap-2'>
+                    <input
+                      type='file'
+                      id={`file${index}`}
+                      onChange={(e) => handleFileChange(e, index)}
+                      className='border-[1px] border-gray-400 text-gray-600 bg-gray-50 p-1 rounded w-full'
+                      disabled={!canEditAllDetails}
+                    />
+                    {formData.stripPoints[index].pointFileUrl && (
+                      <CheckCircle className='text-green-500' />
+                    )}
+                  </span>
+                  {formData.stripPoints[index].pointFileUrl && (
+                    <Link
+                      aria-label='Open link in new tab'
+                      target='_blank'
+                      href={formData.stripPoints[index].pointFileUrl}
+                      className='hover:underline text-blue-500 text-nowrap text-sm px-2 py-1 rounded flex justify-center items-center gap-2'
+                    >
+                      <Link2Icon /> See uploaded image
+                    </Link>
+                  )}
+                </span>
+              </span>
+              <button
+                type='button'
+                disabled={!canEditAllDetails}
+                onClick={() => remove(index)}
+                className='text-red-500 disabled:text-red-400 border-red-300 border-[1px] rounded p-1 text-nowrap text-sm'
+              >
+                <MdCancel style={{ height: 22, width: 22 }} />
+              </button>
+            </div>
+          ))}
+          <div className='flex justify-center md:justify-end items-center'>
+            <button
+              disabled={uploadingPointFile || !canEditAllDetails}
+              type='button'
+              onClick={() =>
+                append({
+                  point: '',
+                  color: 'orange',
+                  pointFileUrl: '',
+                  stripeNo: null,
+                  location: '',
+                })
+              }
+              className='bg-blue-500 disabled:bg-blue-400 text-white p-2 hover:bg-blue-700 w-fit px-3 py-2 rounded text-nowrap'
+            >
+              Add Point
             </button>
           </div>
-        )}
-        <button 
-          onClick={handleUpload} 
-          className="bg-blue-500 text-white p-2 rounded hover:bg-blue-700"
-        >
-          Upload
-        </button>
-        {progress > 0 && (
-          <progress value={progress} max="100" className="w-full mt-4 h-2 rounded-lg overflow-hidden">
-            <div className="bg-blue-500 h-full" style={{ width: `${progress}%` }}></div>
-          </progress>
-        )}
-      </div>
+          {!canEditAllDetails &&
+            !canEditImportantDetails &&
+            formData.stripPoints.length === 0 && (
+              <span className='text-red-400 flex justify-center items-center gap-2'>
+                <ExclamationTriangleIcon className='w-[20px] h-[20px]' />{' '}
+                <p>No Points were raised</p>
+              </span>
+            )}{' '}
+        </form>
+        <div className='w-full justify-center items-center flex'>
+          {uploadingPointFile && (
+            <p className='w-fit text-nowrap flex justify-center items-center gap-2 p-1 px-3 rounded bg-blue-50 text-blue-600'>
+              <LoaderIcon className='text-blue-500 w-[24px]' />
+              &nbsp;Uploading Image...
+            </p>
+          )}
+        </div>
+      </section>
+    );
+  }
+);
 
-      <h2 className="text-2xl text-center mb-6">Uploaded Files</h2>
-      <table className="min-w-full bg-white border border-gray-300 rounded-lg shadow-md">
-        <thead>
-          <tr>
-            <th className="py-3 px-6 border-b font-medium text-gray-700">File Name</th>
-            <th className="py-3 px-6 border-b font-medium text-gray-700">Date</th>
-            <th className="py-3 px-6 border-b font-medium text-gray-700">Link</th>
-            <th className="py-3 px-6 border-b font-medium text-gray-700">Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          {result.map((item, index) => (
-            <tr key={index} className="hover:bg-gray-100">
-              <td className="py-3 px-6 border-b text-center">{item.name}</td>
-              <td className="py-3 px-6 border-b text-center">{item.date}</td>
-              <td className="py-3 px-6 border-b text-center">
-                <a href={item.link} target="_blank" rel="noopener noreferrer" className="text-blue-500 underline">View</a>
-              </td>
-              <td className="py-3 px-6 border-b flex justify-center">
-                <button 
-                  onClick={() => handleDelete(item._id)} 
-                  className="bg-red-500 text-white p-2 rounded hover:bg-red-700"
-                >
-                  Delete
-                </button>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
-  );
-}
-
+StripUploads.displayName = 'StripUploads';
 export default StripUploads;

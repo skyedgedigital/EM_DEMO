@@ -56,12 +56,13 @@ const createEmployee = async (
     });
     console.log('wowoowoww', employee);
     var savedEmployee = await employee.save();
-    console.log(savedEmployee);
+    console.log('savedEmployee', savedEmployee);
     if (
       employeeInfo.employeeRole.toUpperCase() === 'FLEETMANAGER' ||
       'DRIVER' ||
       'HR' ||
-      'Safety'
+      'Safety' ||
+      'ACCOUNTANT'
     ) {
       const user: user = {
         employee: employee._id,
@@ -73,6 +74,8 @@ const createEmployee = async (
             ? access.FLEET_MANAGER
             : employeeInfo.employeeRole.toUpperCase() === 'HR'
             ? access.HR
+            : employeeInfo.employeeRole.toUpperCase() === 'ACCOUNTANT'
+            ? access.ACCOUNTANT
             : access.Safety,
       };
       console.log(user);
@@ -217,9 +220,7 @@ const uploadPhotos = async (
     };
   }
 };
-const uploadFiles = async (
-  filesData: FormData
-): Promise<ApiResponse<any>> => {
+const uploadFiles = async (filesData: FormData): Promise<ApiResponse<any>> => {
   const dbConnection = await handleDBConnection();
   if (!dbConnection.success) return dbConnection;
   try {

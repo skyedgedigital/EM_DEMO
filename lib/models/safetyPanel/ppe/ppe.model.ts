@@ -29,6 +29,6 @@ const PpeSchema: mongoose.Schema<Ippe> = new Schema({
     }
 })
 
-const Ppe: mongoose.Model<Ippe> = mongoose.models.Ppe || mongoose.model("Ppe",PpeSchema);
+const Ppe: mongoose.Model<Ippe> = mongoose.models?.Ppe || mongoose.model("Ppe",PpeSchema);
 
 export default Ppe

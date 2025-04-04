@@ -33,6 +33,6 @@ const PpeCheckingSchema : mongoose.Schema<IToolChecking> = new Schema({
     }
 })
 
-const PpeChecking: mongoose.Model<IToolChecking> = mongoose.models.ToolChecking || mongoose.model("ToolChecking",PpeCheckingSchema)
+const PpeChecking: mongoose.Model<IToolChecking> = mongoose.models?.ToolChecking || mongoose.model("ToolChecking",PpeCheckingSchema)
 
 export default PpeChecking

@@ -1,11 +1,17 @@
 'use server';
 import { ApiResponse } from '@/interfaces/APIresponses.interface';
 import mongoose from 'mongoose';
+import registerModels from './models';
+
+let connectionPromise: Promise<typeof mongoose> | null = null;
 
 export const connectToDB = async (): Promise<ApiResponse<any>> => {
   try {
     if (mongoose.connection.readyState === 1) {
       console.log('Already connected to MongoDB');
+      // CALLING FUNCTION TO REGISTER MODELS
+      await registerModels();
+
       return {
         success: true,
         status: 200,
@@ -15,6 +21,16 @@ export const connectToDB = async (): Promise<ApiResponse<any>> => {
       };
     }
 
+    if (connectionPromise) {
+      return connectionPromise.then(() => ({
+        success: true,
+        status: 200,
+        message: 'Using existing connection',
+        data: null,
+        error: null,
+      }));
+    }
+
     let dbString: string = '';
 
     dbString =
@@ -22,11 +38,21 @@ export const connectToDB = async (): Promise<ApiResponse<any>> => {
         ? process.env.DATABASE_URL_DEV
         : process.env.DATABASE_URL_PRD;
 
-        console.log(dbString)
+    console.log(dbString);
 
-    await mongoose.connect(`${dbString}`, {
-      serverSelectionTimeoutMS: 50000,
-    });
+    connectionPromise = mongoose
+      .connect(`${dbString}`, {
+        serverSelectionTimeoutMS: 50000,
+      })
+      .then(async (conn) => {
+        // Register models ONCE when connection establishes
+        console.time('ModelRegistration');
+        await registerModels();
+        console.timeEnd('ModelRegistration');
+        return conn;
+      });
+
+    await connectionPromise;
 
     console.log('Connected to MongoDB');
     return {
@@ -37,6 +63,8 @@ export const connectToDB = async (): Promise<ApiResponse<any>> => {
       data: null,
     };
   } catch (error) {
+    connectionPromise = null; // Reset on error
+
     // Check for specific error types
     if (error.name === 'MongoNetworkError') {
       return {

@@ -36,7 +36,7 @@ ItemSchema.pre<IItem>('save',function(next){
     next();
 })
 
-const Item: mongoose.Model<IItem> = mongoose.models.Item || mongoose.model("Item",ItemSchema);
+const Item: mongoose.Model<IItem> = mongoose.models?.Item || mongoose.model("Item",ItemSchema);
 
 export default Item
 

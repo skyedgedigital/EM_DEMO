@@ -1,784 +1,493 @@
-import React, { useState } from "react";
-import jsPDF from "jspdf";
-import "jspdf-autotable";
-import * as XLSX from "xlsx";
-import { storage } from "@/utils/fireBase/config";
-import { getDownloadURL, ref, uploadBytesResumable } from "firebase/storage";
-import toast from "react-hot-toast";
-import toolBoxTalkAction from "@/lib/actions/SafetyEmp/daily/toolBoxTalk/toolBoxTalkAction";
-const AddToolBoxTalk = () => {
-  const [selectedDate, setSelectedDate] = useState("");
+'use client';
+import React, { forwardRef, useEffect, useImperativeHandle } from 'react';
+import 'jspdf-autotable';
+import toast from 'react-hot-toast';
+import Image from 'next/image';
+import mongoose from 'mongoose';
+import {
+  IToolboxTalk,
+  RecordStatusNames,
+  SupervisorNames,
+} from '@/lib/models/Safety/toolboxtalk.model';
+import { useForm, useFieldArray } from 'react-hook-form';
+import { debounce } from 'lodash';
+import { IWorkOrderHr } from '@/lib/models/HR/workOrderHr.model';
+import { IEnterpriseBase } from '@/interfaces/enterprise.interface';
+import logo from '@/public/assets/dark-logo.png';
 
-  const [formData, setFormData] = useState({
-    sheetNo: "",
-    revNo: "",
-    effectiveDate: "",
-    documentNo: "",
-    programName: "",
-    workOrderNo: "",
-    time: "",
-    safetyRep: "",
-    vendorCode: "",
-    contractorRep: "",
-    supervisor: "",
-    totalManpower: "",
-    workers: "",
-    supervisors: "",
-    emps: "",
-    safety: "",
-    q1: "",
-    q2: "",
-    q3: "",
-    q4: "",
-    options: {
-      option1: false,
-      option2: false,
-      option3: false,
-      option4: false,
-      option5: false,
-      option6: false,
-      option7: false,
-      option8: false,
-      option9: false,
-    },
-    q5: "",
-    suggestion: "",
-    feedback: "",
-  });
-
-  const [tableData, setTableData] = useState([]);
-  const [newAction, setNewAction] = useState("");
-  const [newWhen, setNewWhen] = useState("");
-  const [newDate, setNewDate] = useState("");
-  const [newStatus, setNewStatus] = useState("");
-
-  const handleAddRow = () => {
-    if (newAction && newWhen && newDate && newStatus) {
-      setTableData([
-        ...tableData,
-        { action: newAction, when: newWhen, date: newDate, status: newStatus },
-      ]);
-      setNewAction("");
-      setNewWhen("");
-      setNewDate("");
-      setNewStatus("");
-    }
-  };
-
-  const handleDeleteRow = (index) => {
-    const updatedData = tableData.filter((_, i) => i !== index);
-    setTableData(updatedData);
-  };
-
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData((prevData) => ({ ...prevData, [name]: value }));
-  };
-
-  const handleCheckboxChange = (e) => {
-    const { name, checked } = e.target;
-    setFormData((prevData) => ({
-      ...prevData,
-      options: {
-        ...prevData.options,
-        [name]: checked,
+interface IMainToolBoxTalk {
+  toolBoxTalkData: IToolboxTalk;
+  updateMainToolBoxTalk: () => void;
+  workOrderHr: (IWorkOrderHr & { _id: mongoose.Types.ObjectId })[];
+  enterPriseInfo: IEnterpriseBase;
+  canEditImportantDetails?: boolean;
+  canEditAllDetails?: boolean;
+  selectedWorkOrder: IWorkOrderHr;
+}
+const AddToolBoxTalk = forwardRef(
+  (
+    {
+      toolBoxTalkData,
+      updateMainToolBoxTalk = () => {
+        console.error(
+          'FRONTEND LOAD ERROR : running default update tool box talk main form function'
+        );
+        toast.error(
+          'FRONTEND LOAD ERROR : running default update tool box talk main form function'
+        );
       },
-    }));
-  };
+      workOrderHr,
+      enterPriseInfo,
+      canEditImportantDetails = true,
+      canEditAllDetails = true,
+      selectedWorkOrder = null,
+    }: IMainToolBoxTalk,
+    ref
+  ) => {
+    console.log('AddToolBoxTalk');
+    // console.log('recieved data', toolBoxTalkData);
 
-  const generateExcel = () => {
-    console.log(tableData);
-    const wb = XLSX.utils.book_new();
-    const ws = XLSX.utils.aoa_to_sheet([
-      ["Label", "Value"],
-      ["Sheet No.", formData.sheetNo],
-      ["Rev No.", formData.revNo],
-      ["Effective Date", formData.effectiveDate],
-      ["Document No.", formData.documentNo],
-      ["Name of the Program", formData.programName],
-      ["Work Order Number", formData.workOrderNo],
-      ["Time", formData.time],
-      ["Safety Representative", formData.safetyRep],
-      ["Vendor Code", formData.vendorCode],
-      ["Contractor Representative", formData.contractorRep],
-      ["Supervisor", formData.supervisor],
-      ["Total Manpower", formData.totalManpower],
-      ["Workers", formData.workers],
-      ["Supervisors", formData.supervisors],
-      ["Emps", formData.emps],
-      ["Safety", formData.safety],
-      ["First Question", formData.q1],
-      ["Second Question", formData.q2],
-      ["Third Question", formData.q3],
-      ["Fourth Question", formData.q4],
-      ["Options"],
-      ["Option 1", formData.options.option1],
-      ["Option 2", formData.options.option2],
-      ["Option 3", formData.options.option3],
-      ["Option 4", formData.options.option4],
-      ["Option 5", formData.options.option5],
-      ["Option 6", formData.options.option6],
-      ["Option 7", formData.options.option7],
-      ["Option 8", formData.options.option8],
-      ["Option 9", formData.options.option9],
-      ["Fifth Question", formData.q5],
-      ["Suggestion", formData.suggestion],
-      ["Feedback", formData.feedback],
-      ["Actions Taken"],
-      ["Action", "When", "Date", "Status"]
-    ]);
-  
-    // Determine the starting row index for tableData
-    const startingRowIndex = 38; // Hardcoded based on observed issue
-  
-    tableData.forEach((row, index) => {
-      const currentRowIndex = startingRowIndex + index;
-      ws[`A${currentRowIndex}`] = { v: row.action };
-      ws[`B${currentRowIndex}`] = { v: row.when };
-      ws[`C${currentRowIndex}`] = { v: row.date };
-      ws[`D${currentRowIndex}`] = { v: row.status };
+    const { control, formState, register, reset, watch, handleSubmit } =
+      useForm<IToolboxTalk>({
+        defaultValues: toolBoxTalkData,
+      });
+
+    const { fields, append, remove } = useFieldArray({
+      control,
+      name: 'versions.0.records',
     });
-  
-    // Manually set the !ref to ensure worksheet dimensions include the new data
-    ws['!ref'] = `A1:D${startingRowIndex + tableData.length - 1}`;
 
-    ws['!cols'] = [
-      { wch: 20 },  // Column A width
-      { wch: 20 },  // Column B width
-      { wch: 20 },  // Column C width
-      { wch: 20 }   // Column D width
-    ];
-  
-    XLSX.utils.book_append_sheet(wb, ws, "Form Data");
-    XLSX.writeFile(wb,`Tool_Box_Talk${selectedDate || "No_Date"}.xlsx`);
+    const formData = watch(); // Get current form values
+    // Expose the form state to the parent component
+    // console.log('FORMDATA', formData);
+    useEffect(() => {
+      if (formData.vendorCode.trim() === '') reset(toolBoxTalkData);
+    }, [toolBoxTalkData, reset]);
+    useImperativeHandle(ref, () => ({
+      getFeedbackData: () => {
+        console.log('from imperative', formData);
+        return formData;
+      }, // Function to return the current form data
+    }));
 
-    const wbout = XLSX.write(wb, { bookType: "xlsx", type: "array" });
-    const blob = new Blob([wbout], { type: "application/octet-stream" });
+    const debouncedUpdate = debounce(() => {
+      updateMainToolBoxTalk();
+      cancelDebounce();
+    }, 300); // 300ms delay
+    const cancelDebounce = () => debouncedUpdate.cancel();
 
-    const storageRef = ref(
-      storage,
-      `excel/Tool_Box_Talk${selectedDate || "No_Date"}.xlsx`
-    );
-    const uploadTask = uploadBytesResumable(storageRef, blob);
+    const addNewRow = () => {
+      append({
+        item: '',
+        actionBy: '',
+        when: '',
+        targetDate: new Date(),
+        status: 'Issued',
+      });
+      // debouncedUpdate();
+    };
 
-    uploadTask.on(
-      "state_changed",
-      (snapshot) => {
-        const progress =
-          (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-        console.log(`Upload is ${progress}% done`);
-      },
-      (error) => {
-        console.error("Error uploading Excel to Firebase:", error);
-      },
-      () => {
-        getDownloadURL(uploadTask.snapshot.ref).then(async(downloadURL) => {
-          const obj = {
-            link:downloadURL,
-            sheetNo:formData.sheetNo,
-            revNo:formData.revNo,
-            date:selectedDate
-          }
-          const resp = await toolBoxTalkAction.CREATE.createToolBoxTalk(JSON.stringify(obj))
-          if(resp.success){
-            toast.success("Excel Saved")
-          }
-          else{
-            toast.error("Error Occurred")
-          }
-          console.log("Excel available at", downloadURL);
-        });
-      }
-    );
-
-  };
-  
-  
-  
-
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    // Handle form submission here
-    console.log(formData);
-    // generatePDF();
-    generateExcel();
-  };
-
-  return (
-    <div className="p-6 max-w-3xl mx-auto bg-white shadow-md rounded-md">
-      <h1 className="text-2xl font-semibold mb-4">Document Form</h1>
-      <div>
-        Date : <input type="date" name="date" id="date" value={selectedDate} onChange={(e)=>{
-          setSelectedDate(e.target.value);
-        }} />
-      </div>
-      <form onSubmit={handleSubmit}>
-        <div className="grid grid-cols-1 gap-4">
-          {/* Sheet No. */}
-          <div className="form-group">
-            <label
-              htmlFor="sheetNo"
-              className="block text-sm font-medium text-gray-700"
-            >
-              Sheet No.
-            </label>
-            <input
-              type="text"
-              id="sheetNo"
-              name="sheetNo"
-              value={formData.sheetNo}
-              onChange={handleChange}
-              className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-            />
-          </div>
-
-          {/* Rev No. */}
-          <div className="form-group">
-            <label
-              htmlFor="revNo"
-              className="block text-sm font-medium text-gray-700"
-            >
-              Rev No.
-            </label>
-            <input
-              type="text"
-              id="revNo"
-              name="revNo"
-              value={formData.revNo}
-              onChange={handleChange}
-              className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-            />
-          </div>
-
-          {/* Effective Date */}
-          <div className="form-group">
-            <label
-              htmlFor="effectiveDate"
-              className="block text-sm font-medium text-gray-700"
-            >
-              Effective Date
-            </label>
-            <input
-              type="date"
-              id="effectiveDate"
-              name="effectiveDate"
-              value={formData.effectiveDate}
-              onChange={handleChange}
-              className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-            />
-          </div>
-
-          {/* Document No. */}
-          <div className="form-group">
-            <label
-              htmlFor="documentNo"
-              className="block text-sm font-medium text-gray-700"
-            >
-              Document No.
-            </label>
-            <input
-              type="text"
-              id="documentNo"
-              name="documentNo"
-              value={formData.documentNo}
-              onChange={handleChange}
-              className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-            />
-          </div>
-
-          {/* Name of the Program */}
-          <div className="form-group">
-            <label
-              htmlFor="programName"
-              className="block text-sm font-medium text-gray-700"
-            >
-              Name of the Program
-            </label>
-            <input
-              type="text"
-              id="programName"
-              name="programName"
-              value={formData.programName}
-              onChange={handleChange}
-              className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-            />
-          </div>
-
-          {/* Work Order Number */}
-          <div className="form-group">
-            <label
-              htmlFor="workOrderNo"
-              className="block text-sm font-medium text-gray-700"
-            >
-              Work Order Number
-            </label>
-            <input
-              type="text"
-              id="workOrderNo"
-              name="workOrderNo"
-              value={formData.workOrderNo}
-              onChange={handleChange}
-              className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-            />
-          </div>
-
-          {/* Time */}
-          <div className="form-group">
-            <label
-              htmlFor="time"
-              className="block text-sm font-medium text-gray-700"
-            >
-              Time
-            </label>
-            <input
-              type="time"
-              id="time"
-              name="time"
-              value={formData.time}
-              onChange={handleChange}
-              className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-            />
-          </div>
-
-          {/* Safety Representative */}
-          <div className="form-group">
-            <label
-              htmlFor="safetyRep"
-              className="block text-sm font-medium text-gray-700"
-            >
-              Safety Representative
-            </label>
-            <input
-              type="text"
-              id="safetyRep"
-              name="safetyRep"
-              value={formData.safetyRep}
-              onChange={handleChange}
-              className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-            />
-          </div>
-
-          {/* Vendor Code */}
-          <div className="form-group">
-            <label
-              htmlFor="vendorCode"
-              className="block text-sm font-medium text-gray-700"
-            >
-              Vendor Code
-            </label>
-            <input
-              type="text"
-              id="vendorCode"
-              name="vendorCode"
-              value={formData.vendorCode}
-              onChange={handleChange}
-              className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-            />
-          </div>
-
-          {/* Contractor Representative */}
-          <div className="form-group">
-            <label
-              htmlFor="contractorRep"
-              className="block text-sm font-medium text-gray-700"
-            >
-              Contractor Representative
-            </label>
-            <input
-              type="text"
-              id="contractorRep"
-              name="contractorRep"
-              value={formData.contractorRep}
-              onChange={handleChange}
-              className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-            />
-          </div>
-
-          {/* Supervisor */}
-          <div className="form-group">
-            <label
-              htmlFor="supervisor"
-              className="block text-sm font-medium text-gray-700"
-            >
-              Supervisor
-            </label>
-            <select
-              id="supervisor"
-              name="supervisor"
-              value={formData.supervisor}
-              onChange={handleChange}
-              className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-            >
-              <option value="">Select an option</option>
-              <option value="Company_Supervisor">Company Supervisor</option>
-              <option value="Line_Manager">Line Manager</option>
-            </select>
-          </div>
-
-          {/* Total Manpower */}
-          <div className="form-group">
-            <label
-              htmlFor="totalManpower"
-              className="block text-sm font-medium text-gray-700"
-            >
-              Total Manpower
-            </label>
-            <input
-              type="number"
-              id="totalManpower"
-              name="totalManpower"
-              value={formData.totalManpower}
-              onChange={handleChange}
-              className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-            />
-          </div>
-
-          {/* Workers */}
-          <div className="form-group">
-            <label
-              htmlFor="workers"
-              className="block text-sm font-medium text-gray-700"
-            >
-              Workers
-            </label>
-            <input
-              type="number"
-              id="workers"
-              name="workers"
-              value={formData.workers}
-              onChange={handleChange}
-              className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-            />
-          </div>
-
-          {/* Supervisors */}
-          <div className="form-group">
-            <label
-              htmlFor="supervisors"
-              className="block text-sm font-medium text-gray-700"
-            >
-              Supervisors
-            </label>
-            <input
-              type="number"
-              id="supervisors"
-              name="supervisors"
-              value={formData.supervisors}
-              onChange={handleChange}
-              className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-            />
-          </div>
-
-          {/* Emp's */}
-          <div className="form-group">
-            <label
-              htmlFor="emps"
-              className="block text-sm font-medium text-gray-700"
-            >
-              Emps
-            </label>
-            <input
-              type="number"
-              id="emps"
-              name="emps"
-              value={formData.emps}
-              onChange={handleChange}
-              className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-            />
-          </div>
-
-          {/* Safety */}
-          <div className="form-group">
-            <label
-              htmlFor="safety"
-              className="block text-sm font-medium text-gray-700"
-            >
-              Safety
-            </label>
-            <input
-              type="number"
-              id="safety"
-              name="safety"
-              value={formData.safety}
-              onChange={handleChange}
-              className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-            />
-          </div>
-
-          <h1 className="text-2xl">Items Discussed</h1>
-          <div className="form-group">
-            <label
-              htmlFor="q1"
-              className="block text-sm font-medium text-gray-700"
-            >
-              First Question
-            </label>
-            <input
-              type="text"
-              id="q1"
-              name="q1"
-              value={formData.q1}
-              onChange={handleChange}
-              className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-            />
-          </div>
-          <div className="form-group">
-            <label
-              htmlFor="q2"
-              className="block text-sm font-medium text-gray-700"
-            >
-              Second Question
-            </label>
-            <input
-              type="text"
-              id="q2"
-              name="q2"
-              value={formData.q2}
-              onChange={handleChange}
-              className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-            />
-          </div>
-          <div className="form-group">
-            <label
-              htmlFor="q3"
-              className="block text-sm font-medium text-gray-700"
-            >
-              Third Question
-            </label>
-            <input
-              type="text"
-              id="q3"
-              name="q3"
-              value={formData.q3}
-              onChange={handleChange}
-              className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-            />
-          </div>
-          <div className="form-group">
-            <label
-              htmlFor="q4"
-              className="block text-sm font-medium text-gray-700"
-            >
-              Fourth Question
-            </label>
-            <input
-              type="text"
-              id="q4"
-              name="q4"
-              value={formData.q4}
-              onChange={handleChange}
-              className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-            />
-          </div>
-
-          <fieldset className="mb-6">
-            <legend className="block text-sm font-medium text-gray-700">
-              Options
-            </legend>
-            <div className="mt-2 space-y-2">
-              {Object.keys(formData.options).map((optionKey) => (
-                <div key={optionKey} className="flex items-center">
-                  <input
-                    type="checkbox"
-                    id={optionKey}
-                    name={optionKey}
-                    checked={formData.options[optionKey]}
-                    onChange={handleCheckboxChange}
-                    className="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded"
-                  />
-                  <label
-                    htmlFor={optionKey}
-                    className="ml-3 text-sm font-medium text-gray-700"
-                  >
-                    {optionKey.replace("option", "Option ")}
+    return (
+      <section className='m-8 rounded'>
+        {/* boundary */}
+        <form className='border-[1px] border-gray-300 p-3 rounded shadow flex flex-col gap-2'>
+          {/* log0 & all top */}
+          <div className='grid grid-cols-3 border-[1px] border-gray-400 p-2 rounded'>
+            {/* two section */}
+            <div className=' col-span-2'>
+              <div className='flex'>
+                <div className='flex w-1/2 p-2 justify-start gap-2 items-center'>
+                  <Image src={logo} alt='logo' width={50} />
+                  <h1 className='text-lg font-bold text-blue-500'>
+                    {enterPriseInfo.name}
+                  </h1>
+                </div>
+                <p className='p-1 w-1/2 flex justify-center items-center font-bold text-lg'>
+                  Form & Formats <br />
+                  Site Safety <br />
+                  Tool Box Talk (Meeting)
+                </p>
+              </div>
+              <div className=' flex flex-col py-3'>
+                <div className='w-full flex justify-start items-center gap-3  flex-grow p-1'>
+                  <label htmlFor='programName'>
+                    Name of the program:(required)
                   </label>
+                  <input
+                    id='programName'
+                    type='text'
+                    {...register('programName', {
+                      required: true,
+                      onChange: debouncedUpdate,
+                    })}
+                    disabled={!canEditImportantDetails}
+                    className='border-[1px] border-gray-400 text-gray-600 bg-gray-50 p-1 rounded'
+                  />{' '}
+                </div>
+                <div className='w-full flex justify-start items-center gap-3 flex-grow p-1'>
+                  <label htmlFor='workOrder'>
+                    Work Order Number:(required)
+                  </label>
+                  {!canEditAllDetails && !canEditImportantDetails ? (
+                    <p className='border-[1px] border-gray-400 text-gray-600 bg-gray-50 p-1 rounded'>
+                      {selectedWorkOrder?.workOrderNumber}
+                    </p>
+                  ) : (
+                    <select
+                      id='workOrder'
+                      {...register('versions.0.workOrderNo', {
+                        required: true,
+                        onChange: debouncedUpdate,
+                      })}
+                      disabled={!canEditAllDetails}
+                      className='border-[1px] border-gray-400 text-gray-600 bg-gray-50 p-1 rounded'
+                    >
+                      <option value={null}>select work order</option>
+                      {workOrderHr.map((wo) => (
+                        <option
+                          key={wo._id.toString()}
+                          value={wo._id.toString()}
+                        >
+                          {wo.workOrderNumber}
+                        </option>
+                      ))}
+                    </select>
+                  )}
+                </div>
+
+                <div className='w-full flex justify-start items-center gap-3 flex-grow p-1'>
+                  <label htmlFor='safetyRepresentative'>
+                    Safety Representative:
+                  </label>
+                  <input
+                    id='safetyRepresentative'
+                    type='text'
+                    {...register('safetyRepresentative', {
+                      onChange: debouncedUpdate,
+                    })}
+                    disabled={!canEditImportantDetails}
+                    className='border-[1px] border-gray-400 text-gray-600 bg-gray-50 p-1 rounded'
+                  />
+                </div>
+                <div className='w-full flex justify-start items-center gap-3 flex-grow p-1'>
+                  <label htmlFor='contractorRepresentative'>
+                    Contractor Representative:
+                  </label>
+                  <input
+                    id='contractorRepresentative'
+                    type='text'
+                    {...register('contractorRepresentative', {
+                      onChange: debouncedUpdate,
+                    })}
+                    disabled={!canEditImportantDetails}
+                    className='border-[1px] border-gray-400 text-gray-600 bg-gray-50 p-1 rounded'
+                  />
+                </div>
+                <div className='w-full flex justify-start items-center gap-3  flex-grow px-1'>
+                  <p>Company Supervisor /Line Manager:</p>
+                  <select
+                    // defaultValue={formData.versions[0].supervisor}
+                    {...register('versions.0.supervisor', {
+                      onChange: debouncedUpdate,
+                    })}
+                    disabled={!canEditAllDetails}
+                    className='border-[1px] border-gray-400 text-gray-600 bg-gray-50 p-1 rounded'
+                  >
+                    {/* <option value='#'>select supervisor type</option> */}
+                    {SupervisorNames.map((sn) => (
+                      <option value={sn} key={sn}>
+                        {sn}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+            </div>
+            <div className=' flex-col flex gap-3 p-2 justify-around '>
+              <div className='w-full flex justify-start items-center gap-3  flex-grow px-1'>
+                <p>Sheet No.:</p>
+                <p>XX PROGRAM</p>
+              </div>
+              <div className='w-full flex justify-start items-center gap-3  flex-grow px-1'>
+                <p>Revision No:</p>
+                <p>{toolBoxTalkData.versions[0].revNo}</p>
+              </div>
+              <div className='w-full flex justify-start items-center gap-3  flex-grow px-1'>
+                <p>Effective Date:</p>
+                <p>{toolBoxTalkData.effectiveDate.toLocaleDateString()}</p>
+              </div>
+              <div className='w-full flex justify-start items-center gap-3  flex-grow px-1'>
+                <label htmlFor='documentNo'>Document No.(required):</label>
+                <input
+                  id='documentNo'
+                  type='text'
+                  disabled={!canEditImportantDetails}
+                  {...register('documentNo', {
+                    onChange: debouncedUpdate,
+                  })}
+                  className='border-[1px] border-gray-400 text-gray-600 bg-gray-50 p-1 rounded'
+                />
+              </div>
+              <div className='w-full flex justify-start items-center gap-3  flex-grow px-1'>
+                <p>Date:</p>
+                <p>{toolBoxTalkData.effectiveDate.toLocaleDateString()}</p>
+              </div>
+              <div className='w-full flex justify-start items-center gap-3  flex-grow px-1'>
+                <p>Time:</p>
+                <p>{toolBoxTalkData.effectiveDate.toLocaleTimeString()}</p>
+              </div>
+              <div className='w-full flex justify-start items-center gap-3  flex-grow px-1'>
+                <p>Vendor Code:</p>
+                <p>{toolBoxTalkData.vendorCode}</p>
+              </div>
+              <div className='w-full flex justify-start items-center gap-3 flex-grow p-1'>
+                <label htmlFor='location'>Location:</label>
+                <p>location</p>
+              </div>
+            </div>
+          </div>
+          <div className='flex justify-around items-center p-1 my-3'>
+            <span className='flex-col flex-grow flex justify-center items-start'>
+              <label htmlFor='totalManPower'>Total Man Power:</label>
+              <p className='border-b-[1px] border-gray-600'></p>
+              <input
+                id='totalManPower'
+                type='text'
+                {...register('versions.0.totalManPower', {
+                  valueAsNumber: true,
+                  onChange: debouncedUpdate,
+                })}
+                disabled={!canEditAllDetails}
+                className='border-[1px] border-gray-400 text-gray-600 bg-gray-50 p-1 rounded'
+              />
+            </span>
+            <span className='flex-col flex-grow flex justify-center items-start'>
+              <label htmlFor='totalWorkers'>Workers:</label>
+              <p className='border-b-[1px] border-gray-600'></p>
+              <input
+                id='totalWorkers'
+                type='number'
+                {...register('versions.0.totalWorkers', {
+                  valueAsNumber: true,
+                  onChange: debouncedUpdate,
+                })}
+                disabled={!canEditAllDetails}
+                className='border-[1px] border-gray-400 text-gray-600 bg-gray-50 p-1 rounded'
+              />
+            </span>
+            <span className='flex-col flex-grow flex justify-center items-start'>
+              <label htmlFor='Supervisors'>Supervisors:</label>
+              <p className='border-b-[1px] border-gray-600'></p>
+              <input
+                id='Supervisors'
+                type='number'
+                {...register('versions.0.totalSupervisors', {
+                  valueAsNumber: true,
+                  onChange: debouncedUpdate,
+                })}
+                disabled={!canEditAllDetails}
+                className='border-[1px] border-gray-400 text-gray-600 bg-gray-50 p-1 rounded'
+              />
+            </span>
+            <span className='flex-col flex-grow flex justify-center items-start'>
+              <label htmlFor='totalEngineers'>Engineers:</label>
+              <p className='border-b-[1px] border-gray-600'></p>
+              <input
+                id='totalEngineers'
+                type='number'
+                {...register('versions.0.totalEngineers', {
+                  valueAsNumber: true,
+                  onChange: debouncedUpdate,
+                })}
+                disabled={!canEditAllDetails}
+                className='border-[1px] border-gray-400 text-gray-600 bg-gray-50 p-1 rounded'
+              />
+            </span>
+            <span className='flex-col flex-grow flex justify-center items-start'>
+              <label htmlFor='totalSafety'>Safety:</label>
+              <p className='border-b-[1px] border-gray-600'></p>
+              <input
+                id='totalSafety'
+                type='number'
+                {...register('versions.0.totalSafety', {
+                  valueAsNumber: true,
+                  onChange: debouncedUpdate,
+                })}
+                disabled={!canEditAllDetails}
+                className='border-[1px] border-gray-400 text-gray-600 bg-gray-50 p-1 rounded'
+              />
+            </span>
+          </div>
+
+          <div className='my-3 flex flex-col gap-3'>
+            <p className='font-semibold'>
+              ITEMS DISCUSSED: (Indicate if not discussed)
+            </p>
+
+            <div className='flex flex-col gap-3'>
+              {toolBoxTalkData?.versions[0].questions.map((qna, index) => (
+                <div key={qna.question} className='flex flex-col gap-2'>
+                  <label className='font-semibold' htmlFor={qna.question}>
+                    {qna.question}
+                  </label>
+                  <textarea
+                    id={qna.question}
+                    {...register(`versions.0.questions.${index}.answer`, {
+                      onChange: debouncedUpdate,
+                    })}
+                    disabled={!canEditAllDetails}
+                    className='border-[1px] border-gray-400 text-gray-600 bg-gray-50 p-1 rounded h-fit'
+                  />
                 </div>
               ))}
             </div>
-          </fieldset>
+            <div>
+              <p className='font-semibold p-1'>
+                7. Actions resulting from this Meeting and point raised by
+                contract employee & supervisor:
+              </p>
 
-          <div className="form-group">
-            <label
-              htmlFor="q5"
-              className="block text-sm font-medium text-gray-700"
-            >
-              Fifth Question
-            </label>
-            <input
-              type="text"
-              id="q5"
-              name="q5"
-              value={formData.q5}
-              onChange={handleChange}
-              className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-            />
-          </div>
-        </div>
-
-        <div className="p-6 max-w-4xl mx-auto bg-white shadow-md rounded-md">
-          <h1 className="text-2xl font-semibold mb-4">Record Table</h1>
-          <div className="mb-6">
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-              <div>
-                <label
-                  htmlFor="action"
-                  className="block text-sm font-medium text-gray-700"
+              <table className='border-[1px] border-gray-500 w-full'>
+                <thead className='border-[1px] border-gray-500 '>
+                  <tr>
+                    <th className='border-[1px] border-gray-500 py-1 px-2'>
+                      Item
+                    </th>
+                    <th className='border-[1px] border-gray-500 py-1 px-2'>
+                      Action By
+                    </th>
+                    <th className='border-[1px] border-gray-500 py-1 px-2'>
+                      when
+                    </th>
+                    <th className='border-[1px] border-gray-500 p-1'>
+                      Target Date
+                    </th>
+                    <th className='border-[1px] border-gray-500 py-1 px-2'>
+                      Status
+                    </th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {fields.map((field, index) => (
+                    <tr
+                      key={field.id}
+                      className='border-[1px] border-gray-500 py-1 px-2'
+                    >
+                      <td className='border-[1px] border-gray-500 py-1 px-2'>
+                        <input
+                          type='text'
+                          {...register(`versions.0.records.${index}.item`, {
+                            onChange: debouncedUpdate,
+                          })}
+                          disabled={!canEditAllDetails}
+                          className='border-[1px] border-gray-400 text-gray-600 bg-gray-50 p-1 rounded w-full'
+                        />
+                      </td>
+                      <td className='border-[1px] border-gray-500 py-1 px-2'>
+                        <input
+                          type='text'
+                          {...register(`versions.0.records.${index}.actionBy`, {
+                            onChange: debouncedUpdate,
+                          })}
+                          disabled={!canEditAllDetails}
+                          className='border-[1px] border-gray-400 text-gray-600 bg-gray-50 p-1 rounded w-full'
+                        />
+                      </td>
+                      <td className='border-[1px] border-gray-500 py-1 px-2'>
+                        <input
+                          type='text'
+                          {...register(`versions.0.records.${index}.when`, {
+                            onChange: debouncedUpdate,
+                          })}
+                          disabled={!canEditAllDetails}
+                          className='border-[1px] border-gray-400 text-gray-600 bg-gray-50 p-1 rounded w-full'
+                        />
+                      </td>
+                      <td className='border-[1px] border-gray-500 py-1 px-2'>
+                        <input
+                          type='date'
+                          value={
+                            formData.versions[0].records[index].targetDate
+                              ? new Date(
+                                  formData.versions[0].records[index].targetDate
+                                )
+                                  .toISOString()
+                                  .split('T')[0]
+                              : ''
+                          }
+                          {...register(
+                            `versions.0.records.${index}.targetDate`,
+                            {
+                              onChange: debouncedUpdate,
+                            }
+                          )}
+                          disabled={!canEditAllDetails}
+                          className='border-[1px] border-gray-400 text-gray-600 bg-gray-50 p-1 rounded w-full'
+                        />
+                      </td>
+                      <td className='border-[1px] border-gray-500 py-1 px-2'>
+                        <select
+                          {...register(`versions.0.records.${index}.status`, {
+                            onChange: debouncedUpdate,
+                          })}
+                          disabled={!canEditAllDetails}
+                          className='border-[1px] border-gray-400 text-gray-600 bg-gray-50 p-1 rounded'
+                        >
+                          {/* <option value='#'>select supervisor type</option> */}
+                          {RecordStatusNames.map((sn) => (
+                            <option value={sn} key={sn}>
+                              {sn}
+                            </option>
+                          ))}
+                        </select>
+                      </td>
+                      <td className='border-[1px] border-gray-500 py-1 px-2'>
+                        <button
+                          disabled={!canEditAllDetails}
+                          type='button'
+                          onClick={() => {
+                            remove(index);
+                            debouncedUpdate();
+                          }}
+                          className='text-red-500 hover:text-red-700 disabled:text-red-300'
+                        >
+                          Remove
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+              <div className='flex justify-end items-center  w-full col-span-6'>
+                <button
+                  disabled={!canEditAllDetails}
+                  type='button'
+                  onClick={addNewRow}
+                  className='bg-blue-500 text-white px-4 py-2 rounded mt-2 disabled:bg-blue-300'
                 >
-                  Action
-                </label>
-                <textarea
-                  id="action"
-                  value={newAction}
-                  onChange={(e) => setNewAction(e.target.value)}
-                  className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-                  rows={3}
-                  placeholder="Enter action"
-                />
-              </div>
-              <div>
-                <label
-                  htmlFor="when"
-                  className="block text-sm font-medium text-gray-700"
-                >
-                  When
-                </label>
-                <input
-                  type="text"
-                  id="when"
-                  value={newWhen}
-                  onChange={(e) => setNewWhen(e.target.value)}
-                  className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-                  placeholder="Enter when"
-                />
-              </div>
-              <div>
-                <label
-                  htmlFor="date"
-                  className="block text-sm font-medium text-gray-700"
-                >
-                  Date
-                </label>
-                <input
-                  type="date"
-                  id="date"
-                  value={newDate}
-                  onChange={(e) => setNewDate(e.target.value)}
-                  className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-                />
-              </div>
-              <div>
-                <label
-                  htmlFor="status"
-                  className="block text-sm font-medium text-gray-700"
-                >
-                  Status
-                </label>
-                <input
-                  type="text"
-                  id="status"
-                  value={newStatus}
-                  onChange={(e) => setNewStatus(e.target.value)}
-                  className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-                  placeholder="Enter status"
-                />
+                  Add Row
+                </button>
               </div>
             </div>
-            <button
-              type="button"
-              onClick={handleAddRow}
-              className="mt-4 px-4 py-2 bg-blue-500 text-white font-semibold rounded-lg shadow-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-            >
-              Add Row
-            </button>
           </div>
-          <table className="min-w-full divide-y divide-gray-200">
-            <thead className="bg-gray-50">
-              <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Action
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  When
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Date
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Status
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Actions
-                </th>
-              </tr>
-            </thead>
-            <tbody className="bg-white divide-y divide-gray-200">
-              {tableData.map((row, index) => (
-                <tr key={index}>
-                  <td className="px-6 py-4 whitespace-nowrap">{row.action}</td>
-                  <td className="px-6 py-4 whitespace-nowrap">{row.when}</td>
-                  <td className="px-6 py-4 whitespace-nowrap">{row.date}</td>
-                  <td className="px-6 py-4 whitespace-nowrap">{row.status}</td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <button
-                      type="button"
-                      onClick={() => handleDeleteRow(index)}
-                      className="text-red-600 hover:text-red-900"
-                    >
-                      Delete
-                    </button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-
-        <div className="form-group mt-2">
-            <label
-              htmlFor="q5"
-              className="block text-sm font-medium text-gray-700"
-            >
-              Suggestion
+          <div className='flex justify-start  gap-1 items-start'>
+            <label htmlFor='suggestion' className='font-semibold'>
+              Suggestion:
             </label>
-            <input
-              type="text"
-              id="suggestion"
-              name="suggestion"
-              value={formData.suggestion}
-              onChange={handleChange}
-              className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+            <textarea
+              id='suggestion'
+              {...register('versions.0.suggestion', {
+                onChange: debouncedUpdate,
+              })}
+              disabled={!canEditAllDetails}
+              className='border-[1px] border-gray-500 bg-gray-50 p-1 rounded w-full'
             />
           </div>
+        </form>
+      </section>
+    );
+  }
+);
 
-          <div className="form-group">
-            <label
-              htmlFor="q5"
-              className="block text-sm font-medium text-gray-700"
-            >
-              Feedback
-            </label>
-            <input
-              type="text"
-              id="feedback"
-              name="feedback"
-              value={formData.feedback}
-              onChange={handleChange}
-              className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-            />
-          </div>
-
-        {/* Submit Button */}
-        <div className="mt-6">
-          <button
-            type="submit"
-            className="px-4 py-2 bg-blue-500 text-white font-semibold rounded-lg shadow-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-          >
-            Save Pdf
-          </button>
-        </div>
-      </form>
-    </div>
-  );
-};
-
+AddToolBoxTalk.displayName = 'AddToolBoxTalk';
 export default AddToolBoxTalk;

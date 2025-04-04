@@ -26,20 +26,25 @@ const page = async () => {
   const safety = JSON.parse(res?.data).filter(
     (employee) => employee.employeeRole == 'Safety'
   );
+  const accountant = JSON.parse(res?.data).filter(
+    (employee) => employee.employeeRole == 'ACCOUNTANT'
+  );
   return (
     <Tabs defaultValue='addFleetManager'>
       <h1 className='font-bold text-blue-500 border-b-2 border-blue-500 text-center py-2 mb-4'>
         Employees
       </h1>
-      <TabsList className='grid w-full grid-cols-2 sm:grid-cols-3 lg:grid-cols-8 gap-1 justify-content-center bg-white mb-20 sm:mb-10 lg:mb-0'>
+      <TabsList className='grid w-full grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-1 h-fit justify-content-center bg-white mb-20 sm:mb-10 lg:mb-0'>
         <TabsTrigger value='addFleetManager'>Add Fleet Manager</TabsTrigger>
         <TabsTrigger value='viewFleetManager'>View Fleet Managers</TabsTrigger>
         <TabsTrigger value='addDriver'>Add Driver</TabsTrigger>
         <TabsTrigger value='viewDriver'>View Drivers</TabsTrigger>
         <TabsTrigger value='addHR'>Add HR</TabsTrigger>
-        <TabsTrigger value='addSafety'>Add Safety Manager</TabsTrigger>
         <TabsTrigger value='viewHR'>View HR</TabsTrigger>
+        <TabsTrigger value='addSafety'>Add Safety Manager</TabsTrigger>
         <TabsTrigger value='viewSafety'>View Safety</TabsTrigger>
+        <TabsTrigger value='createAccountant'>Add Accountant</TabsTrigger>
+        <TabsTrigger value='viewAccountant'>View Accountant</TabsTrigger>
       </TabsList>
       <TabsContent value='addFleetManager'>
         <EmployeeManagement heading='Add Fleet Manager ' role='FLEETMANAGER' />
@@ -68,6 +73,13 @@ const page = async () => {
 
       <TabsContent value='viewSafety'>
         <DataTable columns={columns} data={safety} filterValue='name' />
+      </TabsContent>
+
+      <TabsContent value='createAccountant'>
+        <EmployeeManagement heading='Add Accountant ' role='ACCOUNTANT' />
+      </TabsContent>
+      <TabsContent value='viewAccountant'>
+        <DataTable columns={columns} data={accountant} filterValue='name' />
       </TabsContent>
     </Tabs>
   );

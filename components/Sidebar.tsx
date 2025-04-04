@@ -36,6 +36,8 @@ import {
   LucideReceiptPoundSterling,
   IndianRupee,
   PersonStanding,
+  Eye,
+  SwordsIcon,
 } from 'lucide-react';
 import { Building } from 'lucide-react';
 import { LocateFixed } from 'lucide-react';
@@ -227,14 +229,57 @@ const Sidebar = forwardRef<HTMLDivElement, Props>(
                 variant: 'ghost',
               },
               {
+                title: 'Setting',
+                href: '/driver/settings',
+                icon: Settings,
+                variant: 'ghost',
+              },
+            ]}
+          />
+        )}
+        {session?.data?.user?.access === 'ACCOUNTANT' && (
+          <Nav
+            isCollapsed={isCollapsed}
+            links={[
+              {
+                title: 'Dashboard',
+                href: '/accountant/profile',
+                icon: LayoutDashboard,
+                variant: 'ghost',
+              },
+              {
                 title: 'Daily Utilisation',
-                href: '/driver/daily',
+                href: '/accountant/daily',
+                icon: ClipboardPen,
+                variant: 'ghost',
+              },
+              {
+                title: 'View Daily Utilisation',
+                href: '/accountant/daily/ViewDailyUtilization',
+                icon: Eye,
+                variant: 'ghost',
+              },
+              {
+                title: 'Billings',
+                href: '/accountant/billings',
+                icon: FileText,
+                variant: 'ghost',
+              },
+              {
+                title: 'Invoices',
+                href: '/accountant/invoices',
+                icon: FileStack,
+                variant: 'ghost',
+              },
+              {
+                title: 'Work Order',
+                href: '/accountant/work-order',
                 icon: ClipboardPen,
                 variant: 'ghost',
               },
               {
                 title: 'Setting',
-                href: '/driver/settings',
+                href: '/accountant/settings',
                 icon: Settings,
                 variant: 'ghost',
               },
@@ -279,6 +324,12 @@ const Sidebar = forwardRef<HTMLDivElement, Props>(
                 title: 'Documents',
                 href: '/safety/documents',
                 icon: FileText,
+                variant: 'ghost',
+              },
+              {
+                title: 'Trainings',
+                href: '/safety/trainings',
+                icon: SwordsIcon,
                 variant: 'ghost',
               },
             ]}

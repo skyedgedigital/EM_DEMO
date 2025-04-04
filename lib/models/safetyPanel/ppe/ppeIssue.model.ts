@@ -27,6 +27,6 @@ const PpeIssueSchema: mongoose.Schema<any> = new Schema({
     }
 })
 
-const PpeIssue : mongoose.Model<IPpeIssue> = mongoose.models.PpeIssue || mongoose.model("PpeIssue",PpeIssueSchema)
+const PpeIssue : mongoose.Model<IPpeIssue> = mongoose.models?.PpeIssue || mongoose.model("PpeIssue",PpeIssueSchema)
 
 export default PpeIssue

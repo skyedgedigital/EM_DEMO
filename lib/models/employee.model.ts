@@ -88,6 +88,6 @@ EmployeeSchema.pre<IEmployee>("deleteOne", async function (next) {
     }
 });
 
-const Employee: mongoose.Model<IEmployee> = mongoose.models.Employee || mongoose.model("Employee", EmployeeSchema);
+const Employee: mongoose.Model<IEmployee> = mongoose.models?.Employee || mongoose.model("Employee", EmployeeSchema);
 
 export default Employee;

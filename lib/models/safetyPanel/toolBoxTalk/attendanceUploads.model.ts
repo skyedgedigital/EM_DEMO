@@ -21,5 +21,5 @@ const AttendanceUploadsSchema : mongoose.Schema<IData> = new Schema({
     }
 })
 
-const AttendanceUploads : mongoose.Model<IData> = mongoose.models.AttendanceUploads || mongoose.model("AttendanceUploads",AttendanceUploadsSchema);
+const AttendanceUploads : mongoose.Model<IData> = mongoose.models?.AttendanceUploads || mongoose.model("AttendanceUploads",AttendanceUploadsSchema);
 export default AttendanceUploads;

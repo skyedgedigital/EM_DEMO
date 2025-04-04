@@ -20,7 +20,7 @@ const ChemicalPurchaseSchema: mongoose.Schema<any> = new Schema({
     }
 })
 
-const ChemicalPurchase : mongoose.Model<any> = mongoose.models.ChemicalPurchase || mongoose.model("ChemicalPurchase",ChemicalPurchaseSchema);
+const ChemicalPurchase : mongoose.Model<any> = mongoose.models?.ChemicalPurchase || mongoose.model("ChemicalPurchase",ChemicalPurchaseSchema);
 
 export default ChemicalPurchase;
 

@@ -10,6 +10,6 @@ const ToolGroupSchema = new Schema({
     },
 });
 
-const ToolGroup = mongoose.models.ToolGroup || mongoose.model('ToolGroup', ToolGroupSchema);
+const ToolGroup = mongoose.models?.ToolGroup || mongoose.model('ToolGroup', ToolGroupSchema);
 
 // export default ToolGroup;

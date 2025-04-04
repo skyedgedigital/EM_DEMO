@@ -46,6 +46,6 @@ StoreSchema.pre<IStore>('save',function(next){
     next();
 })
 
-const Store : mongoose.Model<IStore> = mongoose.models.Store || mongoose.model("Store",StoreSchema);
+const Store : mongoose.Model<IStore> = mongoose.models?.Store || mongoose.model("Store",StoreSchema);
 
 export default Store;

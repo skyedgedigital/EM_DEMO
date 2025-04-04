@@ -36,6 +36,6 @@ const CompliancesSchema:mongoose.Schema<ICompliance> = new Schema({
     }
 })
 
-const Compliance :  mongoose.Model<ICompliance> = mongoose.models.Compliance || mongoose.model("Compliance",CompliancesSchema)
+const Compliance :  mongoose.Model<ICompliance> = mongoose.models?.Compliance || mongoose.model("Compliance",CompliancesSchema)
 
 export default Compliance

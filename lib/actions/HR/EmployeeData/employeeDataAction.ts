@@ -1,10 +1,10 @@
-import { autoGenEmpCode } from './autoGenerateEmpCode';
+import { autoGenEmpCode } from "./autoGenerateEmpCode";
 import {
   createEmployeeData,
   createEmployeeDataBulk,
   uploadEmployeeDataPhotos,
-} from './create';
-import { deleteEmployeeData } from './delete';
+} from "./create";
+import { deleteEmployeeData } from "./delete";
 import {
   fetchEmployeeByCode,
   fetchEmployeeById,
@@ -13,11 +13,19 @@ import {
   fetchAllEmployees,
   fetchEmployeesLazyLoading,
   fetchCompliancesByMonthYear,
-  fetchEmployeesWithWorkorderHr
-} from './fetch';
-import { fetchEmployeesJoined, fetchEmployeesResigned, fetchEmpNames, fetchEmpsJoinedOrLeftWithinDateRange } from './fetchData';
-import { getNotification } from './notification';
-import { updateEmployeeData } from './update';
+  fetchEmployeesWithWorkorderHr,
+  fetchAllEmployeesSelectedFieldInfos,
+  fetchEmployeeSelectedFieldByCode,
+  fetchEmployeesBySelectedHRWorkOrderID,
+} from "./fetch";
+import {
+  fetchEmployeesJoined,
+  fetchEmployeesResigned,
+  fetchEmpNames,
+  fetchEmpsJoinedOrLeftWithinDateRange,
+} from "./fetchData";
+import { getNotification } from "./notification";
+import { updateEmployeeData } from "./update";
 
 const EmployeeDataAction = {
   CREATE: {
@@ -43,9 +51,12 @@ const EmployeeDataAction = {
     fetchNotification: getNotification,
     fetchCompliances: fetchCompliancesByMonthYear,
     fetchEmpNames: fetchEmpNames,
-    fetchEmpsWithDateRange:fetchEmpsJoinedOrLeftWithinDateRange,
-    fetchEmpsJoinedWithinDateRange:fetchEmployeesJoined,
-    fetchEmpsResigned:fetchEmployeesResigned
+    fetchEmpsWithDateRange: fetchEmpsJoinedOrLeftWithinDateRange,
+    fetchEmpsJoinedWithinDateRange: fetchEmployeesJoined,
+    fetchEmpsResigned: fetchEmployeesResigned,
+    fetchAllEmployeesSelectedFieldInfos,
+    fetchEmployeeSelectedFieldByCode,
+    fetchEmployeesBySelectedHRWorkOrderID,
   },
 };
 

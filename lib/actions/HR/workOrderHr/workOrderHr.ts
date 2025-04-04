@@ -2,7 +2,7 @@
 
 import { ApiResponse } from '@/interfaces/APIresponses.interface';
 import handleDBConnection from '@/lib/database';
-import WorkOrderHr from '@/lib/models/HR/workOrderHr.model';
+import WorkOrderHr, { IWorkOrderHr } from '@/lib/models/HR/workOrderHr.model';
 
 const createWorkOrderHr = async (
   dataString: string
@@ -96,12 +96,24 @@ const fetchAllWorkOrderHr = async () => {
   }
 };
 
-const fetchAllValidWorkOrderHr = async (): Promise<ApiResponse<any>> => {
+const fetchAllValidWorkOrderHr = async (
+  selectedFields: (keyof IWorkOrderHr)[] = []
+): Promise<ApiResponse<any>> => {
   try {
     const dbConnection = await handleDBConnection();
     if (!dbConnection.success) return dbConnection;
-    const resp = await WorkOrderHr.find({}).sort({ workOrderNumber: 1 });
-    // console.log('valid workorder', resp);
+    console.log('SELECTED FIELDS', selectedFields);
+
+    let resp = [];
+    if (selectedFields.length === 0) {
+      resp = await WorkOrderHr.find()
+        .sort({ workOrderNumber: 1 });
+    } else {
+      resp = await WorkOrderHr.find()
+        .select(['lapseTill', ...selectedFields].join(' '))
+        .sort({ workOrderNumber: 1 });
+      // console.log('valid workorder', resp);
+    }
 
     if (!resp) {
       return {

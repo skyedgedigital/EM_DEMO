@@ -1,7 +1,14 @@
 'use server';
 import { ApiResponse } from '@/interfaces/APIresponses.interface';
+import {
+  IAdvanceRegister,
+  IDamageRegister,
+  IEmployeeData,
+} from '@/interfaces/HR/EmployeeData.interface';
 import handleDBConnection from '@/lib/database';
 import EmployeeData from '@/lib/models/HR/EmployeeData.model';
+import { IDesignation } from '../../../models/HR/designation.model';
+import mongoose, { Document } from 'mongoose';
 
 // CREATE
 
@@ -120,9 +127,10 @@ const fetchDamageRegister = async (
     to.setHours(23, 59, 59, 999); // Include the entire "to" day
 
     // Fetch employees with the required fields
-    const employees = await EmployeeData.find({}, 'name damageRegister')
-      .populate('designation')
-      .lean();
+    const employees: (IEmployeeData & { designation: IDesignation })[] =
+      await EmployeeData.find({}, 'name damageRegister')
+        .populate('designation')
+        .lean();
 
     // Process the data
     const data = employees.flatMap((employee) =>
@@ -176,9 +184,10 @@ const fetchAdvanceRegister = async (
     to.setHours(23, 59, 59, 999); // Include the entire "to" day
 
     // Fetch employees with the required fields
-    const employees = await EmployeeData.find({}, 'name advanceRegister')
-      .populate('designation')
-      .lean();
+    const employees: (IEmployeeData & { designation: IDesignation })[] =
+      await EmployeeData.find({}, 'name advanceRegister')
+        .populate('designation')
+        .lean();
 
     // Process the data
     const data = employees.flatMap((employee) =>
@@ -233,12 +242,13 @@ const fetchEmployeeRegisterById = async (
     // Connect to the database
 
     // Fetch employee data
-    const employee = await EmployeeData.findById(
-      employeeId,
-      'name fathersName designation damageRegister advanceRegister'
-    )
-      .populate('designation') // Include designation details
-      .lean();
+    const employee: IEmployeeData & { designation: IDesignation } =
+      await EmployeeData.findById(
+        employeeId,
+        'name fathersName designation damageRegister advanceRegister'
+      )
+        .populate('designation') // Include designation details
+        .lean();
 
     // Check if employee exists
     if (!employee) {
@@ -290,7 +300,8 @@ const updateDamageRegisterEntry = async (
   const dbConnection = await handleDBConnection();
   if (!dbConnection.success) return dbConnection;
   try {
-    const employee = await EmployeeData.findById(employeeId);
+    const employee: IEmployeeData & { designation: IDesignation } =
+      await EmployeeData.findById(employeeId);
     if (!employee) {
       return {
         success: false,
@@ -301,7 +312,9 @@ const updateDamageRegisterEntry = async (
       };
     }
 
-    const entry = employee.damageRegister.id(entryId); // Find the specific entry
+    const entry = (
+      employee.damageRegister as mongoose.Types.DocumentArray<IDamageRegister>
+    ).id(entryId); // Find the specific entry
     if (!entry) {
       return {
         success: false,
@@ -362,7 +375,9 @@ const updateAdvanceRegisterEntry = async (
       };
     }
 
-    const entry = employee.advanceRegister.id(entryId); // Find the specific entry
+    const entry = (
+      employee.advanceRegister as mongoose.Types.DocumentArray<IAdvanceRegister>
+    ).id(entryId); // Find the specific entry
     if (!entry) {
       return {
         success: false,
@@ -444,7 +459,7 @@ const updateDamageInstallment = async (
       { $set: { 'damageRegister.$.installmentsLeft': updatedInstallmentsLeft } }
     );
 
-    if (updateResult.nModified === 0) {
+    if (updateResult.modifiedCount === 0) {
       throw new Error(`Failed to update damage installment`);
     }
 
@@ -515,7 +530,7 @@ const updateAdvanceInstallment = async (
       }
     );
 
-    if (updateResult.nModified === 0) {
+    if (updateResult.modifiedCount === 0) {
       throw new Error(`Failed to update advance installment`);
     }
 

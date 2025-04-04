@@ -41,6 +41,6 @@ const DailyUtilisationSchema: mongoose.Schema<any> = new mongoose.Schema({
     }
 })
 
-const DailyUtilisation : mongoose.Model<any> = mongoose.models.DailyUtilisation || mongoose.model('DailyUtilisation',DailyUtilisationSchema);
+const DailyUtilisation : mongoose.Model<any> = mongoose.models?.DailyUtilisation || mongoose.model('DailyUtilisation',DailyUtilisationSchema);
 
 export default DailyUtilisation;

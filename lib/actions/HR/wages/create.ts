@@ -3,13 +3,17 @@
 import EmployeeData from '@/lib/models/HR/EmployeeData.model';
 import { EsiLocationSchema } from '@/lib/models/HR/EsiLocation.model';
 import { DepartmentHrSchema } from '@/lib/models/HR/department_hr';
-import { DesignationSchema } from '@/lib/models/HR/designation.model';
+import {
+  DesignationSchema,
+  IDesignation,
+} from '@/lib/models/HR/designation.model';
 import convert_to_number from '@/utils/convert_to_number';
 import calcSundays from '@/utils/sundays';
 import mongoose from 'mongoose';
 import attendanceAction from '../../attendance/attendanceAction';
 import Wages from '@/lib/models/HR/wages.model';
 import handleDBConnection from '@/lib/database';
+import { IEmployeeData } from '@/interfaces/HR/EmployeeData.interface';
 const departmentHrModel =
   mongoose.models.DepartmentHr ||
   mongoose.model('DepartmentHr', DepartmentHrSchema);
@@ -42,7 +46,7 @@ const createWageForAnEmployee = async (dataString: string) => {
     } = data;
     const { sundays, totalDays, sundayDates } = calcSundays(month, year);
     const totalWorkingDays = totalDays - sundays;
-    const empData = await EmployeeData.findOne({
+    const empData: IEmployeeData = await EmployeeData.findOne({
       _id: employee,
     })
       .populate('department')
@@ -145,7 +149,9 @@ const createWageForAnEmployee = async (dataString: string) => {
     const presentDays = attendanceRecordsData.Present;
 
     // console.log(empData)
-    const designationaData = empData.designation;
+    const designationaData = empData.designation as unknown as IDesignation & {
+      _id: mongoose.Types.ObjectId;
+    };
     // console.log('fffffff', designationaData);
 
     const esiLocationData = empData.ESILocation;

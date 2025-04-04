@@ -1,12 +1,12 @@
 import mongoose from 'mongoose';
-
-export interface IEnterprise extends mongoose.Document {
+export interface IEnterpriseBase {
   name: string;
   pan: string;
   gstin: string;
   vendorCode: string;
-  createdAt: Date;
-  updatedAt: Date;
+  // createdAt: Date;
+  // updatedAt: Date;
   address: string;
   email: string;
 }
+export interface IEnterprise extends IEnterpriseBase, mongoose.Document {}

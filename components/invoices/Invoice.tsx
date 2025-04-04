@@ -14,7 +14,7 @@ import {
 } from '@/lib/actions/chalan/invoice';
 import { useParams, useRouter } from 'next/navigation';
 import jsPDF from 'jspdf';
-import { parseISO, format, addDays } from 'date-fns';
+import { parseISO, format, addDays, formatDate } from 'date-fns';
 import {
   getDownloadURL,
   getStorage,
@@ -29,11 +29,10 @@ import { fetchEnterpriseInfo } from '@/lib/actions/enterprise';
 import { IEnterprise } from '@/interfaces/enterprise.interface';
 import { Loader } from 'lucide-react';
 import workOrderAction from '@/lib/actions/workOrder/workOrderAction';
+import { getYearForInvoiceNaming } from '@/utils/getYearForInvoiceNaming';
 
 const todayDate = () => {
   let date = new Date().toLocaleDateString();
-  let x = date.split('/');
-  // return `${x[0]}/${x[1]}/${x[2]}`;
   return date;
 };
 const Invoice = ({
@@ -258,7 +257,7 @@ const Invoice = ({
         const invoiceAlreadyExists =
           await chalanAction.CHECK.checkExistingInvoice(
             selectedChalanNumbers,
-            `SE/24-25/${invoiceNumber}`
+            `SE/${getYearForInvoiceNaming()}/${invoiceNumber}`
           );
         //invoiceAlreadyExists.success will be true if no invoice exists
         if (!invoiceAlreadyExists.success) {
@@ -746,8 +745,7 @@ const Invoice = ({
                   <p>
                     {/* SE/{todayDate().split('/')[2].substring(2, 4)}-
                     {Number(todayDate().split('/')[2].substring(2, 4)) + 1}/ */}
-                    SE/24-25/
-                    {invoiceNumber}
+                    SE/{getYearForInvoiceNaming()}/{invoiceNumber}
                   </p>
                 </div>
                 <div className='flex gap-4 items-center'>

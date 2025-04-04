@@ -1,7 +1,10 @@
 'use server';
 
 import { EmployeeDataSchema } from '@/lib/models/HR/EmployeeData.model';
-import { DesignationSchema } from '@/lib/models/HR/designation.model';
+import {
+  DesignationSchema,
+  IDesignation,
+} from '@/lib/models/HR/designation.model';
 import Wages from '@/lib/models/HR/wages.model';
 import EmployeeData from '@/lib/models/HR/EmployeeData.model';
 import WorkOrderHr from '@/lib/models/HR/workOrderHr.model';
@@ -15,6 +18,7 @@ import handleDBConnection from '@/lib/database';
 import { ApiResponse } from '@/interfaces/APIresponses.interface';
 import Attendance from '@/lib/models/HR/attendance.model';
 import { employee } from '../../../../types/employee.type';
+import { IEmployeeData } from '@/interfaces/HR/EmployeeData.interface';
 const designationModel =
   mongoose.models.Designation ||
   mongoose.model('Designation', DesignationSchema);
@@ -588,7 +592,9 @@ const fetchWagesForFinancialYearStatement = async (dataString) => {
         .populate('designation')
         .populate('employee');
       if (wages.length == 0) continue;
-      const employeeDoc = await EmployeeData.findById(employee._id);
+      const employeeDoc: IEmployeeData = await EmployeeData.findById(
+        employee._id
+      );
 
       const currentYear = new Date().getFullYear();
 
@@ -813,7 +819,7 @@ const fetchWagesForFinancialYearStatement2 = async (dataString) => {
       { $sort: { workManNo: 1 } },
     ];
 
-    const employees = await EmployeeData.aggregate(pipeline);
+    const employees = await EmployeeData.aggregate(pipeline as any);
     if (employees.length === 0) {
       return { status: 404, message: 'No Employees Found', success: false };
     }
@@ -1838,9 +1844,11 @@ const fetchFinalSettlement = async (dataString) => {
 
     // Fetch employee data
     console.log('ok1 ');
-    const empData = await EmployeeData.findOne({ _id: employee }).populate(
-      'designation'
-    );
+    const empData = await EmployeeData.findOne({
+      _id: employee,
+    })
+      .populate<{ designation: IDesignation }>('designation') // Explicit populate typing
+      .exec();
 
     if (!empData) {
       return {
@@ -1938,7 +1946,7 @@ const fetchFinalSettlement = async (dataString) => {
         (totalAttendancePerYear[i].EL +
           totalAttendancePerYear[i].CL +
           totalAttendancePerYear[i].FL) *
-        empData.designation.PayRate;
+        Number(empData.designation.PayRate);
     }
 
     // Add missing months with zero values
