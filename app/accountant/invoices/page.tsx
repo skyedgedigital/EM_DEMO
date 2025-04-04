@@ -5,6 +5,8 @@ import EditBillInvoice from '@/components/accountant/EditBillInvoice';
 import { billingInvoiceActions } from '@/lib/actions/accountant/billInvoice/billInvoiceActions';
 import { BillInvoiceColumns } from '@/components/accountant/BillInvoiceColumns';
 
+export const dynamic = 'force-dynamic';
+
 const page = async () => {
   const res = await billingInvoiceActions.GET.getAllBillingInvoices();
   let invoices;
