@@ -424,11 +424,10 @@ const BillingInvoice = ({
   // const total = items.reduce((sum, item) => sum + item.itemCost.itemCost, 0);
   const total = itemCost;
   console.log('TOTAL', total);
-  const grandTotal = itemCost;
-  // const grandTotal = items.reduce((sum, item) => {
-  //   const itemCost = item.itemCost.itemCost || 0;
-  //   return sum + itemCost + 0.18 * itemCost;
-  // }, 0);
+  const grandTotal = items.reduce((sum, item) => {
+    const itemCost = item.itemCost.itemCost || 0;
+    return sum + itemCost + 0.18 * itemCost;
+  }, 0);
   const generateAndUploadInvoiceSummaryPDF = async (
     printOrDownload: string
   ) => {
@@ -890,6 +889,7 @@ const BillingInvoice = ({
                       <td className='border-[1px] border-black pl-2 pb-3 '></td>
                       <td className='border-[1px] border-black pl-2 pb-3 '></td>
                       <td className='border-[1px] border-black pl-2 pb-3 '></td>
+                      <td className='border-[1px] border-black pl-2 pb-3 '></td>
 
                       {/* <td className='border-[1px] border-black pl-2 pb-3 '></td>
                     <td className='border-[1px] border-black pl-2 pb-3 '></td>
@@ -912,6 +912,7 @@ const BillingInvoice = ({
                     </tr>
                     {/* grand total row */}
                     <tr className='border-t-2 border-gray-600'>
+                      <td className='border-[1px] border-black pl-2 pb-3 '></td>
                       <td className='border-[1px] border-black pl-2 pb-3 '></td>
                       <td className='border-[1px] border-black pl-2 pb-3 '></td>
                       <td className='border-[1px] border-black pl-2 pb-3 '></td>
