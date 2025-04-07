@@ -81,6 +81,7 @@ const TrainingSchema: mongoose.Schema<ITraining> = new mongoose.Schema(
     trainingDate: {
       type: Date,
       required: true,
+      unique: true,
     },
     responsibility: {
       type: String,

@@ -24,33 +24,42 @@ export const createTraining = async (
     if (!trainingData.trainer) {
       throw new Error('Trainer id did not received, Try refreshing browser');
     }
+
+    const existingTrainingOnGivenDate = await TrainingModel.findOne({
+      trainingDate: trainingData.trainingDate,
+    });
+    // console.log('EXISTING TRAINING', existingTrainingOnGivenDate);
+
+    if (existingTrainingOnGivenDate) {
+      throw new Error(`A training already exist on selected date`);
+    }
     const dbConnection = await handleDBConnection();
     if (!dbConnection.success) return dbConnection;
 
     const createdTraining = await TrainingModel.create(trainingData);
 
-    console.log('CREATED TRAINING', createTraining);
-
     if (!createTraining) {
       throw new Error('Failed to create training');
     }
 
-    return {
-      success: true,
-      status: 201,
-      message: 'Training successfully created',
-      data: await JSON.parse(JSON.stringify(createdTraining)),
-      error: null,
-    };
+    return await JSON.parse(
+      JSON.stringify({
+        success: true,
+        status: 201,
+        message: 'Training successfully created',
+        data: createdTraining,
+        error: null,
+      })
+    );
   } catch (error) {
     return {
       status: 500,
       success: false,
       message:
-        error.message ||
+        error?.message ||
         JSON.stringify(error) ||
         'Unexpected error occurred, Failed to create training, Please try later',
-      error: error,
+      error: JSON.stringify(error),
       data: null,
     };
   }
