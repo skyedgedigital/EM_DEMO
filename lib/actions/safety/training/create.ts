@@ -14,6 +14,48 @@ import {
 } from '@/lib/models/Safety/training.model';
 import mongoose from 'mongoose';
 
+export const createTraining = async (
+  trainingData: Partial<ITraining>
+): Promise<ApiResponse<any>> => {
+  try {
+    if (!trainingData.title || !trainingData.trainingDate) {
+      throw new Error('Title and training date is must to create training');
+    }
+    if (!trainingData.trainer) {
+      throw new Error('Trainer id did not received, Try refreshing browser');
+    }
+    const dbConnection = await handleDBConnection();
+    if (!dbConnection.success) return dbConnection;
+
+    const createdTraining = await TrainingModel.create(trainingData);
+
+    console.log('CREATED TRAINING', createTraining);
+
+    if (!createTraining) {
+      throw new Error('Failed to create training');
+    }
+
+    return {
+      success: true,
+      status: 201,
+      message: 'Training successfully created',
+      data: await JSON.parse(JSON.stringify(createdTraining)),
+      error: null,
+    };
+  } catch (error) {
+    return {
+      status: 500,
+      success: false,
+      message:
+        error.message ||
+        JSON.stringify(error) ||
+        'Unexpected error occurred, Failed to create training, Please try later',
+      error: error,
+      data: null,
+    };
+  }
+};
+
 export interface CreateTrainingExamParams extends ITraining {
   questions: IQuestion[];
   targetDate: Date;
@@ -165,7 +207,6 @@ export const createTrainingExamWithQuestions = async (
   }
 };
 
-
 export const createExamAttempt = async (
   params: Partial<ITrainingExamAttempt>
 ): Promise<ApiResponse<ITrainingExamAttempt>> => {
@@ -247,4 +288,3 @@ export const createExamAttempt = async (
     );
   }
 };
-

@@ -16,12 +16,13 @@ export interface ITraining {
   trainer: mongoose.Types.ObjectId;
   allowedCandidates: mongoose.Types.ObjectId[];
   attendanceSheetURL: string;
+  trainingDate: Date;
+  responsibility?: string;
 }
 
 export interface ITrainingExam {
   questions: IQuestion[];
   targetDate: Date;
-  responsibility?: string;
   examType: ExamTypes;
   trainingId: mongoose.Types.ObjectId;
 }
@@ -65,6 +66,7 @@ const TrainingSchema: mongoose.Schema<ITraining> = new mongoose.Schema(
         type: mongoose.Schema.Types.ObjectId,
         ref: 'EmployeeData',
         required: true,
+        default: [],
       },
     ],
     trainer: {
@@ -73,6 +75,14 @@ const TrainingSchema: mongoose.Schema<ITraining> = new mongoose.Schema(
       required: true,
     },
     attendanceSheetURL: {
+      type: String,
+      default: '',
+    },
+    trainingDate: {
+      type: Date,
+      required: true,
+    },
+    responsibility: {
       type: String,
       default: '',
     },
@@ -93,10 +103,6 @@ const TrainingExamSchema: mongoose.Schema<ITrainingExam> = new mongoose.Schema(
     targetDate: {
       type: Date,
       required: true,
-    },
-    responsibility: {
-      type: String,
-      default: '',
     },
     trainingId: {
       type: mongoose.Schema.Types.ObjectId,

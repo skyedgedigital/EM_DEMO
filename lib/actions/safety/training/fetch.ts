@@ -236,6 +236,44 @@ export const fetchAllTrainingDetails = async (): Promise<
   }
 };
 
+export interface IFetchAllTrainingSelectedDetailsResponse
+  extends Partial<ITraining> {
+  _id: string;
+}
+
+export const fetchAllTrainingSelectedDetails = async (
+  selectedFields: (keyof ITraining)[] = []
+): Promise<ApiResponse<IFetchAllTrainingSelectedDetailsResponse[]>> => {
+  try {
+    const dbConnection = await handleDBConnection();
+    if (!dbConnection.success) return dbConnection;
+    const trainings = await TrainingModel.find({}).select(
+      selectedFields.join(' ')
+    );
+    if (!trainings) {
+      throw new Error('no trainings exist');
+    }
+    return JSON.parse(
+      JSON.stringify({
+        success: true,
+        status: 200,
+        message: 'Training fetched successfully!',
+        data: trainings,
+        error: null,
+      })
+    );
+  } catch (error) {
+    return JSON.parse(
+      JSON.stringify({
+        success: false,
+        status: 400,
+        message: error.message || 'Something went wrong!',
+        data: null,
+        error: error,
+      })
+    );
+  }
+};
 export interface IUpcomingTrainingsResponse extends ITraining {
   _id: mongoose.Types.ObjectId;
   createdAt: Date;
@@ -342,6 +380,7 @@ export interface ITrainingDetailWithExamsResponse {
   exams: ITrainingExamWithAttempts[];
   createdAt: Date;
   attendanceSheetURL: ITraining['attendanceSheetURL'];
+  responsibility:ITraining['responsibility']
 }
 
 export const fetchTrainingDetailWithExamsById = async (

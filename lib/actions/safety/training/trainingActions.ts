@@ -1,5 +1,9 @@
 import { checkEmployeeTrainingExamEligibility } from './checks';
-import { createExamAttempt, createTrainingExamWithQuestions } from './create';
+import {
+  createExamAttempt,
+  createTraining,
+  createTrainingExamWithQuestions,
+} from './create';
 import {
   fetchRequiredDetailsForATrainingExam,
   fetchExamByTrainingIdAndExamType,
@@ -9,6 +13,8 @@ import {
   fetchTrainingDetailWithExamsById,
   fetchExamAttemptDetails,
   fetchExamQuestionsByExamId,
+  fetchAllTrainingDetails,
+  fetchAllTrainingSelectedDetails,
   // fetchSelectedInfosOfExamByExamId,
 } from './fetch';
 import { updateExam, updateTraining } from './update';
@@ -17,6 +23,7 @@ export const trainingActions = {
   CREATE: {
     createTrainingExamWithQuestions,
     createExamAttempt,
+    createTraining,
   },
   FETCH: {
     fetchExamByTrainingIdAndExamType,
@@ -27,6 +34,8 @@ export const trainingActions = {
     fetchTrainingDetailWithExamsById,
     fetchExamAttemptDetails,
     fetchExamQuestionsByExamId,
+    fetchAllTrainingDetails,
+    fetchAllTrainingSelectedDetails,
   },
   CHECKS: {
     checkEmployeeTrainingExamEligibility,
