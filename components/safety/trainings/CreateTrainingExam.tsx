@@ -301,7 +301,7 @@ const CreateTrainingExam = ({
     <section>
       {/* <div>{JSON.stringify(formData)}</div> */}
       <h2 className='text-lg text-blue-500 font-semibold'>
-        Fill details to create training
+        Fill details to create exam:
       </h2>
       <form onSubmit={handleSubmit(onSubmit)} className='flex flex-col gap-2'>
         <div className='flex flex-col md:flex-row gap-2 items-center'>

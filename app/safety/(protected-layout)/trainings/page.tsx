@@ -45,7 +45,7 @@ const TrainingHome = ({
                   : 'hover:text-gray-600 hover:bg-gray-50 dark:hover:bg-gray-800 dark:hover:text-gray-300'
               }`}
             >
-              Create Training
+              Create Training Exam
             </button>
           </li>
           <li>
