@@ -1,6 +1,6 @@
 'use client';
 import React, { useEffect, useState } from 'react';
-import { formatDate } from 'date-fns';
+import { formatDate, subDays } from 'date-fns';
 import { Button } from '@/components/ui/button';
 import { actionTypes, panelTypes } from '@/lib/models/log/log.model';
 import { DateRange } from 'react-day-picker';
@@ -179,7 +179,7 @@ const logsExample: IFetchLogsResponse['logs'] = [
   },
 ];
 
-type formData = {
+type TFormData = {
   dateRange: DateRange | null;
   actionType: actionTypes | 'ALL';
   panel: panelTypes | 'ALL';
@@ -194,19 +194,22 @@ const LogPage = () => {
   const [loadingStates, setLoadingStates] = useState({
     loadingLogs: true,
   });
-  const { register, setValue, handleSubmit } = useForm<formData>({
+  const { register, setValue, handleSubmit, formState } = useForm<TFormData>({
     defaultValues: {
-      dateRange: null,
+      dateRange: {
+        from: subDays(new Date(), 7),
+        to: new Date(),
+      },
       actionType: 'ALL',
       panel: 'ALL',
     },
   });
 
-  const onSubmit = (submittedFormData: formData) => {
+  const onSubmit = (submittedFormData: TFormData) => {
     console.log(submittedFormData);
   };
 
-  const getDateRange = (dateRange: DateRange | null) => {
+  const getDateRange = async (dateRange: DateRange | null) => {
     setValue('dateRange', dateRange);
   };
 
@@ -217,6 +220,7 @@ const LogPage = () => {
         loadingLogs: true,
       }));
       try {
+        //  i will send formState.default values as initial argument
         const { data, message, status, success, error } =
           await logActions.FETCH.fetchLogs();
 
