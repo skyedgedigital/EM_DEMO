@@ -400,18 +400,19 @@ const CreateTrainingExam = ({
         <div className='flex flex-col gap-1 border-[1px] border-gray-200 p-2 rounded'>
           <div className='w-full justify-between items-center'>
             <h2 className='font-semibold'>Create Questions:</h2>
-            {presetAlreadyProvided && (
-              <button
-                type='button'
-                onClick={fetchPreTrainingExamQuestion}
-                className=' text-blue-500 bg-white p-1 rounded flex justify-center items-center gap-1 px-3 py-1 border-[1px] border-blue-400 ml-0 md:ml-auto'
-              >
-                {loadingStates.loadingPreTrainingExamQuestion && (
-                  <Loader2Icon className='animate-spin' />
-                )}
-                <>Use Pre-Training Exam Questions</>
-              </button>
-            )}
+            {presetAlreadyProvided &&
+              presetExamType !== 'pre-training-exam' && (
+                <button
+                  type='button'
+                  onClick={fetchPreTrainingExamQuestion}
+                  className=' text-blue-500 bg-white p-1 rounded flex justify-center items-center gap-1 px-3 py-1 border-[1px] border-blue-400 ml-0 md:ml-auto'
+                >
+                  {loadingStates.loadingPreTrainingExamQuestion && (
+                    <Loader2Icon className='animate-spin' />
+                  )}
+                  <>Use Pre-Training Exam Questions</>
+                </button>
+              )}
           </div>
           {questionFields.map((question, questionIndex) => (
             <div key={question.id}>
@@ -442,7 +443,8 @@ const CreateTrainingExam = ({
             <>Add Question</>
           </button>
         </div>
-        {!presetAlreadyProvided ? (
+        {!presetAlreadyProvided ||
+        (presetAlreadyProvided && presetExamType === 'pre-training-exam') ? (
           <div className='flex flex-col gap-3 border-[1px] border-gray-200 rounded p-2'>
             <div className='flex flex-col md:flex-row justify-between items-center'>
               <h2 className='font-semibold'>Select Participants:</h2>

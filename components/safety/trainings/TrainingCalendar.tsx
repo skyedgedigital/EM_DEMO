@@ -17,6 +17,7 @@ import toast from 'react-hot-toast';
 import { trainingActions } from '@/lib/actions/safety/training/trainingActions';
 import { IFetchAllTrainingSelectedDetailsResponse } from '@/lib/actions/safety/training/fetch';
 import CreateTraining from './CreateTraining';
+import Link from 'next/link';
 
 type FormattedTrainings = {
   [dateKey: string]: IFetchAllTrainingSelectedDetailsResponse[];
@@ -192,12 +193,14 @@ const TrainingCalendar = () => {
             <div className='text-xs overflow-y-auto flex-grow'>
               {events[dateKey] &&
                 events[dateKey].map(({ _id, trainingDate, title }, index) => (
-                  <div
-                    key={index}
-                    className={` flex flex-col gap-1 items-center justify-between rounded p-1 mt-1 bg-blue-600  text-white overflow-hidden`}
+                  <Link
+                    key={_id}
+                    target='_blank'
+                    href={`/safety/trainings/training-details?trainingId=${_id}`}
+                    className={` flex flex-col gap-1 items-center justify-between rounded p-1 mt-1 bg-blue-600  text-white overflow-hidden hover:scale-105 transition-all hover:cursor-pointer`}
                   >
                     <p className='text-nowrap text-start w-full'>{title}</p>
-                  </div>
+                  </Link>
                 ))}
             </div>
           </div>
@@ -219,7 +222,7 @@ const TrainingCalendar = () => {
   return (
     <section className='flex flex-col justify-center items-center lg:flex-row gap-4'>
       {/* Calendar Section - Sticky */}
-      <div className='w-full lg:w-1/2 mx-auto p-1 md:p-4 lg:p-8 pt-0   lg:overflow-y-auto lg:sticky lg:top-0 border-[1px] border-gray-300 rounded'>
+      <div className='w-full lg:w-1/2 mx-auto p-1 md:p-4 lg:p-8 pt-0   lg:overflow-y-auto lg:sticky lg:top-0 border-[1px] border-gray-300 rounded flex flex-col gap-2'>
         {isLoading && (
           <span className='flex justify-center items-center gap-2 mb-2'>
             <Loader2Icon className='w-[20px] h-[20px] animate-spin text-blue-700' />
@@ -229,6 +232,9 @@ const TrainingCalendar = () => {
         {renderHeader()}
         {renderDays()}
         {renderCells()}
+        <p className='mt-3 text-sm text-gray-500 italic text-center'>
+          Note: click on trainings to see details
+        </p>
       </div>
 
       <div className='w-full h-full mb-auto flex-grow lg:w-1/2 justify-start overflow-y-auto flex flex-col gap-2'>

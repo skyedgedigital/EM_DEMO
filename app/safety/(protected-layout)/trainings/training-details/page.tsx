@@ -289,7 +289,12 @@ const TrainingDetails = ({
                     const query: {
                       trainingId: string;
                       examType: ExamTypes;
-                    } = { trainingId, examType: 'pre-training-exam' };
+                      defaultTab: tabOptionTypes;
+                    } = {
+                      trainingId,
+                      examType: 'pre-training-exam',
+                      defaultTab: 'create-training-exam',
+                    };
                     const queryString = new URLSearchParams(query).toString();
                     return `/safety/trainings?${queryString}`;
                   })()}
