@@ -245,7 +245,7 @@ const LogPage = () => {
   return (
     <>
       <section className='flex flex-col gap-2 min-h-screen relative'>
-        <div className='flex flex-col gap-2 sticky top-4 bg-white border-b-[1px] border-blue-400'>
+        <div className='flex flex-col gap-2 sticky top-4 bg-blue-50 border-b-[1px] border-blue-400 '>
           <h1 className='font-bold text-blue-500 border-b-2 border-blue-500 text-center py-2 mb-4'>
             Logs
           </h1>
@@ -301,7 +301,7 @@ const LogPage = () => {
                   htmlFor='action-type'
                   className='block text-sm font-medium text-gray-700'
                 >
-                  Between Dates:
+                  Between Dates (from-to):
                 </label>
                 <DatePickerWithRange
                   className='flex w-fit py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm gap-2'

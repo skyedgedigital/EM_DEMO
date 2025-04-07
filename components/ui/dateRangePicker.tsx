@@ -1,6 +1,6 @@
 'use client';
 
-import { addDays, format } from 'date-fns';
+import { format, subDays } from 'date-fns';
 import { CalendarIcon } from 'lucide-react';
 import { DateRange } from 'react-day-picker';
 
@@ -22,8 +22,8 @@ export function DatePickerWithRange({
   getDateRange: (dateRange: DateRange | null) => void;
 }) {
   const [date, setDate] = useState<DateRange | null>({
-    from: null,
-    to: null,
+    from: subDays(new Date(), 7),
+    to: new Date(),
   });
 
   useEffect(() => {
@@ -66,7 +66,7 @@ export function DatePickerWithRange({
             selected={date}
             onSelect={setDate}
             numberOfMonths={1}
-            
+
             // footer={
             //   date
             //     ? `You picked ${date.to.toLocaleDateString()}.`
