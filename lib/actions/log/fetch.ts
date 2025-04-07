@@ -1,8 +1,27 @@
 'use server';
+import { ApiResponse } from '@/interfaces/APIresponses.interface';
 import handleDBConnection from '@/lib/database';
-import LogModel from '@/lib/models/log/log.model';
+import LogModel, { ILogs } from '@/lib/models/log/log.model';
 
-export const fetchLogs = async (page: number = 1, limit: number = 10) => {
+interface IFetchLogs {
+  panel: ILogs['panel'];
+  actionType: ILogs['actionType'];
+  message: ILogs['message'];
+  date: ILogs['date']; // Date as ISO string
+  actionBy: string;
+  collection: ILogs['collection'];
+  documentId: string;
+  _id: string;
+}
+export interface IFetchLogsResponse {
+  logs: IFetchLogs[];
+  totalPages: number;
+  currentPage: number;
+}
+export const fetchLogs = async (
+  page: number = 1,
+  limit: number = 10
+): Promise<ApiResponse<IFetchLogsResponse>> => {
   try {
     const dbConnection = await handleDBConnection();
     if (!dbConnection.success) return dbConnection;
