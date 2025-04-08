@@ -38,7 +38,7 @@ const trainingExamSchema = z.object({
       // .nonempty('At-least one option should be correct'),
     })
   ),
-  // trainer: z.instanceof(mongoose.Types.ObjectId),
+  trainer: z.instanceof(mongoose.Types.ObjectId).nullable().default(null),
   examType: z.enum(ExamTypeNames).default('pre-training-exam'),
   trainingId: z.instanceof(mongoose.Types.ObjectId).nullable().default(null),
 });
@@ -95,7 +95,7 @@ const CreateTrainingExam = ({
     defaultValues: {
       allowedCandidates: [],
       questions: [],
-      // trainer: new mongoose.Types.ObjectId(), // Initialize with a valid ObjectId
+      trainer: new mongoose.Types.ObjectId(), // Initialize with a valid ObjectId
       targetDate: new Date(), // Initialize with current date
       // responsibility: '',
       examType: presetAlreadyProvided ? presetExamType : 'pre-training-exam',
@@ -130,6 +130,8 @@ const CreateTrainingExam = ({
     console.log('found tr', foundTraining);
     setValue('responsibility', foundTraining.responsibility);
     setValue('title', foundTraining.title);
+    setValue('trainer', new mongoose.Types.ObjectId(foundTraining.trainer));
+    console.log('found trainer', foundTraining.trainer);
   };
 
   useEffect(() => {
@@ -177,6 +179,7 @@ const CreateTrainingExam = ({
           await trainingActions.FETCH.fetchAllTrainingSelectedDetails([
             'title',
             'responsibility',
+            'trainer',
           ]);
         if (resp.success) {
           setAllTrainings(resp.data);
@@ -275,9 +278,9 @@ const CreateTrainingExam = ({
       console.log('Submitted Data', submittedFormData);
       const { data, error, message, status, success } =
         await trainingActions.CREATE.createTrainingExamWithQuestions(
-          (await JSON.parse(
+          JSON.parse(
             JSON.stringify(submittedFormData)
-          )) as CreateTrainingExamParams
+          ) as CreateTrainingExamParams
         );
       if (success) {
         console.log('response data', data);
