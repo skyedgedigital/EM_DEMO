@@ -1,7 +1,7 @@
 'use server';
 import { ApiResponse } from '@/interfaces/APIresponses.interface';
 import handleDBConnection from '@/lib/database';
-import LogModel, { ILogs } from '@/lib/models/log/log.model';
+import LogModel, { actionTypeNames, ILogs } from '@/lib/models/log/log.model';
 
 interface IFetchLogs {
   panel: ILogs['panel'];
@@ -20,15 +20,44 @@ export interface IFetchLogsResponse {
 }
 export const fetchLogs = async (
   page: number = 1,
-  limit: number = 10
+  limit: number = 10,
+  query: {
+    actionType?: ILogs['actionType'];
+    panel?: ILogs['panel'];
+    dateRange?: { from: Date; to: Date };
+  } = {}
 ): Promise<ApiResponse<IFetchLogsResponse>> => {
   try {
     const dbConnection = await handleDBConnection();
     if (!dbConnection.success) return dbConnection;
     const skip = (page - 1) * limit;
 
+    const { actionType, panel, dateRange } = query;
+
+    const query_build: {
+      actionType?: string;
+      panel?: ILogs['panel'];
+      date?: { $gte: Date; $lte: Date };
+    } = {};
+    if (
+      actionType &&
+      actionType ===
+        (actionTypeNames[0] || actionTypeNames[1] || actionTypeNames[2])
+    ) {
+      query_build.actionType = actionType;
+    }
+    if (panel) {
+      query_build.panel = panel;
+    }
+    if (dateRange && dateRange.from && dateRange.to) {
+      query_build.date = { $gte: dateRange.from, $lte: dateRange.to };
+    }
+
     const [logs, totalCount] = await Promise.all([
-      LogModel.find({}).sort({ date: -1 }).skip(skip).limit(limit),
+      LogModel.find({ ...query_build })
+        .sort({ date: -1 })
+        .skip(skip)
+        .limit(limit),
       LogModel.countDocuments({}),
     ]);
 
