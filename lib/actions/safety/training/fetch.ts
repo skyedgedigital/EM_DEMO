@@ -97,7 +97,7 @@ export const fetchRequiredDetailsForATrainingExam = async (
       examType: exam.examType,
       questions: exam.questions,
       targetDate: exam.targetDate,
-      responsibility: exam.responsibility,
+      // responsibility: exam.responsibility,
       examId: exam._id,
     };
     console.log('Combined data', combinedData);
