@@ -401,25 +401,32 @@ const TrainingDetails = ({
                   <ExclamationTriangleIcon />
                   <p>No Post training exam found for this training</p>
                 </div>
-                <Link
-                  target='_blank'
-                  href={(() => {
-                    const query: {
-                      trainingId: string;
-                      examType: ExamTypes;
-                      defaultTab: tabOptionTypes;
-                    } = {
-                      trainingId,
-                      examType: 'post-training-exam',
-                      defaultTab: 'create-training-exam',
-                    };
-                    const queryString = new URLSearchParams(query).toString();
-                    return `/safety/trainings?${queryString}`;
-                  })()}
-                  className='flex gap-2 justify-center ml-auto items-center bg-blue-500 hover:bg-blue-600 text-white rounded py-2 px-3'
-                >
-                  Create Post Training Exam
-                </Link>
+                {preTrainingExam ? (
+                  <Link
+                    target='_blank'
+                    href={(() => {
+                      const query: {
+                        trainingId: string;
+                        examType: ExamTypes;
+                        defaultTab: tabOptionTypes;
+                      } = {
+                        trainingId,
+                        examType: 'post-training-exam',
+                        defaultTab: 'create-training-exam',
+                      };
+                      const queryString = new URLSearchParams(query).toString();
+                      return `/safety/trainings?${queryString}`;
+                    })()}
+                    className='flex gap-2 justify-center ml-auto items-center bg-blue-500 hover:bg-blue-600 text-white rounded py-2 px-3'
+                  >
+                    Create Post Training Exam
+                  </Link>
+                ) : (
+                  <p>
+                    Post training exam can only be created if pre training exam
+                    has created.
+                  </p>
+                )}
               </div>
             )}
           </div>

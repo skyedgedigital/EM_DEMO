@@ -24,10 +24,14 @@ export const fetchLogs = async (
   query: {
     actionType?: ILogs['actionType'];
     panel?: ILogs['panel'];
-    dateRange?: { from: Date; to: Date };
+    dateRange?: { from?: Date; to?: Date };
   } = {}
 ): Promise<ApiResponse<IFetchLogsResponse>> => {
   try {
+    console.log('QUERY', query);
+    console.log('PAGE', page);
+    console.log('LIMIT', limit);
+
     const dbConnection = await handleDBConnection();
     if (!dbConnection.success) return dbConnection;
     const skip = (page - 1) * limit;

@@ -37,6 +37,7 @@ const TrainingCalendar = () => {
       ]);
       if (!resp.success) {
         console.error('Failed to fetch events:', resp.error);
+        toast.error(resp.message);
         return;
       }
 

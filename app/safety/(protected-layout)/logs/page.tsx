@@ -1,8 +1,8 @@
 'use client';
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { formatDate, subDays } from 'date-fns';
 import { Button } from '@/components/ui/button';
-import { actionTypes, panelTypes } from '@/lib/models/log/log.model';
+import { actionTypes, ILogs, panelTypes } from '@/lib/models/log/log.model';
 import { DateRange } from 'react-day-picker';
 import {
   Drawer,
@@ -187,31 +187,115 @@ type TFormData = {
 
 const LogPage = () => {
   const [logs, setLogs] = useState<IFetchLogsResponse['logs']>(logsExample);
+  console.log('logssss', logs);
   const [isDrawerOpen, setIsDrawerOpen] = useState<boolean>(false);
   const [selectedLog, setSelectedLog] =
     useState<IFetchLogsResponse['logs'][number]>(null);
+  const [page, setPage] = useState(1);
+  const [hasMore, setHasMore] = useState(true);
 
   const [loadingStates, setLoadingStates] = useState({
     loadingLogs: true,
+    loadingMore: false,
   });
-  const { register, setValue, handleSubmit, formState } = useForm<TFormData>({
-    defaultValues: {
-      dateRange: {
-        from: subDays(new Date(), 7),
-        to: new Date(),
+  const { register, setValue, handleSubmit, formState, watch } =
+    useForm<TFormData>({
+      defaultValues: {
+        dateRange: {
+          from: subDays(new Date(), 7),
+          to: new Date(),
+        },
+        actionType: 'ALL',
+        panel: 'ALL',
       },
-      actionType: 'ALL',
-      panel: 'ALL',
-    },
-  });
+    });
+  const formData = watch();
 
   const onSubmit = (submittedFormData: TFormData) => {
     console.log(submittedFormData);
+    // Reset to first page when filters change
+    setPage(1);
+    setHasMore(true);
+    fetchLogs(1, true);
   };
 
   const getDateRange = async (dateRange: DateRange | null) => {
     setValue('dateRange', dateRange);
   };
+  const handleScroll = useCallback(() => {
+    if (
+      window.innerHeight + document.documentElement.scrollTop !==
+        document.documentElement.offsetHeight ||
+      loadingStates.loadingMore ||
+      !hasMore
+    ) {
+      return;
+    }
+
+    // Load more data when scrolled to bottom
+    setLoadingStates((prev) => ({ ...prev, loadingMore: true }));
+    setPage((prev) => prev + 1);
+  }, [loadingStates.loadingMore, hasMore]);
+
+  const fetchLogs = useCallback(
+    async (pageNum: number, isInitialLoad = false) => {
+      try {
+        const { data, success } = await logActions.FETCH.fetchLogs(
+          pageNum,
+          10, // limit
+          {
+            actionType:
+              formState.defaultValues?.actionType === 'ALL'
+                ? undefined
+                : formData?.actionType,
+            panel:
+              formState.defaultValues?.panel === 'ALL'
+                ? undefined
+                : (formData?.panel as ILogs['panel']),
+            dateRange: formData?.dateRange,
+          }
+        );
+
+        if (success) {
+          if (isInitialLoad) {
+            setLogs(data.logs);
+          } else {
+            setLogs((prev) => [...prev, ...data.logs]);
+          }
+
+          // Check if there's more data
+          setHasMore(pageNum < data.totalPages);
+        }
+      } catch (error) {
+        toast.error(error?.message || 'Failed to load logs');
+      } finally {
+        setLoadingStates((prev) => ({
+          ...prev,
+          loadingLogs: false,
+          loadingMore: false,
+        }));
+      }
+    },
+    [formState.defaultValues]
+  );
+
+  // Initial load
+  useEffect(() => {
+    // fetchLogs(1, true);
+  }, [fetchLogs]);
+
+  // Load more when page changes
+  useEffect(() => {
+    if (page > 1) {
+      fetchLogs(page);
+    }
+  }, [page, fetchLogs]);
+
+  // Add scroll event listener
+  useEffect(() => {
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, [handleScroll]);
 
   useEffect(() => {
     const fetchAllLogs = async () => {
@@ -225,7 +309,7 @@ const LogPage = () => {
           await logActions.FETCH.fetchLogs();
 
         if (success) {
-          setLogs(data.logs);
+          setLogs((prev) => [...prev, ...data.logs]);
         }
         if (!success) {
           toast.error(message || error.toString());
@@ -243,7 +327,7 @@ const LogPage = () => {
         }));
       }
     };
-    fetchAllLogs();
+    // fetchAllLogs();
   }, []);
 
   return (
