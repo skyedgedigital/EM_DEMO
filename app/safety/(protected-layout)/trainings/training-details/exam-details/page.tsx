@@ -95,12 +95,6 @@ const TrainingExamDetailsPage = ({
                   <p className='font-semibold'>Pre Training Exam</p>
                 </div>
                 <div className=' flex justify-center items-center gap-1'>
-                  <label className='text-sm text-gray-600'>
-                    Responsibility:
-                  </label>
-                  <p>{examDetails.exam?.responsibility}</p>
-                </div>
-                <div className=' flex justify-center items-center gap-1'>
                   <label className='text-sm text-gray-600'>Dated for:</label>
                   <p>
                     {new Date(examDetails.exam.targetDate).toLocaleDateString()}

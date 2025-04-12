@@ -27,7 +27,8 @@
     "**/*.tsx",
     ".next/types/**/*.ts",
     "app/admin/enterprise-management",
-    "app/fleetmanager/chalans"
+    "app/fleetmanager/chalans",
+    "generateCollections.ts"
   ],
   "exclude": ["node_modules"]
 }

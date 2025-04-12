@@ -12,6 +12,7 @@ import Link from 'next/link';
 import React, { useEffect, useState } from 'react';
 import toast from 'react-hot-toast';
 import { FaSpinner } from 'react-icons/fa6';
+import { tabOptionTypes } from '../page';
 
 const TrainingDetails = ({
   searchParams,
@@ -100,16 +101,20 @@ const TrainingDetails = ({
           </span>
         )}
         {trainingDetails && !loadingStates.loadingTrainingDetails && (
-          <div className='w-full flex justify-start items-center gap-4 '>
-            <div className='font-semibold flex justify-center items-center gap-1'>
-              <label>Exam title:</label>
-              <p className='font-semibold text-blue-500'>
-                {trainingDetails.title}
-              </p>
+          <div className='w-full flex justify-start items-center gap-8 '>
+            <div className='flex justify-center items-center gap-1'>
+              <label className='font-semibold text-blue-500'>Title:</label>
+              <p className=''>{trainingDetails.title}</p>
             </div>
-            <div className='font-semibold flex justify-center items-center gap-1'>
-              <label>Created on:</label>
-              <p className='font-semibold text-blue-500'>
+            <div className='flex justify-center items-center gap-1'>
+              <label className='font-semibold text-blue-500'>
+                Responsibility:
+              </label>
+              <p className=''>{trainingDetails.responsibility}</p>
+            </div>
+            <div className=' flex justify-center items-center gap-1'>
+              <label className='font-semibold text-blue-500'>Created on:</label>
+              <p className=''>
                 {new Date(trainingDetails.createdAt).toLocaleDateString()}
               </p>
             </div>
@@ -205,12 +210,6 @@ const TrainingDetails = ({
                     <div className='w-full flex justify-start items-center gap-6'>
                       <div className=' flex justify-center items-center gap-1'>
                         <label className='text-sm text-gray-600'>
-                          Responsibility:
-                        </label>
-                        <p>{preTrainingExam?.responsibility}</p>
-                      </div>
-                      <div className=' flex justify-center items-center gap-1'>
-                        <label className='text-sm text-gray-600'>
                           Dated for:
                         </label>
                         <p>
@@ -290,7 +289,12 @@ const TrainingDetails = ({
                     const query: {
                       trainingId: string;
                       examType: ExamTypes;
-                    } = { trainingId, examType: 'pre-training-exam' };
+                      defaultTab: tabOptionTypes;
+                    } = {
+                      trainingId,
+                      examType: 'pre-training-exam',
+                      defaultTab: 'create-training-exam',
+                    };
                     const queryString = new URLSearchParams(query).toString();
                     return `/safety/trainings?${queryString}`;
                   })()}
@@ -322,12 +326,6 @@ const TrainingDetails = ({
                 <div className='flex justify-between items-start w-full'>
                   <div className='flex flex-col gap-3 '>
                     <div className='w-full flex justify-start items-center gap-6'>
-                      <div className=' flex justify-center items-center gap-1'>
-                        <label className='text-sm text-gray-600'>
-                          Responsibility:
-                        </label>
-                        <p>{postTrainingExam?.responsibility}</p>
-                      </div>
                       <div className=' flex justify-center items-center gap-1'>
                         <label className='text-sm text-gray-600'>
                           Dated for:
@@ -403,20 +401,32 @@ const TrainingDetails = ({
                   <ExclamationTriangleIcon />
                   <p>No Post training exam found for this training</p>
                 </div>
-                <Link
-                  target='_blank'
-                  href={(() => {
-                    const query: {
-                      trainingId: string;
-                      examType: ExamTypes;
-                    } = { trainingId, examType: 'post-training-exam' };
-                    const queryString = new URLSearchParams(query).toString();
-                    return `/safety/trainings?${queryString}`;
-                  })()}
-                  className='flex gap-2 justify-center ml-auto items-center bg-blue-500 hover:bg-blue-600 text-white rounded py-2 px-3'
-                >
-                  Create Post Training Exam
-                </Link>
+                {preTrainingExam ? (
+                  <Link
+                    target='_blank'
+                    href={(() => {
+                      const query: {
+                        trainingId: string;
+                        examType: ExamTypes;
+                        defaultTab: tabOptionTypes;
+                      } = {
+                        trainingId,
+                        examType: 'post-training-exam',
+                        defaultTab: 'create-training-exam',
+                      };
+                      const queryString = new URLSearchParams(query).toString();
+                      return `/safety/trainings?${queryString}`;
+                    })()}
+                    className='flex gap-2 justify-center ml-auto items-center bg-blue-500 hover:bg-blue-600 text-white rounded py-2 px-3'
+                  >
+                    Create Post Training Exam
+                  </Link>
+                ) : (
+                  <p>
+                    Post training exam can only be created if pre training exam
+                    has created.
+                  </p>
+                )}
               </div>
             )}
           </div>

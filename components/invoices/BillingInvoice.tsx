@@ -5,7 +5,7 @@ import { MdOutlineFileDownload } from 'react-icons/md';
 import toast from 'react-hot-toast';
 import Image from 'next/image';
 import jsPDF from 'jspdf';
-import { parseISO, format } from 'date-fns';
+import { parseISO, format, formatDate } from 'date-fns';
 import { getDownloadURL, ref, uploadBytesResumable } from 'firebase/storage';
 import { storage } from '@/utils/fireBase/config';
 import { useReactToPrint } from 'react-to-print';
@@ -19,7 +19,7 @@ import { billingInvoiceActions } from '@/lib/actions/accountant/billInvoice/bill
 import { getYearForInvoiceNaming } from '@/utils/getYearForInvoiceNaming';
 
 const todayDate = () => {
-  let date = new Date().toLocaleDateString();
+  let date = formatDate(new Date(), 'dd/MM/yyyy');
   return date;
 };
 export interface IItemsInBillingInvoice {

@@ -14,6 +14,57 @@ import {
 } from '@/lib/models/Safety/training.model';
 import mongoose from 'mongoose';
 
+export const createTraining = async (
+  trainingData: Partial<ITraining>
+): Promise<ApiResponse<any>> => {
+  try {
+    if (!trainingData.title || !trainingData.trainingDate) {
+      throw new Error('Title and training date is must to create training');
+    }
+    if (!trainingData.trainer) {
+      throw new Error('Trainer id did not received, Try refreshing browser');
+    }
+
+    const existingTrainingOnGivenDate = await TrainingModel.findOne({
+      trainingDate: trainingData.trainingDate,
+    });
+    // console.log('EXISTING TRAINING', existingTrainingOnGivenDate);
+
+    if (existingTrainingOnGivenDate) {
+      throw new Error(`A training already exist on selected date`);
+    }
+    const dbConnection = await handleDBConnection();
+    if (!dbConnection.success) return dbConnection;
+
+    const createdTraining = await TrainingModel.create(trainingData);
+
+    if (!createTraining) {
+      throw new Error('Failed to create training');
+    }
+
+    return await JSON.parse(
+      JSON.stringify({
+        success: true,
+        status: 201,
+        message: 'Training successfully created',
+        data: createdTraining,
+        error: null,
+      })
+    );
+  } catch (error) {
+    return {
+      status: 500,
+      success: false,
+      message:
+        error?.message ||
+        JSON.stringify(error) ||
+        'Unexpected error occurred, Failed to create training, Please try later',
+      error: JSON.stringify(error),
+      data: null,
+    };
+  }
+};
+
 export interface CreateTrainingExamParams extends ITraining {
   questions: IQuestion[];
   targetDate: Date;
@@ -29,8 +80,6 @@ export const createTrainingExamWithQuestions = async (
   try {
     const dbConnection = await handleDBConnection();
     if (!dbConnection.success) return dbConnection;
-    // console.log('----------------------------------------------------');
-    console.log('PARAMS', params);
     const {
       title,
       questions,
@@ -46,75 +95,40 @@ export const createTrainingExamWithQuestions = async (
       );
     }
 
-    const existingTraining = await TrainingModel.findOne({ title }, null, {
-      session,
-    });
+    const existingTraining = await TrainingModel.findOne(
+      { title, trainer },
+      null,
+      {
+        session,
+      }
+    );
 
-    if (existingTraining) {
-      // if pre and post exams exist then no other exams should be created
-      const existingExams = await TrainingExamModel.find(
-        {
-          trainingId: existingTraining._id,
-        },
-        null,
-        { session }
-      );
-      if (existingExams.length >= 2) {
-        throw new Error(
-          'Cannot create exams, pre and post exams already exist'
-        );
-      }
-      // if training exist then, pre exam must have been create before
-      if (examType === 'pre-training-exam') {
-        throw new Error('Cannot create a pre exam, it already exist');
-      }
-
-      const new_exam = await TrainingExamModel.create(
-        [
-          {
-            examType,
-            questions,
-            responsibility: params?.responsibility || '',
-            targetDate,
-            trainingId: existingTraining._id,
-          },
-        ],
-        { session }
-      );
-      if (new_exam) {
-        await session.commitTransaction();
-        return JSON.parse(
-          JSON.stringify({
-            data: new_exam[0],
-            error: null,
-            message: 'POST exam successfully created',
-            status: 201,
-            success: true,
-          })
-        );
-      } else {
-        throw new Error('Something went wrong');
-      }
+    // without a training, an exam can't be created
+    if (!existingTraining) {
+      throw new Error('Training does not exist');
     }
 
-    // if training does not exist then user must create a pre exam first
-    if (examType !== 'pre-training-exam') {
-      throw new Error(`Cannot create a ${examType}, first create a PRE exam`);
-    }
-
-    const new_training = await TrainingModel.create(
-      [
-        {
-          title,
-          trainer,
-          allowedCandidates,
-        },
-      ],
+    const existingExam = await TrainingExamModel.find(
+      {
+        trainingId: existingTraining._id,
+        examType,
+      },
+      null,
       { session }
     );
 
-    if (!new_training || new_training.length != 1) {
-      throw new Error('Could not create training, something went wrong');
+    console.log(existingExam);
+
+    if (existingExam.length >= 1) {
+      throw new Error(`${examType.split('-').join(' ')} already exist`);
+    }
+
+    if (examType === 'pre-training-exam') {
+      const updated_training = await TrainingModel.findOneAndUpdate(
+        { title, trainer },
+        { allowedCandidates },
+        { new: true }
+      ).session(session);
     }
 
     const new_exam = await TrainingExamModel.create(
@@ -122,33 +136,28 @@ export const createTrainingExamWithQuestions = async (
         {
           examType,
           questions,
+          responsibility: params?.responsibility || '',
           targetDate,
-          responsibility: params.responsibility,
-          trainingId: new_training[0]._id,
+          trainingId: existingTraining._id,
         },
       ],
       { session }
     );
-
-    console.log('---------------------------', new_exam);
-
-    if (!new_exam || new_exam.length != 1) {
-      throw new Error("Couldn't create PRE exam, something went wrong");
+    if (new_exam) {
+      await session.commitTransaction();
+      return JSON.parse(
+        JSON.stringify({
+          data: new_exam[0],
+          error: null,
+          message: `${examType.split('-').join(' ')} successfully created!`,
+          status: 201,
+          success: true,
+        })
+      );
+    } else {
+      throw new Error('Something went wrong');
     }
-    await session.commitTransaction();
-    return JSON.parse(
-      JSON.stringify({
-        success: true,
-        status: 201,
-        message: 'PRE exam successfully created',
-        data: new_exam[0],
-        error: null,
-      })
-    );
   } catch (error) {
-    // console.log(
-    //   '-------------------------------------------------------------------------------'
-    // );
     await session.abortTransaction();
     console.log('ERRORRR', error);
     return JSON.parse(
@@ -164,7 +173,6 @@ export const createTrainingExamWithQuestions = async (
     );
   }
 };
-
 
 export const createExamAttempt = async (
   params: Partial<ITrainingExamAttempt>
@@ -247,4 +255,3 @@ export const createExamAttempt = async (
     );
   }
 };
-
