@@ -90,7 +90,7 @@ const Feedback = forwardRef(
     };
 
     return (
-      <section className='m-8'>
+      <section className='mb-8'>
         <form className='border-[1px] border-gray-300 p-3 rounded-md shadow'>
           <div className='flex border-[1px] border-gray-400 rounded gap-2'>
             {/* Form header */}

@@ -1,12 +1,12 @@
 'use client';
-import ToolBoxTalkHome from '@/components/safety/emp/toolBoxTalkHome';
+import ToolBoxTalkHome from '@/components/safety/toolboxtalk/toolBoxTalkHome';
 import toolboxTalkActions from '@/lib/actions/safety/toolboxtalk/toolboxtalkActions';
 import { IToolboxTalk } from '@/lib/models/Safety/toolboxtalk.model';
 import { LoaderIcon } from 'lucide-react';
 import React, { useEffect, useState } from 'react';
 import toast from 'react-hot-toast';
 
-const AddNewToolBoxTalkDocumentVersion = ({
+const ToolBoxTalkDocument = ({
   searchParams,
 }: {
   searchParams: { [key: string]: string | undefined };
@@ -19,8 +19,9 @@ const AddNewToolBoxTalkDocumentVersion = ({
   const fnLoadDocs = async () => {
     try {
       const { data, error, message, status, success } =
-        await toolboxTalkActions.FETCH.getLatestVersionOfToolboxTalk(
-          documentNo
+        await toolboxTalkActions.FETCH.getToolboxTalkByVersionAndDoc(
+          documentNo,
+          Number(version)
         );
       if (success) {
         console.log(data);
@@ -47,7 +48,7 @@ const AddNewToolBoxTalkDocumentVersion = ({
   return (
     <section className='min-h-screen'>
       <h1 className='font-bold text-blue-500 border-b-2 border-blue-500 text-center py-2 mb-4'>
-        Tool Box Talk Details
+        Tool Box Talk Version Details
       </h1>
       {loading && (
         <div className='min-h-screen flex justify-center items-center'>
@@ -60,7 +61,7 @@ const AddNewToolBoxTalkDocumentVersion = ({
       {!loading && (
         <ToolBoxTalkHome
           canEditImportantDetails={false}
-          canEditAllDetails={true}
+          canEditAllDetails={false}
           receivedToolBoxTalk={latestTBTVersion}
         />
       )}
@@ -68,4 +69,4 @@ const AddNewToolBoxTalkDocumentVersion = ({
   );
 };
 
-export default AddNewToolBoxTalkDocumentVersion;
+export default ToolBoxTalkDocument;

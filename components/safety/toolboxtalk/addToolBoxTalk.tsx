@@ -88,7 +88,7 @@ const AddToolBoxTalk = forwardRef(
     };
 
     return (
-      <section className='m-8 rounded'>
+      <section className='rounded mb-8'>
         {/* boundary */}
         <form className='border-[1px] border-gray-300 p-3 rounded shadow flex flex-col gap-2'>
           {/* log0 & all top */}

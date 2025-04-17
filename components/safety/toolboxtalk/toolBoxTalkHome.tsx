@@ -420,8 +420,8 @@ const ToolBoxTalkHome = ({
   return (
     <>
       {/* <div>{JSON.stringify(fetchedToolBoxData.versions[0].points)}</div> */}
-      <div className='mt-2'>
-        <ul className='flex flex-wrap text-sm font-medium text-center text-gray-500 border-b border-gray-200 dark:border-gray-700 dark:text-gray-400'>
+      <div className='mt-2 border- border-red-500 mb-8 bg-white'>
+        <ul className='flex sticky top-16 shadow bg-white flex-wrap text-sm font-medium text-center text-gray-500 border-b border-gray-200 dark:border-gray-700 dark:text-gray-400'>
           <li className='me-2'>
             <button
               onClick={() => handleTabClick('add')}
@@ -503,7 +503,7 @@ const ToolBoxTalkHome = ({
         <div
           className={`${
             activeTab === 'view' && 'hidden'
-          } flex justify-center items-center my-1 flex-col gap-1 mx-8`}
+          } flex justify-center items-center my-1 flex-col gap-1 mt-2`}
         >
           {!canEditAllDetails && !canEditImportantDetails && (
             <p className='bg-blue-50 text-blue-700 py-1 px-3 rounded'>

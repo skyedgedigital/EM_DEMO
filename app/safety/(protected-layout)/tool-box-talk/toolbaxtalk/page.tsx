@@ -105,7 +105,7 @@ const ToolBoxTalk = ({
                 All {allDocVersions?.versions.length} updated versions:
               </h2>
               <Link
-                href={`/safety/emp/toolbaxtalk/document/add-new-version?${new URLSearchParams(
+                href={`/safety/tool-box-talk/toolbaxtalk/document/add-new-version?${new URLSearchParams(
                   {
                     documentNo: allDocVersions.documentNo,
                   }
@@ -163,7 +163,7 @@ const ToolBoxTalk = ({
                         <Link
                           target='_blank'
                           className='py-2 px-2 rounded hover:underline text-blue-500'
-                          href={`/safety/emp/toolbaxtalk/document?${new URLSearchParams(
+                          href={`/safety/tool-box-talk/toolbaxtalk/document?${new URLSearchParams(
                             {
                               documentNo: allDocVersions.documentNo,
                               version: vs.revNo.toString(),

@@ -39,6 +39,10 @@ import {
   Eye,
   SwordsIcon,
   BookText,
+  Truck,
+  Box,
+  SquareScissors,
+  BookOpenCheck,
 } from 'lucide-react';
 import { Building } from 'lucide-react';
 import { LocateFixed } from 'lucide-react';
@@ -298,9 +302,9 @@ const Sidebar = forwardRef<HTMLDivElement, Props>(
                 variant: 'ghost',
               },
               {
-                title: 'Chemicals',
-                href: '/safety/chem',
-                icon: TestTube,
+                title: 'Logs',
+                href: '/safety/logs',
+                icon: BookText,
                 variant: 'ghost',
               },
               {
@@ -310,21 +314,15 @@ const Sidebar = forwardRef<HTMLDivElement, Props>(
                 variant: 'ghost',
               },
               {
-                title: 'Tools',
-                href: '/safety/tools',
-                icon: Wrench,
-                variant: 'ghost',
-              },
-              {
-                title: 'PPE',
-                href: '/safety/ppe',
-                icon: LayoutDashboard,
-                variant: 'ghost',
-              },
-              {
                 title: 'Documents',
                 href: '/safety/documents',
                 icon: FileText,
+                variant: 'ghost',
+              },
+              {
+                title: 'Tool Box Talk',
+                href: '/safety/tool-box-talk',
+                icon: Box,
                 variant: 'ghost',
               },
               {
@@ -334,9 +332,33 @@ const Sidebar = forwardRef<HTMLDivElement, Props>(
                 variant: 'ghost',
               },
               {
-                title: 'Logs',
-                href: '/safety/logs',
-                icon: BookText,
+                title: 'PPE',
+                href: '/safety/ppe',
+                icon: SquareScissors,
+                variant: 'ghost',
+              },
+              {
+                title: 'Tools',
+                href: '/safety/tools',
+                icon: Wrench,
+                variant: 'ghost',
+              },
+              {
+                title: 'Chemicals',
+                href: '/safety/chem',
+                icon: TestTube,
+                variant: 'ghost',
+              },
+              {
+                title: 'Vehicles',
+                href: '/safety/vehicles',
+                icon: Truck,
+                variant: 'ghost',
+              },
+              {
+                title: 'Audits',
+                href: '/safety/audits',
+                icon: BookOpenCheck,
                 variant: 'ghost',
               },
             ]}

@@ -133,9 +133,11 @@ const ViewToolBoxTalk = () => {
                     <td className='px-6 py-4 whitespace-nowrap'>
                       <Link
                         target='_blank'
-                        href={`/safety/emp/toolbaxtalk?${new URLSearchParams({
-                          documentNo: ele.documentNo,
-                        }).toString()}`}
+                        href={`/safety/tool-box-talk/toolbaxtalk?${new URLSearchParams(
+                          {
+                            documentNo: ele.documentNo,
+                          }
+                        ).toString()}`}
                         className='text-blue-500 p-1'
                       >
                         View
