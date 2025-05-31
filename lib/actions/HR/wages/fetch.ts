@@ -15,6 +15,7 @@ import handleDBConnection from '@/lib/database';
 import { ApiResponse } from '@/interfaces/APIresponses.interface';
 import Attendance from '@/lib/models/HR/attendance.model';
 import { employee } from '../../../../types/employee.type';
+import { YearlyWageInfo } from './types';
 const designationModel =
   mongoose.models.Designation ||
   mongoose.model('Designation', DesignationSchema);
@@ -1834,7 +1835,6 @@ const fetchFinalSettlement = async (dataString) => {
     const { employee } = data;
 
     // Fetch employee data
-    console.log('ok1 ');
     const empData = await EmployeeData.findOne({ _id: employee }).populate(
       'designation'
     );
@@ -1849,7 +1849,6 @@ const fetchFinalSettlement = async (dataString) => {
 
     const appointmentDate = new Date(empData.appointmentDate);
     const currentDate = new Date();
-    console.log('yeri date', empData.appointmentDate);
     // Fetch all wages for the employee from the appointment date to the current month
     const wages = await Wages.find({
       employee: employee,
@@ -1864,7 +1863,7 @@ const fetchFinalSettlement = async (dataString) => {
     })
       .populate('designation')
       .populate('employee');
-    //  console.log("yeri wages",wages)
+
     if (wages.length === 0) {
       return {
         status: 404,
@@ -1875,16 +1874,23 @@ const fetchFinalSettlement = async (dataString) => {
 
     // Organize wages by month-year and calculate total attendance and total net amount paid per year
     const wagesByMonthYear = {};
-    const totalAttendancePerYear = [];
+    const totalAttendancePerYear: YearlyWageInfo[] = [];
     let totAtt = 0;
-    console.log('ok2 & wages ', wages);
     for (const wage of wages) {
-      const { year, month, attendance, netAmountPaid } = wage;
+      const {
+        year,
+        month,
+        attendance,
+        netAmountPaid,
+        total,
+        incentiveAmount,
+        allowances,
+        otherCash,
+      } = wage;
       const key = `${year}-${month}`;
-      const key2 = `${year}-${month}+${Math.random()}`;
 
-      if (!wagesByMonthYear[key2]) {
-        wagesByMonthYear[key2] = wage;
+      if (!wagesByMonthYear[key]) {
+        wagesByMonthYear[key] = wage;
       }
       let attendanceYear = totalAttendancePerYear.find(
         (item) => item.year === year
@@ -1898,6 +1904,11 @@ const fetchFinalSettlement = async (dataString) => {
           totalAttendance: 0,
           totalNetAmountPaid: 0,
           status: paidStatus,
+          grossAmountYearly: 0,
+          CL: 0,
+          EL: 0,
+          FL: 0,
+          leave: 0,
         };
         totalAttendancePerYear.push(attendanceYear);
       }
@@ -1905,6 +1916,8 @@ const fetchFinalSettlement = async (dataString) => {
       attendanceYear.totalAttendance += attendance;
       totAtt += attendance;
       attendanceYear.totalNetAmountPaid += netAmountPaid;
+      attendanceYear.grossAmountYearly +=
+        total - incentiveAmount - allowances - otherCash;
     }
 
     const startYear = appointmentDate.getFullYear();
@@ -1917,6 +1930,11 @@ const fetchFinalSettlement = async (dataString) => {
           totalAttendance: 0,
           totalNetAmountPaid: 0,
           status: false, // assuming default paid status as false for years with no data
+          grossAmountYearly: 0,
+          EL: 0,
+          CL: 0,
+          FL: 0,
+          leave: 0,
         });
       }
     }
@@ -1940,28 +1958,30 @@ const fetchFinalSettlement = async (dataString) => {
 
     // Add missing months with zero values
     let totWages = 0;
-    console.log('ok412', wagesByMonthYear);
+    let totalGrossWages = 0;
     const allYears = totalAttendancePerYear.map((item) => item.year);
     const allWgaes = [];
     for (const year of allYears) {
       for (let month = 1; month <= 12; month++) {
         const key = `${year}-${month}`;
-        wagesByMonthYear[key] = {
-          employee: employee,
-          designation: null, // or handle as needed
-          month: month,
-          year: parseInt(year),
-          attendance: 0,
-          netAmountPaid: 0,
-          totalWorkingDays: 0,
-          total: 0,
-          payRate: 0,
-          otherCash: 0,
-          allowances: 0,
-          otherCashDescription: '{}',
-          otherDeduction: 0,
-          otherDeductionDescription: '{}',
-        };
+        if (!wagesByMonthYear[key]) {
+          wagesByMonthYear[key] = {
+            employee: employee,
+            designation: null, // or handle as needed
+            month: month,
+            year,
+            attendance: 0,
+            netAmountPaid: 0,
+            totalWorkingDays: 0,
+            total: 0,
+            payRate: 0,
+            otherCash: 0,
+            allowances: 0,
+            otherCashDescription: '{}',
+            otherDeduction: 0,
+            otherDeductionDescription: '{}',
+          };
+        }
       }
     }
 
@@ -1976,24 +1996,35 @@ const fetchFinalSettlement = async (dataString) => {
         return a.year - b.year;
       }
     });
-    console.log('yeri sortedwages real vali 21', wagesByMonthYear);
     const dataByMonth = {};
-    sortedWages.forEach((wage) => {
+    sortedWages.forEach((wage: any) => {
       // @ts-ignore
-      const { month, year, attendance, netAmountPaid } = wage;
+      const {
+        month,
+        year,
+        attendance,
+        netAmountPaid,
+        total,
+        allowances,
+        otherCash,
+      } = wage;
 
       if (!dataByMonth[month]) {
         dataByMonth[month] = [];
       }
 
       totWages += netAmountPaid;
+      const monthlyGrossWage =
+        total - (wage?.incentiveAmount || 0) - allowances - otherCash;
+      totalGrossWages += monthlyGrossWage;
+
       dataByMonth[month].push({
         year,
         attendance,
         netAmountPaid,
+        monthlyGrossWage: monthlyGrossWage,
       });
     });
-    console.log('dataByMonth3', dataByMonth);
 
     const aggregateDataByMonth = (data) => {
       Object.keys(data).forEach((month) => {
@@ -2001,12 +2032,18 @@ const fetchFinalSettlement = async (dataString) => {
 
         // Reduce the array by grouping by year and summing attendance and netAmountPaid
         const aggregated = yearData.reduce(
-          (acc, { year, attendance, netAmountPaid }) => {
+          (acc, { year, attendance, netAmountPaid, monthlyGrossWage }) => {
             if (!acc[year]) {
-              acc[year] = { year, attendance: 0, netAmountPaid: 0 };
+              acc[year] = {
+                year,
+                attendance: 0,
+                netAmountPaid: 0,
+                monthlyGrossWage: 0,
+              };
             }
             acc[year].attendance += attendance;
             acc[year].netAmountPaid += netAmountPaid;
+            acc[year].monthlyGrossWage += monthlyGrossWage;
             return acc;
           },
           {}
@@ -2020,7 +2057,7 @@ const fetchFinalSettlement = async (dataString) => {
     };
 
     const aggregatedData = aggregateDataByMonth(dataByMonth);
-    console.log('data!!!', aggregatedData);
+    // console.log("data!!!", aggregatedData);
     // Calculate gross wages and bonus details
     const bonusDetails = [];
     let currentYear = appointmentDate.getFullYear();
@@ -2034,14 +2071,20 @@ const fetchFinalSettlement = async (dataString) => {
       for (let month = startMonth; month <= 12; month++) {
         const key = `${currentYear}-${month}`;
         if (wagesByMonthYear[key]) {
-          grossWages += wagesByMonthYear[key].netAmountPaid;
+          const { total, allowances, otherCash, incentiveAmount } =
+            wagesByMonthYear[key];
+          // grossWages += wagesByMonthYear[key].netAmountPaid;
+          grossWages += total - incentiveAmount - allowances - otherCash;
         }
       }
       let nex = currentYear + 1;
       for (let month = 1; month <= endMonth; month++) {
         const key = `${nex}-${month}`;
         if (wagesByMonthYear[key]) {
-          grossWages += wagesByMonthYear[key].netAmountPaid;
+          // grossWages += wagesByMonthYear[key].netAmountPaid;
+          const { total, allowances, otherCash, incentiveAmount } =
+            wagesByMonthYear[key];
+          grossWages += total - incentiveAmount - allowances - otherCash;
         }
       }
       const bonusStatus =
@@ -2066,6 +2109,7 @@ const fetchFinalSettlement = async (dataString) => {
       totalAttendance: totAtt,
       totalWages: totWages,
       bonusDetails: bonusDetails,
+      totalGrossWages,
     };
 
     return {
